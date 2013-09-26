@@ -1,3 +1,5 @@
+// Copyright (c) 2013 Tony Wilson. All rights reserved.
+
 //Package outside.
 package outside
 
