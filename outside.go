@@ -179,7 +179,7 @@ type Apis []struct {
 //TODO(t):handle recursive structs
 //TODO(t):check for unexported fields
 
-func inStructs(unicode bool, a []r.Value, st uint32, sl []uint32) {
+func inStructs(unicode bool, a []r.Value, st uint32, sl []uint64) {
 	// Printf("%b %b\n", st, sl)
 	for i := 0; st != 0 && i < len(a); i++ {
 		if st&1 != 0 {
@@ -259,7 +259,7 @@ func inStructs(unicode bool, a []r.Value, st uint32, sl []uint32) {
 	}
 }
 
-func outStructs(unicode bool, a []r.Value, st uint32, sl []uint32) {
+func outStructs(unicode bool, a []r.Value, st uint32, sl []uint64) {
 	// Printf("%b %b\n", st, sl)
 	for i := 0; st != 0 && i < len(a); i++ {
 		if st&1 != 0 {
@@ -530,19 +530,19 @@ func apiAddr(e EP) (p *syscall.Proc, u bool) {
 	}
 }
 
-//TODO: more than 32 fields in struct
+//TODO: more than 64 fields in struct
 
-func funcAnalysis(t r.Type) (ia uint32, sli []uint32, oa uint32, slo []uint32) {
+func funcAnalysis(t r.Type) (ia uint32, sli []uint64, oa uint32, slo []uint64) {
 	for i := t.NumIn() - 1; i >= 0; i-- {
 		ia <<= 1
 		oa <<= 1
 		if t.In(i).Kind() == r.Ptr {
 			s := t.In(i).Elem()
 			if s.Kind() == r.Struct && s.NumField() != 0 {
-				if s.NumField() > 32 {
-					panic("funcAnalysis: overflows 32 field limit")
+				if s.NumField() > 64 {
+					panic("funcAnalysis: overflows 64 field limit")
 				}
-				var sai, sao uint32
+				var sai, sao uint64
 				for j := s.NumField() - 1; j >= 0; j-- {
 					sai <<= 1
 					sao <<= 1
