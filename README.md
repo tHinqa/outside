@@ -1,4 +1,4 @@
-## *outside*: generic API support for the Go language
+## *outside*: generic API support for the Go language (*PRERELEASE*)
 
 #### *A neat way to connect to Windows DLLs*
 
@@ -29,8 +29,40 @@
 
 	messagebox.Call(0, utext, ucaption, 0)
 
+### Features
 * maintains type-safety
 * uses reflect.MakeFunc to build bindings
 * automates marshalling
 
-#### *... coming soon to a repository near you*
+#### Includes DLL entry-points for
+MSWindows in *outside/win32*; to register them include
+
+	import _ "github.com/tHinqa/outside/win32"
+or any combination of
+
+	import _ "github.com/tHinqa/outside/win32/advapi32"
+	import _ "github.com/tHinqa/outside/win32/avicap32"
+	import _ "github.com/tHinqa/outside/win32/avifil32"
+	import _ "github.com/tHinqa/outside/win32/comctl32"
+	import _ "github.com/tHinqa/outside/win32/comdlg32"
+	import _ "github.com/tHinqa/outside/win32/gdi32"
+	import _ "github.com/tHinqa/outside/win32/gdiplus"
+	import _ "github.com/tHinqa/outside/win32/glu32"
+	import _ "github.com/tHinqa/outside/win32/kernel32"
+	import _ "github.com/tHinqa/outside/win32/mapi32"
+	import _ "github.com/tHinqa/outside/win32/mpr"
+	import _ "github.com/tHinqa/outside/win32/netapi32"
+	import _ "github.com/tHinqa/outside/win32/ole32"
+	import _ "github.com/tHinqa/outside/win32/oleaut32"
+	import _ "github.com/tHinqa/outside/win32/opengl32"
+	import _ "github.com/tHinqa/outside/win32/pdh"
+	import _ "github.com/tHinqa/outside/win32/riched20"
+	import _ "github.com/tHinqa/outside/win32/shdocvw"
+	import _ "github.com/tHinqa/outside/win32/shell32"
+	import _ "github.com/tHinqa/outside/win32/user32"
+	import _ "github.com/tHinqa/outside/win32/winmm"
+	import _ "github.com/tHinqa/outside/win32/ws2_32"
+	import _ "github.com/tHinqa/outside/win32/wsock32"
+
+#### Separate repository of API definitions for
+MSWindows coming soon to *outside/windows*
