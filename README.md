@@ -1,6 +1,10 @@
 ## *outside*: generic API support for the Go language (*PRERELEASE*)
 
-#### *A neat way to connect to Windows DLLs*
+### *A neat way to connect to Windows DLLs*
+
+#### Fire off quick questions to [@tHinqa](http://twitter.com/tHinqa) on Twitter
+
+#### Covered by the same license conditions as Go is
 
 ### To display a simple message box using *outside*
 ```go
@@ -36,8 +40,6 @@
 > * uses reflect.MakeFunc to build bindings
 > * automates marshalling
 
-### Covered by the same license conditions as Go
-
 ### Includes DLL entry-points for
 MSWindows in *outside/win32*; to register them include
 ```go
@@ -72,14 +74,4 @@ or any combination of
 		import _ "github.com/tHinqa/outside/win32/wsock32"
 ```
 ### Separate repository of API definitions for
-MSWindows in [*outside-windows*](https://github.com/tHinqa/outside-windows); to use include
-```go
-
-		import "github.com/tHinqa/outside-windows"
-```
-or any combination of
-```go
-
-		import "github.com/tHinqa/outside-windows/winbase"
-		import "github.com/tHinqa/outside-windows/winuser"
-```
+MSWindows in [*outside-windows*](https://github.com/tHinqa/outside-windows)
