@@ -443,6 +443,8 @@ func AddApis(am Apis) {
 					rr = r.ValueOf(r1)
 				} else {
 					rr = r.ValueOf((uint64(r2) << 32) | uint64(r1))
+					//BUG:Go1.1.2 reflect Sets incorrect 64bit value
+					//Println(p.Name,r1, r2, (uint64(r2)<<32)|uint64(r1))
 				}
 				return convert(rr, ot, unicode)
 			} else {

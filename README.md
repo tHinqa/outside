@@ -1,10 +1,6 @@
-## *outside*: generic API support for the Go language (*PRERELEASE*)
+## *outside*: generic API support for the Go language *(PRERELEASE)*
 
 ### *A neat way to connect to Windows DLLs*
-
-#### Fire off quick questions to [@tHinqa](http://twitter.com/tHinqa) on Twitter
-
-#### Covered by the same license conditions as Go is
 
 ### To display a simple message box using *outside*
 ```go
@@ -35,10 +31,23 @@
 
 		messagebox.Call(0, utext, ucaption, 0)
 ```
+
+#### Fire off quick questions to [@tHinqa](http://twitter.com/tHinqa) on Twitter
+
+### Progress
+Initially most effort will go into the code. APIs will come next with documentation a distant third. I encourage users to participate by
+
+* reporting errors through the github issue system
+* adding wishlist items to a wiki page
+* adding example programs and/or API snippets as gists and citing them on a wiki page
+
+There are many untested and incomplete parts of the APIs so at this stage I'd rather you only report the critical ones on the issue system. As the project matures, this request will dissolve.
+
 ### Features
-> * maintains type-safety
-> * uses reflect.MakeFunc to build bindings
-> * automates marshalling
+* Maintains type-safety
+* Uses reflect.MakeFunc to build bindings
+* Automates marshalling
+* Covered by the same license conditions as Go is
 
 ### Includes DLL entry-points for
 MSWindows in *outside/win32*; to register them include
@@ -73,5 +82,17 @@ or any combination of
 		import _ "github.com/tHinqa/outside/win32/ws2_32"
 		import _ "github.com/tHinqa/outside/win32/wsock32"
 ```
+### Includes DLL entry-points and API definitions for
+SDL2 (Simple DirectMedia Layer) in *outside/sdl2*
+
 ### Separate repository of API definitions for
 MSWindows in [*outside-windows*](https://github.com/tHinqa/outside-windows)
+
+### Bugs
+Version go1.1.2 reflect Convert seems to corrupt 64-bit values. It works on go1.2rc1.
+
+### Examples
+- *outside/sdl2/spriteminimal* - Translation of testspriteminimal.c [1] from the [Simple DirectMedia Layer development library](http://www.libsdl.org/download-2.0.php). Needs sdl2.dll (supplied in *outside/sdl2*) to run.
+
+### Credits
+[1] SDL source is Copyright (C) 1997-2013 Sam Lantinga
