@@ -13,6 +13,7 @@ import (
 
 //import . "fmt"
 
+//TODO(t): check gc-proof
 //TODO(t): add type ReverseBool for calling code clarity?
 //TODO(t): size < 32 returns?
 
@@ -541,11 +542,15 @@ func funcAnalysis(t r.Type) (ia uint32, sli []uint64, oa uint32, slo []uint64) {
 		if t.In(i).Kind() == r.Ptr {
 			s := t.In(i).Elem()
 			if s.Kind() == r.Struct && s.NumField() != 0 {
-				if s.NumField() > 64 {
-					panic("funcAnalysis: overflows 64 field limit")
+				// if s.NumField() > 64 {
+				// 	panic("funcAnalysis: overflows 64 field limit")
+				// }
+				nf := s.NumField()
+				if nf > 64 {
+					nf = 64
 				}
 				var sai, sao uint64
-				for j := s.NumField() - 1; j >= 0; j-- {
+				for j := nf - 1; j >= 0; j-- {
 					sai <<= 1
 					sao <<= 1
 					f := s.Field(j)
@@ -590,5 +595,16 @@ func SetStructSize(i interface{}) {
 		if t.Kind() == r.Struct && s.Field(0).CanSet() {
 			s.Field(0).SetUint(uint64(t.Size()))
 		}
+	}
+}
+
+type Data []struct {
+	Address EP
+	Item    interface{}
+}
+
+func AddDllData(d string, unicode bool, am Data) {
+	for _, a := range am {
+		AddEP(d, unicode, a.Address)
 	}
 }

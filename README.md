@@ -34,15 +34,6 @@
 
 #### Fire off quick questions to [@tHinqa](http://twitter.com/tHinqa) on Twitter
 
-### Progress
-Initially most effort will go into the code. APIs will come next with documentation a distant third. I encourage users to participate by
-
-* reporting errors through the github issue system
-* adding wishlist items to a wiki page
-* adding example programs and/or API snippets as gists and citing them on a wiki page
-
-There are many untested and incomplete parts of the APIs so at this stage I'd rather you only report the critical ones on the issue system. As the project matures, this request will dissolve.
-
 ### Features
 * Maintains type-safety
 * Uses reflect.MakeFunc to build bindings
@@ -87,6 +78,9 @@ SDL2 (Simple DirectMedia Layer) in *outside/sdl2*
 
 ### Separate repository of API definitions for
 MSWindows in [*outside-windows*](https://github.com/tHinqa/outside-windows)
+
+### Separate repository of DLL entry-points and API definitions for
+GTK in [*outside-gtk2*](https://github.com/tHinqa/outside-gtk2)
 
 ### Bugs
 Version go1.1.2 reflect Convert seems to corrupt 64-bit values. It works on go1.2rc1.
