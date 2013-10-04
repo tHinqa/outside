@@ -16,12 +16,16 @@ import (
 //TODO(t): check gc-proof
 //TODO(t): add type ReverseBool for calling code clarity?
 //TODO(t): size < 32 returns?
+//TODO(t): variant args
+//TODO(t): **struct
 
 type POVString *string
 type PVString *string
 
 type OVString string
 type VString string
+
+type VArg interface{}
 
 type (
 	EP  string
