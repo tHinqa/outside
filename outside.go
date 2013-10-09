@@ -15,9 +15,17 @@ import (
 
 //TODO(t): check gc-proof
 //TODO(t): add type ReverseBool for calling code clarity?
-//TODO(t): size < 32 returns?
+//TODO(t): size<32 returns?
 //TODO(t): variant args
 //TODO(t): **struct
+//TODO(t): morph data of *struct returns
+//TODO(t): handle interface as argument input type
+// e.g. where argument can be int or string
+// retrofit to windows "<32768" cstrings
+//TODO(t): handle input of slice as ** or *[]
+//TODO(t): dllMap keep only handle? (needs own MustFindProc)
+//TODO(t): add race protection
+//TODO(t): lru deletion for cstring & utfcstring
 
 type POVString *string
 type PVString *string
@@ -45,9 +53,6 @@ func init() {
 	ovs = r.TypeOf(o)
 	vs = r.TypeOf(v)
 }
-
-//TODO(t): dllMap keep only handle? (needs own MustFindProc)
-//TODO(t): add race protection
 
 var (
 	callbacks  = make(map[uintptr]uintptr)
@@ -324,30 +329,32 @@ func inArgs(unicode bool, a []r.Value) (ret []uintptr) {
 			//TODO(t):Cater for CDecl
 			//TODO(t):Analyze
 			f := v.Pointer()
-			if callbacks[f] == 0 {
-				x := v
-				m := r.MakeFunc(x.Type(), func(args []r.Value) []r.Value {
-					for n, arg := range args {
-						if arg.Type() == vs {
-							tp := args[n].Pointer()
-							//TODO(t): Do INTRESOURCEs occur in callbacks?
-							if tp > 0xFFFF {
-								var p string
-								if unicode {
-									p = UniStrToString(tp)
-								} else {
-									p = CStrToString(tp)
+			if f != 0 {
+				if callbacks[f] == 0 {
+					x := v
+					m := r.MakeFunc(x.Type(), func(args []r.Value) []r.Value {
+						for n, arg := range args {
+							if arg.Type() == vs {
+								tp := args[n].Pointer()
+								//TODO(t): Do INTRESOURCEs occur in callbacks?
+								if tp > 0xFFFF {
+									var p string
+									if unicode {
+										p = UniStrToString(tp)
+									} else {
+										p = CStrToString(tp)
+									}
+									args[n] = r.ValueOf(&p)
 								}
-								args[n] = r.ValueOf(&p)
 							}
 						}
-					}
-					return x.Call(args)
-				})
-				ncb := syscall.NewCallback(m.Interface())
-				callbacks[f] = ncb
+						return x.Call(args)
+					})
+					ncb := syscall.NewCallback(m.Interface())
+					callbacks[f] = ncb
+				}
+				ret[i] = callbacks[f]
 			}
-			ret[i] = callbacks[f]
 		case r.Int8, r.Int16, r.Int32, r.Int64, r.Int:
 			ret[i] = uintptr(v.Int())
 		case r.Ptr:
@@ -448,7 +455,7 @@ func AddApis(am Apis) {
 					rr = r.ValueOf(r1)
 				} else {
 					rr = r.ValueOf((uint64(r2) << 32) | uint64(r1))
-					//BUG:Go1.1.2 reflect Sets incorrect 64bit value
+					//BUG: Go1.1.2 reflect sets incorrect 64bit value
 					//Println(p.Name,r1, r2, (uint64(r2)<<32)|uint64(r1))
 				}
 				return convert(rr, ot, unicode)
