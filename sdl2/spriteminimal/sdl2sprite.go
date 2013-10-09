@@ -1,3 +1,8 @@
+// Copyright (c) 2013 Tony Wilson. All rights reserved.
+// See LICENSE file for permissions and restrictions.
+
+//sdl2sprint is a direct translation of the spriteminimal
+//example in the SDL2 distribution.
 package main
 
 import (
