@@ -100,7 +100,7 @@ func Api(a ...interface{}) (ret uintptr) {
 		panic("First argument to 'Api' must be of type 'EP'")
 	}
 	a = a[1:]
-	if len(a) > 16 {
+	if len(a) > 15 {
 		panic(`Number of arguments to "` + e + `" > 15`)
 	}
 	ps, ok := epMap[e]
@@ -479,6 +479,7 @@ func convert(v r.Value, t r.Type, u bool) []r.Value {
 		v = v.Convert(t)
 	case r.Ptr:
 		v = r.NewAt(t.Elem(), unsafe.Pointer(uintptr(v.Uint())))
+		v = v.Convert(t) // in case something like SPtr (=*S)
 	case r.UnsafePointer:
 		v = r.ValueOf(unsafe.Pointer(uintptr(v.Uint())))
 	case r.String:
