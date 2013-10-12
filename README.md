@@ -38,7 +38,7 @@
 * Maintains type-safety
 * Uses reflect.MakeFunc to build bindings
 * Automates marshalling
-* Covered by the same license conditions as Go is
+* Covered by the same licence conditions as Go is
 
 ### Includes DLL entry-points for
 MSWindows in *outside/win32*; to register them include

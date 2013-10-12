@@ -1,5 +1,5 @@
 // Copyright (c) 2013 Tony Wilson. All rights reserved.
-// See LICENSE file for permissions and restrictions.
+// See LICENCE file for permissions and restrictions.
 
 //Package outside.
 package outside
@@ -488,6 +488,7 @@ func convert(v r.Value, t r.Type, u bool) []r.Value {
 		} else {
 			v = r.ValueOf(CStrToString(uintptr(v.Uint())))
 		}
+		v = v.Convert(t) // in case something like VString/AString/WString
 	default:
 		v = v.Convert(t)
 	}

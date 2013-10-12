@@ -1,5 +1,5 @@
 // Copyright (c) 2013 Tony Wilson. All rights reserved.
-// See LICENSE file for permissions and restrictions.
+// See LICENCE file for permissions and restrictions.
 
 //Package sdl2 provides the outside environment to access SDL2.dll.
 package sdl2
