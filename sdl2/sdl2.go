@@ -81,7 +81,7 @@ type (
 	SDL_Window                   struct{}
 	Sint16                       int16
 	Sint64                       int64
-	Size_t                       uint
+	Size_t                       uintptr
 	Uint16                       uint16
 	Uint32                       uint32
 	Uint64                       uint64

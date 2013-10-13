@@ -3,11 +3,12 @@
 
 package outside
 
-import "testing"
-import "syscall"
-import "unsafe"
-
-//import . "fmt"
+import (
+	// . "fmt"
+	"syscall"
+	"testing"
+	"unsafe"
+)
 
 //TODO(t): Add a callback test or two
 var d = syscall.MustLoadDLL("kernel32.dll")

@@ -431,7 +431,7 @@ func AddApis(am Apis) {
 		p, unicode := apiAddr(a.Ep)
 		f := r.ValueOf(a.Fnc)
 		if f.Kind() != r.Ptr {
-			panic("Pointer to function expected")
+			panic(r.TypeOf(a.Fnc).String() + " supplied : Pointer to function expected")
 		}
 		fn := f.Elem()
 		fnt := fn.Type()
