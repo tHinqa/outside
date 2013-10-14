@@ -81,9 +81,13 @@ MSWindows in [*outside-windows*](https://github.com/tHinqa/outside-windows)
 
 ### Separate repository of DLL entry-points and API definitions for
 GTK in [*outside-gtk2*](https://github.com/tHinqa/outside-gtk2)
+libXML2 in [*outside-xml2*](https://github.com/tHinqa/outside-xml2)
+sqlite3 in [*outside-sqlite3*](https://github.com/tHinqa/outside-sqlite3)
 
-### Bugs
-Version go1.1.2 reflect Convert seems to corrupt 64-bit values. It works on go1.2rc1.
+### Bugs and missing functionality
+Version go1.1.2 reflect Convert corrupts 64-bit return values (on windows 386 at least). It's fixed in go1.2rc1.
+
+Floating point return values are not handled in syscall.Syscall. Alternative methods are being considered.
 
 ### Examples
 - *outside/sdl2/spriteminimal* - Translation of testspriteminimal.c [1] from the [Simple DirectMedia Layer development library](http://www.libsdl.org/download-2.0.php). Needs sdl2.dll (supplied in *outside/sdl2*) to run.

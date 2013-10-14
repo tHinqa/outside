@@ -84,73 +84,6 @@ func DoneOutside() {
 	dllMap = nil
 }
 
-func ApiSlice(a []interface{}) (ret uintptr) {
-	return Api(a...)
-}
-
-//TODO(t):handle large returns
-//TODO(t):sync Api with morph/convert possibly share?
-
-func Api(a ...interface{}) (ret uintptr) {
-	var e EP
-	switch s := a[0].(type) {
-	case EP:
-		e = s
-	default:
-		panic("First argument to 'Api' must be of type 'EP'")
-	}
-	a = a[1:]
-	if len(a) > 15 {
-		panic(`Number of arguments to "` + e + `" > 15`)
-	}
-	ps, ok := epMap[e]
-	if !ok {
-		panic("Not a known DLL entrypoint")
-	}
-	p := ps.proc
-	if p == nil {
-		var err error
-		ps.proc, err = GetDLL(ps.dll).FindProc(string(e))
-		if err != nil {
-			panic(err)
-		}
-		//TODO(t): Race
-		epMap[e] = ps
-		p = ps.proc
-	}
-	var u [15]uintptr
-	for n, v := range a {
-		switch s := v.(type) {
-		case string:
-			if s != "" {
-				if ps.unicode {
-					t := utfCstring[s]
-					if t == nil {
-						t, _ = syscall.UTF16PtrFromString(s)
-						utfCstring[s] = t
-					}
-					u[n] = (uintptr)(unsafe.Pointer(t))
-				} else {
-					t := cString[s]
-					if t == nil {
-						t, _ = syscall.BytePtrFromString(s)
-						cString[s] = t
-					}
-					u[n] = (uintptr)(unsafe.Pointer(t))
-				}
-			}
-		case uintptr:
-			u[n] = s
-		case int:
-			u[n] = uintptr(v.(int))
-		default:
-			panic("unknown variable type")
-		}
-	}
-	ret, _, _ = p.Call(u[:len(a)]...)
-	return
-}
-
 func GetDLL(d string) *syscall.DLL {
 	// TODO(t): RACE
 	// TODO(t): Make HModule return
@@ -208,20 +141,22 @@ func inStructs(unicode bool, a []r.Value, st uint32, sl []uint64) {
 					case ovs, vs: // Get rid of reconversions
 						if f.Pointer() > 0xFFFF { // Allows for Windows INTRESOURCE
 							ts := r.Indirect(f).String()
-							if unicode {
-								t := utfCstring[ts]
-								if t == nil {
-									t, _ = syscall.UTF16PtrFromString(ts)
-									utfCstring[ts] = t
+							if ts != "" {
+								if unicode {
+									t := utfCstring[ts]
+									if t == nil {
+										t, _ = syscall.UTF16PtrFromString(ts)
+										utfCstring[ts] = t
+									}
+									f.Set(r.ValueOf((PVString)(unsafe.Pointer(t))))
+								} else {
+									t := cString[ts]
+									if t == nil {
+										t, _ = syscall.BytePtrFromString(ts)
+										cString[ts] = t
+									}
+									f.Set(r.ValueOf((PVString)(unsafe.Pointer(t))))
 								}
-								f.Set(r.ValueOf((PVString)(unsafe.Pointer(t))))
-							} else {
-								t := cString[ts]
-								if t == nil {
-									t, _ = syscall.BytePtrFromString(ts)
-									cString[ts] = t
-								}
-								f.Set(r.ValueOf((PVString)(unsafe.Pointer(t))))
 							}
 						}
 					default:
@@ -286,6 +221,7 @@ func outStructs(unicode bool, a []r.Value, st uint32, sl []uint64) {
 					ft := f.Type()
 					switch ft {
 					case ovs, vs: // Get rid of reconversions
+						//TODO(t):What happens on null!!!
 						if f.Pointer() > 0xFFFF {
 							var p string
 							if unicode {
@@ -315,9 +251,11 @@ func outStructs(unicode bool, a []r.Value, st uint32, sl []uint64) {
 	}
 }
 
-func inArgs(unicode bool, a []r.Value) (ret []uintptr) {
-	ret = make([]uintptr, len(a), 15)
-	for i, v := range a {
+func inArgs(unicode bool, a []r.Value) []uintptr {
+	ret := make([]uintptr, 15)
+	i := 0
+	for _, v := range a {
+		//TODO(t):check 15 not reached
 		switch v.Kind() {
 		case r.Bool:
 			if v.Bool() {
@@ -355,8 +293,31 @@ func inArgs(unicode bool, a []r.Value) (ret []uintptr) {
 				}
 				ret[i] = callbacks[f]
 			}
-		case r.Int8, r.Int16, r.Int32, r.Int64, r.Int:
+		case r.Int8, r.Int16, r.Int32, r.Int:
 			ret[i] = uintptr(v.Int())
+		case r.Int64:
+			ret[i] = uintptr(v.Int())
+			i++
+			ret[i] = uintptr((v.Int() >> 32))
+			ret = append(ret, 0)
+		case r.Uint8, r.Uint16, r.Uint32, r.Uint, r.Uintptr:
+			ret[i] = uintptr(v.Uint())
+		case r.Float32:
+			f := float32(v.Float())
+			fv := *(*uint32)(unsafe.Pointer(&f))
+			ret[i] = uintptr(fv)
+		case r.Float64:
+			f := v.Float()
+			fv := *(*[2]uint32)(unsafe.Pointer(&f))
+			ret[i] = uintptr(fv[0])
+			i++
+			ret[i] = uintptr(fv[1])
+			ret = append(ret, 0)
+		case r.Uint64:
+			ret[i] = uintptr(v.Uint())
+			i++
+			ret[i] = uintptr((v.Uint() >> 32))
+			ret = append(ret, 0)
 		case r.Ptr:
 			ret[i] = v.Pointer()
 		case r.Slice:
@@ -366,20 +327,22 @@ func inArgs(unicode bool, a []r.Value) (ret []uintptr) {
 				switch r.TypeOf(vi).Kind() {
 				case r.String:
 					s := r.ValueOf(vi).String()
-					if unicode {
-						t := utfCstring[s]
-						if t == nil {
-							t, _ = syscall.UTF16PtrFromString(s)
-							utfCstring[s] = t
+					if s != "" {
+						if unicode {
+							t := utfCstring[s]
+							if t == nil {
+								t, _ = syscall.UTF16PtrFromString(s)
+								utfCstring[s] = t
+							}
+							ret[i] = (uintptr)(unsafe.Pointer(t))
+						} else {
+							t := cString[s]
+							if t == nil {
+								t, _ = syscall.BytePtrFromString(s)
+								cString[s] = t
+							}
+							ret[i] = (uintptr)(unsafe.Pointer(t))
 						}
-						ret[i] = (uintptr)(unsafe.Pointer(t))
-					} else {
-						t := cString[s]
-						if t == nil {
-							t, _ = syscall.BytePtrFromString(s)
-							cString[s] = t
-						}
-						ret[i] = (uintptr)(unsafe.Pointer(t))
 					}
 				case r.Uintptr:
 					ret[i] = uintptr(r.ValueOf(vi).Uint())
@@ -393,30 +356,30 @@ func inArgs(unicode bool, a []r.Value) (ret []uintptr) {
 			}
 		case r.String:
 			s := v.String()
-			if unicode {
-				t := utfCstring[s]
-				if t == nil {
-					t, _ = syscall.UTF16PtrFromString(s)
-					utfCstring[s] = t
+			if s != "" {
+				if unicode {
+					t := utfCstring[s]
+					if t == nil {
+						t, _ = syscall.UTF16PtrFromString(s)
+						utfCstring[s] = t
+					}
+					ret[i] = (uintptr)(unsafe.Pointer(t))
+				} else {
+					t := cString[s]
+					if t == nil {
+						t, _ = syscall.BytePtrFromString(s)
+						cString[s] = t
+					}
+					ret[i] = (uintptr)(unsafe.Pointer(t))
 				}
-				ret[i] = (uintptr)(unsafe.Pointer(t))
-			} else {
-				t := cString[s]
-				if t == nil {
-					t, _ = syscall.BytePtrFromString(s)
-					cString[s] = t
-				}
-				ret[i] = (uintptr)(unsafe.Pointer(t))
 			}
-		case r.Uint8, r.Uint16, r.Uint32, r.Uint64, r.Uint,
-			r.Uintptr:
-			ret[i] = uintptr(v.Uint())
 		default:
 			err := v.String() + ": type not handled"
 			panic(err)
 		}
+		i++
 	}
-	return
+	return ret[:i]
 }
 
 func AddDllApis(d string, unicode bool, am Apis) {
