@@ -5,6 +5,7 @@
 package outside
 
 import (
+	. "github.com/tHinqa/outside/types"
 	"os"
 	r "reflect"
 	"syscall"
@@ -26,14 +27,6 @@ import (
 //TODO(t): dllMap keep only handle? (needs own MustFindProc)
 //TODO(t): add race protection
 //TODO(t): lru deletion for cstring & utfcstring
-
-type POVString *string
-type PVString *string
-
-type OVString string
-type VString string
-
-type VArg interface{}
 
 type (
 	EP  string
