@@ -27,6 +27,7 @@ import (
 //TODO(t): dllMap keep only handle? (needs own MustFindProc)
 //TODO(t): add race protection
 //TODO(t): lru deletion for cstring & utfcstring
+//TODO(t): analyse args and optimize inArgs
 
 type (
 	EP  string
@@ -402,25 +403,28 @@ func AddApis(am Apis) {
 		if fnt.NumOut() != 0 {
 			ot = fnt.Out(0)
 		}
-		apiCall = func(i []r.Value) []r.Value {
-			TOT++
-			var rr r.Value
-			inStructs(unicode, i, fai, sli)
-			ina := inArgs(unicode, i)
-			r1, r2, _ := p.Call(ina...)
-			outStructs(unicode, i, fao, slo)
-			//TODO(t): handle Win64
-			if ot != nil {
-				if ot.Size() == 4 {
-					rr = r.ValueOf(r1)
+		if ot != nil && fnt.Out(0).Kind() == r.Float64 {
+			panic("float64 returns are not possible")
+		} else {
+			apiCall = func(i []r.Value) []r.Value {
+				TOT++
+				var rr r.Value
+				inStructs(unicode, i, fai, sli)
+				ina := inArgs(unicode, i)
+				r1, r2, _ := p.Call(ina...)
+				outStructs(unicode, i, fao, slo)
+				//TODO(t): handle Win64
+				if ot != nil {
+					if ot.Size() == 4 {
+						rr = r.ValueOf(r1)
+					} else {
+						rr = r.ValueOf((uint64(r2) << 32) | uint64(r1))
+						//BUG: Go1.1.2 reflect sets incorrect 64bit value
+					}
+					return convert(rr, ot, unicode)
 				} else {
-					rr = r.ValueOf((uint64(r2) << 32) | uint64(r1))
-					//BUG: Go1.1.2 reflect sets incorrect 64bit value
-					//Println(p.Name,r1, r2, (uint64(r2)<<32)|uint64(r1))
+					return nil
 				}
-				return convert(rr, ot, unicode)
-			} else {
-				return nil
 			}
 		}
 		v := r.MakeFunc(fn.Type(), apiCall)
