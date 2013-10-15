@@ -314,10 +314,12 @@ func inArgs(unicode bool, a []r.Value) []uintptr {
 		case r.Ptr:
 			ret[i] = v.Pointer()
 		case r.Slice:
-			sl := v.Interface().([]interface{})
+			//TODO(t):allow any with base interface{}
+			sl := v.Interface().([]VArg)
 			ret = append(ret, make([]uintptr, len(sl)-1)...)
 			for _, vi := range sl {
 				switch r.TypeOf(vi).Kind() {
+				//TODO(t): other types
 				case r.String:
 					s := r.ValueOf(vi).String()
 					if s != "" {
@@ -337,9 +339,11 @@ func inArgs(unicode bool, a []r.Value) []uintptr {
 							ret[i] = (uintptr)(unsafe.Pointer(t))
 						}
 					}
-				case r.Uintptr:
+				case r.Uintptr, r.Uint,
+					r.Uint8, r.Uint32, r.Uint16, r.Uint64:
 					ret[i] = uintptr(r.ValueOf(vi).Uint())
-				case r.Int:
+				case r.Int,
+					r.Int8, r.Int32, r.Int16, r.Int64:
 					ret[i] = uintptr(r.ValueOf(vi).Int())
 				default:
 					println(r.TypeOf(vi).Kind())

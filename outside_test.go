@@ -5,6 +5,7 @@ package outside
 
 import (
 	// . "fmt"
+	. "github.com/tHinqa/outside/types"
 	"syscall"
 	"testing"
 	"unsafe"
@@ -23,7 +24,7 @@ var getProcAddress func(h hModule, a string) uintptr
 var loadLibrary func(a string) hModule
 var getModuleHandle func(a string) hModule
 var freeLibrary func(hModule) boolean
-var getProcAddressV func(...interface{}) interface{}
+var getProcAddressV func(...VArg) interface{}
 var h2 hModule
 var a2 uintptr
 var once bool
