@@ -6,6 +6,7 @@ package outside
 
 import (
 	. "github.com/tHinqa/outside/types"
+	"math"
 	"os"
 	r "reflect"
 	"syscall"
@@ -39,13 +40,28 @@ type (
 	}
 )
 
-var ovs, vs r.Type
+var (
+	ovs, vs r.Type
+)
+
+var proxies []*syscall.Proc
 
 func init() {
 	var o POVString
 	var v PVString
 	ovs = r.TypeOf(o)
 	vs = r.TypeOf(v)
+	dll, err := syscall.LoadDLL("outsideCall.dll")
+	if err == nil {
+		proxies = make([]*syscall.Proc, 15)
+		one := ""
+		for i := 0; i < 15; i++ {
+			if i == 10 {
+				one = "1"
+			}
+			proxies[i] = dll.MustFindProc("doubleProxy" + one + string(48+i%10))
+		}
+	}
 }
 
 var (
@@ -404,7 +420,22 @@ func AddApis(am Apis) {
 			ot = fnt.Out(0)
 		}
 		if ot != nil && fnt.Out(0).Kind() == r.Float64 {
-			panic("float64 returns are not possible")
+			if proxies == nil {
+				panic("outsideCall.dll is not in path and is needed for a float64 return")
+			} else {
+				apiCall = func(i []r.Value) []r.Value {
+					TOT++
+					var rr r.Value
+					inStructs(unicode, i, fai, sli)
+					ina := inArgs(unicode, i)
+					proxy := proxies[len(ina)]
+					ina2 := append([]uintptr{p.Addr()}, ina...)
+					r1, r2, _ := proxy.Call(ina2...)
+					outStructs(unicode, i, fao, slo)
+					rr = r.ValueOf(math.Float64frombits((uint64(r2) << 32) | uint64(r1)))
+					return []r.Value{rr}
+				}
+			}
 		} else {
 			apiCall = func(i []r.Value) []r.Value {
 				TOT++

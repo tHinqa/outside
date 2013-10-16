@@ -5,21 +5,29 @@
 ### To display a simple message box using *outside*
 ```go
 
+		import (
+			"github.com/tHinqa/outside"
+			T "github.com/tHinqa/outside/types"
+		)
 		type (
 			HWND        uint32
 			MSGBOX_TYPE uint32
 		)
 		var MessageBox func(
-			w HWND, text, caption outside.VString, t MSGBOX_TYPE) int
+			w HWND, text, caption T.VString, t MSGBOX_TYPE) int
 		outside.AddDllApis("user32.dll", true,
 			Apis{{"MessageBoxW", &MessageBox}})
 		defer outside.DoneOutside()
 
 		MessageBox(0, "Hello World", "Go says...", 0)
 ```
-### or in barebones Go code
+### or the equivalent in barebones Go code
 ```go
 
+		import (
+			"syscall"
+			"unsafe"
+		)
 		dll := syscall.MustLoadDLL("user32.dll")
 		defer dll.Release()
 		messagebox := dll.MustFindProc("MessageBoxW")
@@ -35,7 +43,7 @@
 #### Fire off quick questions to [@tHinqa](http://twitter.com/tHinqa) on Twitter
 
 ### Features
-* Maintains type-safety
+* Maintains type-safety while adding type-flexibility
 * Uses reflect.MakeFunc to build bindings
 * Automates marshalling
 * Covered by the same licence conditions as Go is
@@ -81,16 +89,18 @@ MSWindows in [*outside-windows*](https://github.com/tHinqa/outside-windows)
 
 ### Separate repository of DLL entry-points and API definitions for
 GTK in [*outside-gtk2*](https://github.com/tHinqa/outside-gtk2)
+
 libXML2 in [*outside-xml2*](https://github.com/tHinqa/outside-xml2)
-sqlite3 in [*outside-sqlite3*](https://github.com/tHinqa/outside-sqlite3)
+
+sqlite3 in [*outside-sqlite3*](https://github.com/tHinqa/outside-sqlite3) Includes database/sql/driver implementation based on the one in [*mattn/go-sqlite3*](https://github.com/mattn/go-sqlite3) [2]
 
 ### Bugs and missing functionality
 Version go1.1.2 reflect Convert corrupts 64-bit return values (on windows 386 at least). It's fixed in go1.2rc1.
-
-Floating point return values are not handled in syscall.Syscall. Alternative methods are being considered.
 
 ### Examples
 - *outside/sdl2/spriteminimal* - Translation of testspriteminimal.c [1] from the [Simple DirectMedia Layer development library](http://www.libsdl.org/download-2.0.php). Needs sdl2.dll (supplied in *outside/sdl2*) to run.
 
 ### Credits
-[1] SDL source is Copyright (C) 1997-2013 Sam Lantinga
+[1] SDL source is Copyright 1997-2013 Sam Lantinga
+
+[2] mattn/go-sqlite3 is Copyright 2012-2013 Yasuhiro Matsumoto

@@ -6,6 +6,7 @@ package outside
 import (
 	// . "fmt"
 	. "github.com/tHinqa/outside/types"
+	"math"
 	"syscall"
 	"testing"
 	"unsafe"
@@ -118,5 +119,18 @@ func TestStdCall(t *testing.T) {
 		res.right != expected.right ||
 		res.bottom != expected.bottom {
 		t.Error("stdcall USER32.UnionRect returns", a, "res=", res)
+	}
+}
+
+var x func(int, int) float64
+
+func TestProxy(t *testing.T) {
+	if proxies != nil {
+		AddDllApis("outsideCall.dll", false, Apis{{"x", &x}})
+		if math.Abs(math.Pi-x(355, 113)) > 3e-7 {
+			t.Fatal("double/float64 return not working")
+		}
+	} else {
+		t.Log("double/float64 return disabled; outsideCall.dll not in path")
 	}
 }
