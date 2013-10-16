@@ -47,6 +47,7 @@
 * Uses reflect.MakeFunc to build bindings
 * Automates marshalling
 * Covered by the same licence conditions as Go is
+* API functions can be declared to include or exclude error returns
 
 ### Includes DLL entry-points for
 MSWindows in *outside/win32*; to register them include

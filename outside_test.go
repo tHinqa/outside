@@ -33,10 +33,11 @@ var once bool
 func initAdds() {
 	if !once {
 		AddDllApis("kernel32.dll", false, Apis{
-			{"LoadLibraryA", &loadLibrary},
-			{"GetProcAddress", &getProcAddress},
 			{"FreeLibrary", &freeLibrary},
+			{"LoadLibraryA", &loadLibrary},
+			{"LoadLibraryA", &anotherLoadLibrary},
 			{"GetModuleHandleA", &getModuleHandle},
+			{"GetProcAddress", &getProcAddress},
 		})
 		AddApis(Apis{
 			{"GetProcAddress", &getProcAddressV},
@@ -118,7 +119,7 @@ func TestStdCall(t *testing.T) {
 		res.top != expected.top ||
 		res.right != expected.right ||
 		res.bottom != expected.bottom {
-		t.Error("stdcall USER32.UnionRect returns", a, "res=", res)
+		t.Error("UnionRect returns", a, "result=", res, "expected=", expected)
 	}
 }
 
@@ -132,5 +133,14 @@ func TestProxy(t *testing.T) {
 		}
 	} else {
 		t.Log("double/float64 return disabled; outsideCall.dll not in path")
+	}
+}
+
+var anotherLoadLibrary func(a string) (hModule, error)
+
+func TestErrRet(t *testing.T) {
+	_, e := anotherLoadLibrary("missing")
+	if e == nil {
+		t.Fatal("did not return error")
 	}
 }

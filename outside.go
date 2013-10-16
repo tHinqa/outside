@@ -29,6 +29,7 @@ import (
 //TODO(t): add race protection
 //TODO(t): lru deletion for cstring & utfcstring
 //TODO(t): analyse args and optimize inArgs
+//TODO(t): optionally call method for er
 
 type (
 	EP  string
@@ -415,9 +416,13 @@ func AddApis(am Apis) {
 		var apiCall func(i []r.Value) []r.Value
 		fai, sli, fao, slo := funcAnalysis(fnt)
 		//Allow 2 returns and put err in 2nd if supplied
-		var ot r.Type
-		if fnt.NumOut() != 0 {
+		var ot, et r.Type
+		nOut := fnt.NumOut()
+		if nOut >= 1 {
 			ot = fnt.Out(0)
+		}
+		if nOut == 2 {
+			et = fnt.Out(1)
 		}
 		if ot != nil && fnt.Out(0).Kind() == r.Float64 {
 			if proxies == nil {
@@ -430,10 +435,14 @@ func AddApis(am Apis) {
 					ina := inArgs(unicode, i)
 					proxy := proxies[len(ina)]
 					ina2 := append([]uintptr{p.Addr()}, ina...)
-					r1, r2, _ := proxy.Call(ina2...)
+					r1, r2, err := proxy.Call(ina2...)
 					outStructs(unicode, i, fao, slo)
 					rr = r.ValueOf(math.Float64frombits((uint64(r2) << 32) | uint64(r1)))
-					return []r.Value{rr}
+					if et == nil {
+						return []r.Value{rr}
+					} else {
+						return []r.Value{rr, convert(r.ValueOf(err), et, unicode)}
+					}
 				}
 			}
 		} else {
@@ -442,7 +451,7 @@ func AddApis(am Apis) {
 				var rr r.Value
 				inStructs(unicode, i, fai, sli)
 				ina := inArgs(unicode, i)
-				r1, r2, _ := p.Call(ina...)
+				r1, r2, err := p.Call(ina...)
 				outStructs(unicode, i, fao, slo)
 				//TODO(t): handle Win64
 				if ot != nil {
@@ -452,7 +461,11 @@ func AddApis(am Apis) {
 						rr = r.ValueOf((uint64(r2) << 32) | uint64(r1))
 						//BUG: Go1.1.2 reflect sets incorrect 64bit value
 					}
-					return convert(rr, ot, unicode)
+					if et == nil {
+						return []r.Value{convert(rr, ot, unicode)}
+					} else {
+						return []r.Value{convert(rr, ot, unicode), convert(r.ValueOf(err), et, unicode)}
+					}
 				} else {
 					return nil
 				}
@@ -463,7 +476,7 @@ func AddApis(am Apis) {
 	}
 }
 
-func convert(v r.Value, t r.Type, u bool) []r.Value {
+func convert(v r.Value, t r.Type, u bool) r.Value {
 	switch t.Kind() {
 	case r.Bool:
 		if uintptr(v.Uint()) == 0 {
@@ -487,7 +500,7 @@ func convert(v r.Value, t r.Type, u bool) []r.Value {
 	default:
 		v = v.Convert(t)
 	}
-	return []r.Value{v}
+	return v
 }
 
 func CStrToString(cs uintptr) (ret string) {
