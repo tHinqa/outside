@@ -71,6 +71,7 @@ var (
 	dllMap     = make(map[string]*syscall.DLL)
 	epMap      = make(map[EP]ep)
 	utfCstring = make(map[string]*uint16)
+	dataMap    = make(map[EP]r.Type)
 )
 
 //Total outside calls made
@@ -93,6 +94,7 @@ func DoneOutside() {
 	epMap = nil
 	utfCstring = nil
 	dllMap = nil
+	dataMap = nil
 }
 
 func GetDLL(d string) *syscall.DLL {
@@ -620,12 +622,25 @@ func SetStructSize(i interface{}) {
 }
 
 type Data []struct {
-	Address EP
-	Item    interface{}
+	Name EP
+	Type interface{}
 }
 
 func AddDllData(d string, unicode bool, am Data) {
 	for _, a := range am {
-		AddEP(d, unicode, a.Address)
+		AddEP(d, unicode, a.Name)
+		t := r.TypeOf(a.Type)
+		switch k := t.Kind(); k {
+		case r.Ptr:
+			dataMap[a.Name] = t.Elem()
+		default:
+			panic("\"" + k.String() + "\" supplied; *T expected")
+		}
 	}
+}
+
+func GetData(e EP) interface{} {
+	p, _ := apiAddr(e)
+	t, _ := dataMap[e]
+	return r.NewAt(t, unsafe.Pointer(p.Addr())).Interface()
 }
