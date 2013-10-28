@@ -499,6 +499,23 @@ func convert(v r.Value, t r.Type, u bool) r.Value {
 			v = r.ValueOf(CStrToString(uintptr(v.Uint())))
 		}
 		v = v.Convert(t) // in case something like VString/AString/WString
+	case r.Slice:
+		if t == r.TypeOf([]string{}) {
+			a := (*[1 << 16]uintptr)(unsafe.Pointer(uintptr(v.Uint()))) //TODO(t): SIZE?
+			i := 0
+			s := []string(nil)
+			for ; a[i] != 0; i++ {
+			}
+			if i > 0 {
+				s = make([]string, i)
+				for j := 0; j < i; j++ {
+					s[j] = CStrToString(a[j])
+				}
+			}
+			v = r.ValueOf(s)
+		} else {
+			panic("only string slice return type valid")
+		}
 	default:
 		v = v.Convert(t)
 	}
@@ -609,7 +626,7 @@ func funcAnalysis(t r.Type) (ia uint32, sli []uint64, oa uint32, slo []uint64) {
 }
 
 //Helper function to set the first field in a structure to the
-//structure size. This is needed in many MSWin32 structures.
+//structure size. This is needed in many Win32 structures.
 func SetStructSize(i interface{}) {
 	t := r.TypeOf(i)
 	if t.Kind() == r.Ptr {

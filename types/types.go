@@ -6,4 +6,5 @@ type (
 	PVString  *string
 	VArg      interface{}
 	VString   string
+	StringsAndPtr struct{S []string; P uintptr}
 )
