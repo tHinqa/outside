@@ -30,6 +30,7 @@ import (
 //TODO(t): lru deletion for cstring & utfcstring
 //TODO(t): analyse args and optimize inArgs
 //TODO(t): optionally call method for er
+//TODO(t): Fix in-place modified cstring caching
 
 type (
 	EP  string
@@ -493,33 +494,51 @@ func convert(v r.Value, t r.Type, u bool) r.Value {
 	case r.UnsafePointer:
 		v = r.ValueOf(unsafe.Pointer(uintptr(v.Uint())))
 	case r.String:
-		if u {
-			v = r.ValueOf(UniStrToString(uintptr(v.Uint())))
-		} else {
-			v = r.ValueOf(CStrToString(uintptr(v.Uint())))
+		var s string
+		if tv := uintptr(v.Uint()); tv != 0 {
+			if u {
+				s = UniStrToString(tv)
+			} else {
+				s = CStrToString(tv)
+			}
+			dispose(tv, t)
 		}
-		v = v.Convert(t) // in case something like VString/AString/WString
+		v = r.ValueOf(s).Convert(t)
 	case r.Slice:
-		if t == r.TypeOf([]string{}) {
-			a := (*[1 << 16]uintptr)(unsafe.Pointer(uintptr(v.Uint()))) //TODO(t): SIZE?
-			i := 0
-			s := []string(nil)
-			for ; a[i] != 0; i++ {
-			}
-			if i > 0 {
-				s = make([]string, i)
-				for j := 0; j < i; j++ {
-					s[j] = CStrToString(a[j])
+		switch t.Elem().Kind() {
+		case r.String:
+			var s []string
+			if tu := uintptr(v.Uint()); tu != 0 {
+				a := (*[1 << 16]uintptr)(unsafe.Pointer(tu)) //TODO(t): SIZE?
+				i := 0
+				for ; a[i] != 0; i++ {
 				}
+				if i > 0 {
+					s = make([]string, i)
+					for j := 0; j < i; j++ {
+						s[j] = CStrToString(a[j])
+					}
+				}
+				dispose(tu, t)
 			}
-			v = r.ValueOf(s)
-		} else {
+			v = r.ValueOf(s).Convert(t)
+		default:
 			panic("only string slice return type valid")
 		}
 	default:
 		v = v.Convert(t)
 	}
 	return v
+}
+
+func dispose(v uintptr, t r.Type) {
+	if m, ok := t.MethodByName("Dispose"); ok && true {
+		// && m.Func.Type().NumIn() == 2 {
+		f := m.Func
+		tv := r.NewAt(f.Type().In(1).Elem(),
+			unsafe.Pointer(v))
+		f.Call([]r.Value{r.New(t).Elem(), tv})
+	}
 }
 
 func CStrToString(cs uintptr) (ret string) {
