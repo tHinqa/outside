@@ -160,14 +160,14 @@ func inStructs(unicode bool, a []r.Value, st uint32, sl []uint64) {
 									t := utfCstring[ts]
 									if t == nil {
 										t, _ = syscall.UTF16PtrFromString(ts)
-										utfCstring[ts] = t
+										//utfCstring[ts] = t //TODO(t):Fix caching
 									}
 									f.Set(r.ValueOf((PVString)(unsafe.Pointer(t))))
 								} else {
 									t := cString[ts]
 									if t == nil {
 										t, _ = syscall.BytePtrFromString(ts)
-										cString[ts] = t
+										//cString[ts] = t //TODO(t):Fix caching
 									}
 									f.Set(r.ValueOf((PVString)(unsafe.Pointer(t))))
 								}
@@ -335,42 +335,51 @@ func inArgs(unicode bool, a []r.Value) []uintptr {
 		case r.Ptr:
 			ret[i] = v.Pointer()
 		case r.Slice:
-			//TODO(t):allow any with base interface{}
-			sl := v.Interface().([]VArg)
-			ret = append(ret, make([]uintptr, len(sl)-1)...)
-			for _, vi := range sl {
-				switch r.TypeOf(vi).Kind() {
-				//TODO(t): other types
-				case r.String:
-					s := r.ValueOf(vi).String()
-					if s != "" {
-						if unicode {
-							t := utfCstring[s]
-							if t == nil {
-								t, _ = syscall.UTF16PtrFromString(s)
-								utfCstring[s] = t
-							}
-							ret[i] = (uintptr)(unsafe.Pointer(t))
-						} else {
-							t := cString[s]
-							if t == nil {
-								t, _ = syscall.BytePtrFromString(s)
-								cString[s] = t
-							}
-							ret[i] = (uintptr)(unsafe.Pointer(t))
-						}
-					}
-				case r.Uintptr, r.Uint,
-					r.Uint8, r.Uint32, r.Uint16, r.Uint64:
-					ret[i] = uintptr(r.ValueOf(vi).Uint())
-				case r.Int,
-					r.Int8, r.Int32, r.Int16, r.Int64:
-					ret[i] = uintptr(r.ValueOf(vi).Int())
-				default:
-					println(r.TypeOf(vi).Kind())
-					panic("Invalid type")
+			switch v.Type().Elem().Kind() {
+			case r.String:
+				s := make([]*byte, v.Cap()+1)
+				for i := 0; i < v.Cap(); i++ {
+					s[i], _ = syscall.BytePtrFromString(v.Index(i).String())
 				}
-				i++
+				ret[i] = (uintptr)(unsafe.Pointer(&s[0]))
+			case r.Interface:
+				//TODO(t):allow any with base interface{}
+				sl := v.Interface().([]VArg)
+				ret = append(ret, make([]uintptr, len(sl)-1)...)
+				for _, vi := range sl {
+					switch r.TypeOf(vi).Kind() {
+					//TODO(t): other types
+					case r.String:
+						s := r.ValueOf(vi).String()
+						if s != "" {
+							if unicode {
+								t := utfCstring[s]
+								if t == nil {
+									t, _ = syscall.UTF16PtrFromString(s)
+									// utfCstring[s] = t //TODO(t):Fix caching
+								}
+								ret[i] = (uintptr)(unsafe.Pointer(t))
+							} else {
+								t := cString[s]
+								if t == nil {
+									t, _ = syscall.BytePtrFromString(s)
+									// cString[s] = t //TODO(t):Fix caching
+								}
+								ret[i] = (uintptr)(unsafe.Pointer(t))
+							}
+						}
+					case r.Uintptr, r.Uint,
+						r.Uint8, r.Uint32, r.Uint16, r.Uint64:
+						ret[i] = uintptr(r.ValueOf(vi).Uint())
+					case r.Int,
+						r.Int8, r.Int32, r.Int16, r.Int64:
+						ret[i] = uintptr(r.ValueOf(vi).Int())
+					default:
+						println(r.TypeOf(vi).Kind())
+						panic("Invalid type")
+					}
+					i++
+				}
 			}
 		case r.String:
 			s := v.String()
@@ -379,14 +388,14 @@ func inArgs(unicode bool, a []r.Value) []uintptr {
 					t := utfCstring[s]
 					if t == nil {
 						t, _ = syscall.UTF16PtrFromString(s)
-						utfCstring[s] = t
+						// utfCstring[s] = t //TODO(t):Fix caching
 					}
 					ret[i] = (uintptr)(unsafe.Pointer(t))
 				} else {
 					t := cString[s]
 					if t == nil {
 						t, _ = syscall.BytePtrFromString(s)
-						cString[s] = t
+						// cString[s] = t //TODO(t):Fix caching
 					}
 					ret[i] = (uintptr)(unsafe.Pointer(t))
 				}
