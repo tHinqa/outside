@@ -337,8 +337,8 @@ func inArgs(unicode bool, a []r.Value) []uintptr {
 		case r.Slice:
 			switch v.Type().Elem().Kind() {
 			case r.String:
-				s := make([]*byte, v.Cap()+1)
-				for i := 0; i < v.Cap(); i++ {
+				s := make([]*byte, v.Len()+1)
+				for i := 0; i < v.Len(); i++ {
 					s[i], _ = syscall.BytePtrFromString(v.Index(i).String())
 				}
 				ret[i] = (uintptr)(unsafe.Pointer(&s[0]))
@@ -374,6 +374,15 @@ func inArgs(unicode bool, a []r.Value) []uintptr {
 					case r.Int,
 						r.Int8, r.Int32, r.Int16, r.Int64:
 						ret[i] = uintptr(r.ValueOf(vi).Int())
+					case r.Slice:
+						switch v.Type().Elem().Kind() {
+						case r.String:
+							s := make([]*byte, v.Len()+1)
+							for i := 0; i < v.Len(); i++ {
+								s[i], _ = syscall.BytePtrFromString(v.Index(i).String())
+							}
+							ret[i] = (uintptr)(unsafe.Pointer(&s[0]))
+						}
 					default:
 						println(r.TypeOf(vi).Kind())
 						panic("Invalid type")
