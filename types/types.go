@@ -5,6 +5,6 @@ type (
 	POVString *string
 	PVString  *string
 	VArg      interface{}
+	VAList    []VArg
 	VString   string
-	StringsAndPtr struct{S []string; P uintptr}
 )

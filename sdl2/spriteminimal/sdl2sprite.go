@@ -28,24 +28,24 @@ const (
 
 var (
 	sprite_w, sprite_h int
-	positions          [NUM_SPRITES]SDL_Rect
-	velocities         [NUM_SPRITES]SDL_Rect
-	sprite             *SDL_Texture
+	positions          [NUM_SPRITES]Rect
+	velocities         [NUM_SPRITES]Rect
+	sprite             *Texture
 )
 
 func quit(rc int) {
 	os.Exit(rc)
 }
 
-func MoveSprites(renderer *SDL_Renderer, sprite *SDL_Texture) {
+func MoveSprites(renderer *Renderer, sprite *Texture) {
 	var (
 		window_w           int = WINDOW_WIDTH
 		window_h           int = WINDOW_HEIGHT
-		position, velocity *SDL_Rect
+		position, velocity *Rect
 	)
 
-	SDL_SetRenderDrawColor(renderer, 0x20, 0x20, 0xC0, 0xFF)
-	SDL_RenderClear(renderer)
+	SetRenderDrawColor(renderer, 0x20, 0x20, 0xC0, 0xFF)
+	RenderClear(renderer)
 	for i := 0; i < NUM_SPRITES; i++ {
 		position = &positions[i]
 		velocity = &velocities[i]
@@ -60,43 +60,43 @@ func MoveSprites(renderer *SDL_Renderer, sprite *SDL_Texture) {
 			position.Y += velocity.Y
 		}
 
-		SDL_RenderCopy(renderer, sprite, nil, position)
+		RenderCopy(renderer, sprite, nil, position)
 	}
-	SDL_RenderPresent(renderer)
+	RenderPresent(renderer)
 }
 
-func LoadSprite(file string, renderer *SDL_Renderer) (r bool) {
-	temp := SDL_LoadBMP(file)
+func LoadSprite(file string, renderer *Renderer) (r bool) {
+	temp := LoadBMP(file)
 	if temp == nil {
-		fmt.Fprintf(os.Stderr, "Couldn't load %s: %s\n", file, SDL_GetError())
+		fmt.Fprintf(os.Stderr, "Couldn't load %s: %s\n", file, GetError())
 		return
 	}
 
 	sprite_w = temp.W
 	sprite_h = temp.H
 	if temp.Format.Palette != nil {
-		SDL_SetColorKey(temp, true,
+		SetColorKey(temp, true,
 			uint32(*(*byte)(temp.Pixels)))
 	} else {
 		switch temp.Format.BitsPerPixel {
 		case 15:
-			SDL_SetColorKey(temp, true,
+			SetColorKey(temp, true,
 				uint32(*(*uint16)(temp.Pixels)&0x00007FFF))
 		case 16:
-			SDL_SetColorKey(temp, true,
+			SetColorKey(temp, true,
 				uint32(*(*uint16)(temp.Pixels)))
 		case 24:
-			SDL_SetColorKey(temp, true,
+			SetColorKey(temp, true,
 				(*(*uint32)(temp.Pixels) & 0x00FFFFFF))
 		case 32:
-			SDL_SetColorKey(temp, true,
+			SetColorKey(temp, true,
 				*(*uint32)(temp.Pixels))
 		}
 	}
-	sprite = SDL_CreateTextureFromSurface(renderer, temp)
-	defer SDL_FreeSurface(temp)
+	sprite = CreateTextureFromSurface(renderer, temp)
+	defer FreeSurface(temp)
 	if sprite == nil {
-		fmt.Fprintf(os.Stderr, "Couldn't create texture: %s\n", SDL_GetError())
+		fmt.Fprintf(os.Stderr, "Couldn't create texture: %s\n", GetError())
 		return
 	}
 	return true
@@ -106,16 +106,16 @@ func main() {
 	defer outside.DoneOutside()
 
 	var (
-		window   *SDL_Window
-		renderer *SDL_Renderer
-		event    SDL_Event
+		window   *Window
+		renderer *Renderer
+		event    Event
 	)
 
-	if SDL_CreateWindowAndRenderer(WINDOW_WIDTH, WINDOW_HEIGHT, 0, &window, &renderer) {
+	if CreateWindowAndRenderer(WINDOW_WIDTH, WINDOW_HEIGHT, 0, &window, &renderer) {
 		quit(2)
 	}
 
-	SDL_SetWindowTitle(window, "Gopher it...")
+	SetWindowTitle(window, "Gopher it...")
 
 	if !LoadSprite("gopher.bmp", renderer) {
 		// reversed LoadSprite return meaning ( -1, 0 -> false, true )
@@ -135,19 +135,19 @@ func main() {
 	}
 
 	frames := 0
-	then := SDL_GetTicks()
+	then := GetTicks()
 	done := false
 	for !done {
 		frames++
-		for SDL_PollEvent(&event) != 0 {
-			if event.Type == SDL_QUIT ||
-				event.Type == SDL_KEYDOWN {
+		for PollEvent(&event) != 0 {
+			if event.Type == QUIT ||
+				event.Type == KEYDOWN {
 				done = true
 			}
 		}
 		MoveSprites(renderer, sprite)
 	}
-	now := SDL_GetTicks()
+	now := GetTicks()
 	if now > then {
 		dt := float64(now - then)
 		fps := (float64(frames) * 1000) / dt
@@ -165,23 +165,23 @@ func main() {
 
 type (
 	void          struct{}
-	SDL_BlitMap   struct{}
-	SDL_EventType uint32
-	SDL_Palette   struct{}
-	SDL_Renderer  struct{}
-	SDL_RWops     struct{}
-	SDL_Texture   struct{}
-	SDL_Window    struct{}
+	BlitMap   struct{}
+	EventType uint32
+	Palette   struct{}
+	Renderer  struct{}
+	RWops     struct{}
+	Texture   struct{}
+	Window    struct{}
 )
 
-type SDL_Event struct { // length 56
-	Type SDL_EventType
+type Event struct { // length 56
+	Type EventType
 	_    [13]uint32
 }
 
-type SDL_PixelFormat struct {
+type PixelFormat struct {
 	Format        uint32
-	Palette       *SDL_Palette
+	Palette       *Palette
 	BitsPerPixel  uint8
 	BytesPerPixel uint8
 	_, _          uint8
@@ -198,87 +198,87 @@ type SDL_PixelFormat struct {
 	Bshift        uint8
 	Ashift        uint8
 	Refcount      int
-	Next          *SDL_PixelFormat
+	Next          *PixelFormat
 }
 
-type SDL_Rect struct {
+type Rect struct {
 	X, Y int
 	W, H int
 }
 
-type SDL_Surface struct {
+type Surface struct {
 	Flags     uint32
-	Format    *SDL_PixelFormat
+	Format    *PixelFormat
 	W, H      int
 	Pitch     int
 	Pixels    unsafe.Pointer
 	Userdata  *void
 	Locked    int
 	Lock_data *void
-	Clip_rect SDL_Rect
-	Bmap      *SDL_BlitMap
+	Clip_rect Rect
+	Bmap      *BlitMap
 	Refcount  int
 }
 
 var (
-	SDL_CreateTextureFromSurface func(
-		r *SDL_Renderer, s *SDL_Surface) *SDL_Texture
+	CreateTextureFromSurface func(
+		r *Renderer, s *Surface) *Texture
 
-	SDL_CreateWindowAndRenderer func(
+	CreateWindowAndRenderer func(
 		width, height int, windowFlags uint32,
-		w **SDL_Window, r **SDL_Renderer) bool
+		w **Window, r **Renderer) bool
 
-	SDL_FreeSurface func(s *SDL_Surface)
+	FreeSurface func(s *Surface)
 
-	SDL_GetError func() string
+	GetError func() string
 
-	SDL_GetTicks func() uint32
+	GetTicks func() uint32
 
-	SDL_LoadBMP_RW func(src *SDL_RWops, freesrc int) *SDL_Surface
+	LoadBMP_RW func(src *RWops, freesrc int) *Surface
 
-	SDL_PollEvent func(e *SDL_Event) int
+	PollEvent func(e *Event) int
 
-	SDL_RenderClear func(r *SDL_Renderer) int
+	RenderClear func(r *Renderer) int
 
-	SDL_RenderCopy func(
-		r *SDL_Renderer, t *SDL_Texture, src, dst *SDL_Rect) int
+	RenderCopy func(
+		r *Renderer, t *Texture, src, dst *Rect) int
 
-	SDL_RenderPresent func(r *SDL_Renderer)
+	RenderPresent func(r *Renderer)
 
-	SDL_RWFromFile func(file, mode string) *SDL_RWops
+	RWFromFile func(file, mode string) *RWops
 
-	SDL_SetColorKey func(
-		surface *SDL_Surface, flag bool, key uint32) int
+	SetColorKey func(
+		surface *Surface, flag bool, key uint32) int
 
-	SDL_SetRenderDrawColor func(
-		rend *SDL_Renderer, r, g, b, a uint8) int
+	SetRenderDrawColor func(
+		rend *Renderer, r, g, b, a uint8) int
 
-	SDL_SetWindowTitle func(w *SDL_Window, title string)
+	SetWindowTitle func(w *Window, title string)
 )
 
-func SDL_LoadBMP(file string) *SDL_Surface {
-	return SDL_LoadBMP_RW(SDL_RWFromFile(file, "rb"), 1)
+func LoadBMP(file string) *Surface {
+	return LoadBMP_RW(RWFromFile(file, "rb"), 1)
 }
 
 const (
-	SDL_QUIT    SDL_EventType = 0x100
-	SDL_KEYDOWN SDL_EventType = 0x300
+	QUIT    EventType = 0x100
+	KEYDOWN EventType = 0x300
 )
 
 func init() {
 	outside.AddDllApis("SDL2.dll", false, outside.Apis{
-		{"SDL_CreateTextureFromSurface", &SDL_CreateTextureFromSurface},
-		{"SDL_CreateWindowAndRenderer", &SDL_CreateWindowAndRenderer},
-		{"SDL_FreeSurface", &SDL_FreeSurface},
-		{"SDL_GetError", &SDL_GetError},
-		{"SDL_GetTicks", &SDL_GetTicks},
-		{"SDL_LoadBMP_RW", &SDL_LoadBMP_RW},
-		{"SDL_PollEvent", &SDL_PollEvent},
-		{"SDL_RenderClear", &SDL_RenderClear},
-		{"SDL_RenderCopy", &SDL_RenderCopy},
-		{"SDL_RenderPresent", &SDL_RenderPresent},
-		{"SDL_RWFromFile", &SDL_RWFromFile},
-		{"SDL_SetColorKey", &SDL_SetColorKey},
-		{"SDL_SetRenderDrawColor", &SDL_SetRenderDrawColor},
-		{"SDL_SetWindowTitle", &SDL_SetWindowTitle}})
+		{"SDL_CreateTextureFromSurface", &CreateTextureFromSurface},
+		{"SDL_CreateWindowAndRenderer", &CreateWindowAndRenderer},
+		{"SDL_FreeSurface", &FreeSurface},
+		{"SDL_GetError", &GetError},
+		{"SDL_GetTicks", &GetTicks},
+		{"SDL_LoadBMP_RW", &LoadBMP_RW},
+		{"SDL_PollEvent", &PollEvent},
+		{"SDL_RenderClear", &RenderClear},
+		{"SDL_RenderCopy", &RenderCopy},
+		{"SDL_RenderPresent", &RenderPresent},
+		{"SDL_RWFromFile", &RWFromFile},
+		{"SDL_SetColorKey", &SetColorKey},
+		{"SDL_SetRenderDrawColor", &SetRenderDrawColor},
+		{"SDL_SetWindowTitle", &SetWindowTitle}})
 }

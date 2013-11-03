@@ -6,6 +6,7 @@ package sdl2
 
 import (
 	"github.com/tHinqa/outside"
+	. "github.com/tHinqa/outside/types"
 	"unsafe"
 )
 
@@ -16,1589 +17,1582 @@ func init() {
 type (
 	fix uintptr
 
-	Char                         byte
-	Double                       float64
-	Float                        float32
-	Long                         int
-	PfnSDL_CurrentBeginThread    fix
-	PfnSDL_CurrentEndThread      fix
-	SDL_AssertionHandler         fix
-	SDL_atomic_t                 fix
-	SDL_AudioCVT                 fix
-	SDL_AudioDeviceID            fix
-	SDL_AudioFormat              fix
-	SDL_AudioSpec                fix
-	SDL_AudioStatus              fix
-	SDL_BlendMode                fix
-	SDL_bool                     bool
-	SDL_Color                    fix
-	SDL_cond                     fix
-	SDL_Cursor                   fix
-	SDL_DisplayMode              fix
-	SDL_errorcode                fix
-	SDL_eventaction              fix
-	SDL_EventType                uint32
-	SDL_EventFilter              fix
-	SDL_Finger                   fix
-	SDL_GameController           fix
-	SDL_GameControllerAxis       fix
-	SDL_GameControllerButton     fix
-	SDL_GameControllerButtonBind fix
-	SDL_GestureID                fix
-	SDL_GLattr                   fix
-	SDL_GLContext                fix
-	SDL_Haptic                   fix
-	SDL_HapticEffect             fix
-	SDL_HintPriority             fix
-	SDL_iconv_t                  fix
-	SDL_Joystick                 fix
-	SDL_JoystickGUID             fix
-	SDL_JoystickID               fix
-	SDL_Keycode                  fix
-	SDL_Keymod                   fix
-	SDL_LogPriority              fix
-	SDL_MessageBoxData           fix
-	SDL_mutex                    fix
-	SDL_Palette                  fix
-	SDL_PowerState               fix
-	SDL_BlitMap                  struct{}
-	SDL_Renderer                 struct{}
-	SDL_RendererFlip             fix
-	SDL_RendererInfo             fix
-	SDL_Scancode                 fix
-	SDL_sem                      fix
-	SDL_SpinLock                 fix
-	SDL_SystemCursor             fix
-	SDL_Texture                  fix
-	SDL_Thread                   fix
-	SDL_ThreadFunction           fix
-	SDL_threadID                 fix
-	SDL_ThreadPriority           fix
-	SDL_TimerID                  fix
-	SDL_TLSID                    fix
-	SDL_TouchID                  fix
-	SDL_version                  fix
-	SDL_Window                   struct{}
-	Sint16                       int16
-	Sint64                       int64
-	Size_t                       uintptr
-	Uint16                       uint16
-	Uint32                       uint32
-	Uint64                       uint64
-	Uint8                        uint8
-	Unsigned_int                 uint
-	Unsigned_long                int
-	Va_list                      fix
-	Void                         *struct{}
-	Wchar_t                      fix
+	Enum int
+
+	Char               byte
+	Double             float64
+	Float              float32
+	Long               int
+	Atomic             struct{ Value int }
+	AudioCVT           uint32
+	AudioDeviceID      uint32
+	AudioFormat        uint16
+	Color              struct{ r, g, b, a uint8 }
+	Cond               struct{}
+	CurrentBeginThread func(*Void, uint, func(*Void) uint /*arg*/, *Void, uint /*threadID*/, *uint) Uintptr
+	CurrentEndThread   func(code uint)
+	Cursor             struct{}
+	EventType          uint32
+	FingerID           int64
+	GameController     struct{}
+	GestureID          int64
+	GLContext          *Void
+	Haptic             struct{}
+	IconvT             *struct{}
+	Joystick           struct{}
+	JoystickID         int32
+	Keycode            int32
+	Mutex              struct{}
+	BlitMap            struct{}
+	Renderer           struct{}
+	Sem                struct{}
+	SpinLock           int
+	Texture            struct{}
+	Thread             struct{}
+	ThreadFunction     func(data *Void) int
+	ThreadIDS          Unsigned_long
+	TimerID            int
+	TLSID              Unsigned_int
+	TouchID            int64
+	Window             struct{}
+	Size               uintptr
+	Uintptr            uint32
+	Unsigned_int       uint
+	Unsigned_long      int
+	Void               struct{}
+	Wchar              int
 )
 
-const (
-	SDL_INIT_TIMER          = 0x00000001
-	SDL_INIT_AUDIO          = 0x00000010
-	SDL_INIT_VIDEO          = 0x00000020
-	SDL_INIT_JOYSTICK       = 0x00000200
-	SDL_INIT_HAPTIC         = 0x00001000
-	SDL_INIT_GAMECONTROLLER = 0x00002000
-	SDL_INIT_EVENTS         = 0x00004000
-	SDL_INIT_NOPARACHUTE    = 0x00100000
-	SDL_INIT_EVERYTHING     = SDL_INIT_TIMER |
-		SDL_INIT_AUDIO | SDL_INIT_VIDEO | SDL_INIT_EVENTS |
-		SDL_INIT_JOYSTICK | SDL_INIT_HAPTIC |
-		SDL_INIT_GAMECONTROLLER
-)
+type INIT uint32
 
 const (
-	SDL_FALSE SDL_bool = false
-	SDL_TRUE  SDL_bool = true
+	INIT_TIMER INIT = 1 << iota
+	_
+	_
+	_
+	INIT_AUDIO // 0x10
+	INIT_VIDEO
+	_
+	_
+	_ // 0x100
+	INIT_JOYSTICK
+	_
+	_
+	INIT_HAPTIC // 0x1000
+	INIT_GAMECONTROLLER
+	INIT_EVENTS
+	_
+	_ // 0x10000
+	_
+	_
+	_
+	INIT_NOPARACHUTE // 0x100000
+	INIT_EVERYTHING  = INIT_TIMER |
+		INIT_AUDIO | INIT_VIDEO | INIT_EVENTS |
+		INIT_JOYSTICK | INIT_HAPTIC |
+		INIT_GAMECONTROLLER
 )
 
-const SDL_FIRSTEVENT SDL_EventType = 0
+type Bool Enum
+
 const (
-	SDL_QUIT SDL_EventType = iota + 0x100
-	SDL_APP_TERMINATING
-	SDL_APP_LOWMEMORY
-	SDL_APP_WILLENTERBACKGROUND
-	SDL_APP_DIDENTERBACKGROUND
-	SDL_APP_WILLENTERFOREGROUND
-	SDL_APP_DIDENTERFOREGROUND
+	FALSE Bool = 0
+	TRUE  Bool = 1
+)
+
+const FIRSTEVENT EventType = 0
+const (
+	QUIT EventType = iota + 0x100
+	APP_TERMINATING
+	APP_LOWMEMORY
+	APP_WILLENTERBACKGROUND
+	APP_DIDENTERBACKGROUND
+	APP_WILLENTERFOREGROUND
+	APP_DIDENTERFOREGROUND
 )
 const (
-	SDL_WINDOWEVENT SDL_EventType = iota + 0x200
-	SDL_SYSWMEVENT
+	WINDOWEVENT EventType = iota + 0x200
+	SYSWMEVENT
 )
 const (
-	SDL_KEYDOWN SDL_EventType = iota + 0x300
-	SDL_KEYUP
-	SDL_TEXTEDITING
-	SDL_TEXTINPUT
+	KEYDOWN EventType = iota + 0x300
+	KEYUP
+	TEXTEDITING
+	TEXTINPUT
 )
 const (
-	SDL_MOUSEMOTION SDL_EventType = iota + 0x400
-	SDL_MOUSEBUTTONDOWN
-	SDL_MOUSEBUTTONUP
-	SDL_MOUSEWHEEL
+	MOUSEMOTION EventType = iota + 0x400
+	MOUSEBUTTONDOWN
+	MOUSEBUTTONUP
+	MOUSEWHEEL
 )
 const (
-	SDL_JOYAXISMOTION SDL_EventType = iota + 0x600
-	SDL_JOYBALLMOTION
-	SDL_JOYHATMOTION
-	SDL_JOYBUTTONDOWN
-	SDL_JOYBUTTONUP
-	SDL_JOYDEVICEADDED
-	SDL_JOYDEVICEREMOVED
+	JOYAXISMOTION EventType = iota + 0x600
+	JOYBALLMOTION
+	JOYHATMOTION
+	JOYBUTTONDOWN
+	JOYBUTTONUP
+	JOYDEVICEADDED
+	JOYDEVICEREMOVED
 )
 const (
-	SDL_CONTROLLERAXISMOTION SDL_EventType = iota + 0x650
-	SDL_CONTROLLERBUTTONDOWN
-	SDL_CONTROLLERBUTTONUP
-	SDL_CONTROLLERDEVICEADDED
-	SDL_CONTROLLERDEVICEREMOVED
-	SDL_CONTROLLERDEVICEREMAPPED
+	CONTROLLERAXISMOTION EventType = iota + 0x650
+	CONTROLLERBUTTONDOWN
+	CONTROLLERBUTTONUP
+	CONTROLLERDEVICEADDED
+	CONTROLLERDEVICEREMOVED
+	CONTROLLERDEVICEREMAPPED
 )
 const (
-	SDL_FINGERDOWN SDL_EventType = iota + 0x700
-	SDL_FINGERUP
-	SDL_FINGERMOTION
+	FINGERDOWN EventType = iota + 0x700
+	FINGERUP
+	FINGERMOTION
 )
 const (
-	SDL_DOLLARGESTURE SDL_EventType = iota + 0x800
-	SDL_DOLLARRECORD
-	SDL_MULTIGESTURE
-	SDL_CLIPBOARDUPDATE SDL_EventType = 0x900
-	SDL_DROPFILE        SDL_EventType = 0x1000
-	SDL_USEREVENT       SDL_EventType = 0x8000
-	SDL_LASTEVENT       SDL_EventType = 0xFFFF
+	DOLLARGESTURE EventType = iota + 0x800
+	DOLLARRECORD
+	MULTIGESTURE
+	CLIPBOARDUPDATE EventType = 0x900
+	DROPFILE        EventType = 0x1000
+	USEREVENT       EventType = 0x8000
+	LASTEVENT       EventType = 0xFFFF
 )
 
 var (
-	SDL_GetPlatform func() string
+	GetPlatform func() string
 
-	SDL_malloc func(size Size_t) *Void
+	Malloc func(size Size) *Void
 
-	SDL_calloc func(nmemb Size_t, size Size_t) *Void
+	Calloc func(nmemb Size, size Size) *Void
 
-	SDL_realloc func(mem *Void, size Size_t) *Void
+	Realloc func(mem *Void, size Size) *Void
 
-	SDL_free func(mem *Void)
+	Free func(mem *Void)
 
-	SDL_getenv func(name string) string
+	Getenv func(name string) string
 
-	SDL_setenv func(name string, value string, overwrite int) int
+	Setenv func(name string, value string, overwrite int) int
 
-	SDL_qsort func(
+	Qsort func(
 		base *Void,
-		nmemb, size Size_t,
+		nmemb, size Size,
 		compare func(*Void, *Void) int)
 
-	SDL_abs func(x int) int
+	Abs func(x int) int
 
-	SDL_isdigit func(x int) int
+	Isdigit func(x int) int
 
-	SDL_isspace func(x int) int
+	Isspace func(x int) int
 
-	SDL_toupper func(x int) int
+	Toupper func(x int) int
 
-	SDL_tolower func(x int) int
+	Tolower func(x int) int
 
-	SDL_memset func(dst *Void, c int, leng Size_t) *Void
+	Memset func(dst *Void, c int, leng Size) *Void
 
-	SDL_memcpy func(dst, src *Void, len Size_t) *Void
+	Memcpy func(dst, src *Void, len Size) *Void
 
-	SDL_memmove func(dst, src *Void, len Size_t) *Void
+	Memmove func(dst, src *Void, len Size) *Void
 
-	SDL_memcmp func(s1, s2 *Void, len Size_t) int
+	Memcmp func(s1, s2 *Void, len Size) int
 
-	SDL_wcslen func(wstr *Wchar_t) Size_t
+	Wcslen func(wstr *Wchar) Size
 
-	SDL_wcslcpy func(dst, src *Wchar_t, maxlen Size_t) Size_t
+	Wcslcpy func(dst, src *Wchar, maxlen Size) Size
 
-	SDL_wcslcat func(dst, src *Wchar_t, maxlen Size_t) Size_t
+	Wcslcat func(dst, src *Wchar, maxlen Size) Size
 
-	SDL_strlen func(str string) Size_t
+	Strlen func(str string) Size
 
-	SDL_strlcpy func(dst, src string, maxlen Size_t) Size_t
+	Strlcpy func(dst, src string, maxlen Size) Size
 
-	SDL_utf8strlcpy func(dst, src string, dst_bytes Size_t) Size_t
+	Utf8strlcpy func(dst, src string, dstBytes Size) Size
 
-	SDL_strlcat func(dst, src string, maxlen Size_t) Size_t
+	Strlcat func(dst, src string, maxlen Size) Size
 
-	SDL_strdup func(str string) string
+	Strdup func(str string) string
 
-	SDL_strrev func(str string) string
+	Strrev func(str string) string
 
-	SDL_strupr func(str string) string
+	Strupr func(str string) string
 
-	SDL_strlwr func(str string) string
+	Strlwr func(str string) string
 
-	SDL_strchr func(str string, c int) string
+	Strchr func(str string, c int) string
 
-	SDL_strrchr func(str string, c int) string
+	Strrchr func(str string, c int) string
 
-	SDL_strstr func(haystack string, needle string) string
+	Strstr func(haystack string, needle string) string
 
-	SDL_itoa func(value int, str string, radix int) string
+	Itoa func(value int, str string, radix int) string
 
-	SDL_uitoa func(value Unsigned_int, str string, radix int) string
+	Uitoa func(value Unsigned_int, str string, radix int) string
 
-	SDL_ltoa func(value Long, str string, radix int) string
+	Ltoa func(value Long, str string, radix int) string
 
-	SDL_ultoa func(value Unsigned_long, str string, radix int) string
+	Ultoa func(value Unsigned_long, str string, radix int) string
 
-	SDL_lltoa func(value Sint64, str string, radix int) string
+	Lltoa func(value int64, str string, radix int) string
 
-	SDL_ulltoa func(value Uint64, str string, radix int) string
+	Ulltoa func(value uint64, str string, radix int) string
 
-	SDL_atoi func(str string) int
+	Atoi func(str string) int
 
-	SDL_atof func(str string) Double
+	Atof func(str string) Double
 
-	SDL_strtol func(str string, endp **Char, base int) Long
+	Strtol func(str string, endp **Char, base int) Long
 
-	SDL_strtoul func(str string, endp **Char, base int) Unsigned_long
+	Strtoul func(str string, endp **Char, base int) Unsigned_long
 
-	SDL_strtoll func(str string, endp **Char, base int) Sint64
+	Strtoll func(str string, endp **Char, base int) int64
 
-	SDL_strtoull func(str string, endp **Char, base int) Uint64
-	//TODO(t):BUG(reflect.Convert) Uint64
+	Strtoull func(str string, endp **Char, base int) uint64
+	//TODO(t):BUG(reflect.Convert) uint64
 
-	SDL_strtod func(str string, endp **Char) Double
+	Strtod func(str string, endp **Char) Double
 
-	SDL_strcmp func(str1, str2 string) int
+	Strcmp func(str1, str2 string) int
 
-	SDL_strncmp func(str1, str2 string, maxlen Size_t) int
+	Strncmp func(str1, str2 string, maxlen Size) int
 
-	SDL_strcasecmp func(str1, str2 string) int
+	Strcasecmp func(str1, str2 string) int
 
-	SDL_strncasecmp func(str1, str2 string, leng Size_t) int
+	Strncasecmp func(str1, str2 string, leng Size) int
 
-	//TODO(t):SDL_sscanf func( Char *text,  Char *fmt, ...)int
-	//TODO(t):SDL_snprintf func(Char *text, size_t maxlen,  Char *fmt, ...)int
+	Sscanf func(text string, fmt string, va ...VArg) int
 
-	SDL_vsnprintf func(
-		text string,
-		maxlen Size_t,
-		fmt string,
-		ap Va_list) int
+	Snprintf func(text *Char, maxlen Size, fmt string, va ...VArg) int
 
-	SDL_atan func(x Double) Double
+	Vsnprintf func(
+		text string, maxlen Size, fmt string, ap VAList) int
 
-	SDL_atan2 func(x, y Double) Double
+	Atan func(x Double) Double
 
-	SDL_ceil func(x Double) Double
+	Atan2 func(x, y Double) Double
 
-	SDL_copysign func(x, y Double) Double
+	Ceil func(x Double) Double
 
-	SDL_cos func(x Double) Double
+	Copysign func(x, y Double) Double
 
-	SDL_cosf func(x Float) Float
+	Cos func(x Double) Double
 
-	SDL_fabs func(x Double) Double
+	Cosf func(x Float) Float
 
-	SDL_floor func(x Double) Double
+	Fabs func(x Double) Double
 
-	SDL_log func(x Double) Double
+	Floor func(x Double) Double
 
-	SDL_pow func(x, y Double) Double
+	Log func(x Double) Double
 
-	SDL_scalbn func(x Double, n int) Double
+	Pow func(x, y Double) Double
 
-	SDL_sin func(x Double) Double
+	Scalbn func(x Double, n int) Double
 
-	SDL_sinf func(x Float) Float
+	Sin func(x Double) Double
 
-	SDL_sqrt func(x Double) Double
+	Sinf func(x Float) Float
 
-	SDL_iconv_open func(tocode, fromcode string) SDL_iconv_t
+	Sqrt func(x Double) Double
 
-	SDL_iconv_close func(cd SDL_iconv_t) int
+	IconvOpen func(tocode, fromcode string) IconvT
 
-	SDL_iconv func(
-		cd SDL_iconv_t,
-		inbuf **Char,
-		inbytesleft *Size_t,
-		outbuf **Char,
-		outbytesleft *Size_t) Size_t
+	IconvClose func(cd IconvT) int
 
-	SDL_iconv_string func(
-		tocode, fromcode, inbuf string,
-		inbytesleft Size_t) string
+	Iconv func(cd IconvT, inbuf **Char, inbytesleft *Size,
+		outbuf **Char, outbytesleft *Size) Size
 
-	SDL_SetMainReady func()
+	IconvString func(tocode, fromcode, inbuf string,
+		inbytesleft Size) string
 
-	SDL_RegisterApp func(
+	SetMainReady func()
+
+	RegisterApp func(
 		name string,
-		style Uint32,
+		style uint32,
 		hInst *Void) int
 
-	SDL_UnregisterApp func()
+	UnregisterApp func()
 
-	SDL_ReportAssertion func(
-		*SDL_assert_data, string, string, int) SDL_assert_state
+	ReportAssertion func(
+		*AssertData, string, string, int) AssertState
 
-	SDL_SetAssertionHandler func(
-		handler SDL_AssertionHandler,
+	SetAssertionHandler func(
+		handler AssertionHandler,
 		userdata *Void)
 
-	SDL_GetAssertionReport func() *SDL_assert_data
+	GetAssertionReport func() *AssertData
 
-	SDL_ResetAssertionReport func()
+	ResetAssertionReport func()
 
-	SDL_AtomicTryLock func(lock *SDL_SpinLock) SDL_bool
+	AtomicTryLock func(lock *SpinLock) Bool
 
-	SDL_AtomicLock func(lock *SDL_SpinLock)
+	AtomicLock func(lock *SpinLock)
 
-	SDL_AtomicUnlock func(lock *SDL_SpinLock)
+	AtomicUnlock func(lock *SpinLock)
 
-	SDL_AtomicCAS func(
-		a *SDL_atomic_t,
-		oldval, newval int) SDL_bool
+	AtomicCAS func(
+		a *Atomic,
+		oldval, newval int) Bool
 
-	SDL_AtomicCASPtr func(
+	AtomicCASPtr func(
 		a **Void,
-		oldval, newval *Void) SDL_bool
+		oldval, newval *Void) Bool
 
-	//TODO(t):SDL_SetError func( Char *fmt, ...)int
+	SetError func(fmt string, va ...VArg) int
 
-	SDL_GetError func() string
+	GetError func() string
 
-	SDL_ClearError func()
+	ClearError func()
 
-	SDL_Error func(code SDL_errorcode) int
+	Error func(code Errorcode) int
 
-	SDL_CreateMutex func() *SDL_mutex
+	CreateMutex func() *Mutex
 
-	SDL_LockMutex func(mutex *SDL_mutex) int
+	LockMutex func(mutex *Mutex) int
 
-	SDL_TryLockMutex func(mutex *SDL_mutex) int
+	TryLockMutex func(mutex *Mutex) int
 
-	SDL_UnlockMutex func(mutex *SDL_mutex) int
+	UnlockMutex func(mutex *Mutex) int
 
-	SDL_DestroyMutex func(mutex *SDL_mutex)
+	DestroyMutex func(mutex *Mutex)
 
-	SDL_CreateSemaphore func(initial_value Uint32) *SDL_sem
+	CreateSemaphore func(initialValue uint32) *Sem
 
-	SDL_DestroySemaphore func(sem *SDL_sem)
+	DestroySemaphore func(sem *Sem)
 
-	SDL_SemWait func(sem *SDL_sem) int
+	SemWait func(sem *Sem) int
 
-	SDL_SemTryWait func(sem *SDL_sem) int
+	SemTryWait func(sem *Sem) int
 
-	SDL_SemWaitTimeout func(sem *SDL_sem, ms Uint32) int
+	SemWaitTimeout func(sem *Sem, ms uint32) int
 
-	SDL_SemPost func(sem *SDL_sem) int
+	SemPost func(sem *Sem) int
 
-	SDL_SemValue func(sem *SDL_sem) Uint32
+	SemValue func(sem *Sem) uint32
 
-	SDL_CreateCond func() *SDL_cond
+	CreateCond func() *Cond
 
-	SDL_DestroyCond func(cond *SDL_cond)
+	DestroyCond func(cond *Cond)
 
-	SDL_CondSignal func(cond *SDL_cond) int
+	CondSignal func(cond *Cond) int
 
-	SDL_CondBroadcast func(cond *SDL_cond) int
+	CondBroadcast func(cond *Cond) int
 
-	SDL_CondWait func(cond *SDL_cond, mutex *SDL_mutex) int
+	CondWait func(cond *Cond, mutex *Mutex) int
 
-	SDL_CondWaitTimeout func(
-		cond *SDL_cond, mutex *SDL_mutex, ms Uint32) int
+	CondWaitTimeout func(
+		cond *Cond, mutex *Mutex, ms uint32) int
 
-	SDL_CreateThread func(
-		fn SDL_ThreadFunction,
+	CreateThread func(
+		fn ThreadFunction,
 		name string,
 		data *Void,
-		pfnBeginThread PfnSDL_CurrentBeginThread,
-		pfnEndThread PfnSDL_CurrentEndThread) *SDL_Thread
+		beginThread CurrentBeginThread,
+		endThread CurrentEndThread) *Thread
 
-	SDL_GetThreadName func(thread *SDL_Thread) string
+	GetThreadName func(thread *Thread) string
 
-	SDL_ThreadID func() SDL_threadID
+	ThreadID func() ThreadIDS
 
-	SDL_GetThreadID func(thread *SDL_Thread) SDL_threadID
+	GetThreadID func(thread *Thread) ThreadIDS
 
-	SDL_SetThreadPriority func(priority SDL_ThreadPriority) int
+	SetThreadPriority func(priority ThreadPriority) int
 
-	SDL_WaitThread func(thread *SDL_Thread, status *int)
+	WaitThread func(thread *Thread, status *int)
 
-	SDL_TLSCreate func() SDL_TLSID
+	TLSCreate func() TLSID
 
-	SDL_TLSGet func(id SDL_TLSID) *Void
+	TLSGet func(id TLSID) *Void
 
-	SDL_TLSSet func(
-		id SDL_TLSID, value *Void, destructor func(*Void)) int
+	TLSSet func(
+		id TLSID, value *Void, destructor func(*Void)) int
 
-	SDL_RWFromFile func(file, mode string) *SDL_RWops
+	RWFromFile func(file, mode string) *RWops
 
-	SDL_RWFromFP func(fp *Void, autoclose SDL_bool) *SDL_RWops
+	RWFromFP func(fp *Void, autoclose Bool) *RWops
 
-	SDL_RWFromMem func(mem *Void, size int) *SDL_RWops
+	RWFromMem func(mem *Void, size int) *RWops
 
-	SDL_RWFromConstMem func(mem *Void, size int) *SDL_RWops
+	RWFromConstMem func(mem *Void, size int) *RWops
 
-	SDL_AllocRW func() *SDL_RWops
+	AllocRW func() *RWops
 
-	SDL_FreeRW func(area *SDL_RWops)
+	FreeRW func(area *RWops)
 
-	SDL_ReadU8 func(src *SDL_RWops) Uint8
+	ReadU8 func(src *RWops) uint8
 
-	SDL_ReadLE16 func(src *SDL_RWops) Uint16
+	ReadLE16 func(src *RWops) uint16
 
-	SDL_ReadBE16 func(src *SDL_RWops) Uint16
+	ReadBE16 func(src *RWops) uint16
 
-	SDL_ReadLE32 func(src *SDL_RWops) Uint32
+	ReadLE32 func(src *RWops) uint32
 
-	SDL_ReadBE32 func(src *SDL_RWops) Uint32
+	ReadBE32 func(src *RWops) uint32
 
-	SDL_ReadLE64 func(
-		src *SDL_RWops) Uint64
-	//TODO(t):BUG(reflect.Convert) Uint64
+	ReadLE64 func(
+		src *RWops) uint64
+	//TODO(t):BUG(reflect.Convert) uint64
 
-	SDL_ReadBE64 func(
-		src *SDL_RWops) Uint64
-	//TODO(t):BUG(reflect.Convert) Uint64
+	ReadBE64 func(
+		src *RWops) uint64
+	//TODO(t):BUG(reflect.Convert) uint64
 
-	SDL_WriteU8 func(dst *SDL_RWops, value Uint8) Size_t
+	WriteU8 func(dst *RWops, value uint8) Size
 
-	SDL_WriteLE16 func(dst *SDL_RWops, value Uint16) Size_t
+	WriteLE16 func(dst *RWops, value uint16) Size
 
-	SDL_WriteBE16 func(dst *SDL_RWops, value Uint16) Size_t
+	WriteBE16 func(dst *RWops, value uint16) Size
 
-	SDL_WriteLE32 func(dst *SDL_RWops, value Uint32) Size_t
+	WriteLE32 func(dst *RWops, value uint32) Size
 
-	SDL_WriteBE32 func(dst *SDL_RWops, value Uint32) Size_t
+	WriteBE32 func(dst *RWops, value uint32) Size
 
-	SDL_WriteLE64 func(dst *SDL_RWops, value Uint64) Size_t
+	WriteLE64 func(dst *RWops, value uint64) Size
 
-	SDL_WriteBE64 func(dst *SDL_RWops, value Uint64) Size_t
+	WriteBE64 func(dst *RWops, value uint64) Size
 
-	SDL_GetNumAudioDrivers func() int
+	GetNumAudioDrivers func() int
 
-	SDL_GetAudioDriver func(index int) string
+	GetAudioDriver func(index int) string
 
-	SDL_AudioInit func(driver_name string) int
+	AudioInit func(driverName string) int
 
-	SDL_AudioQuit func()
+	AudioQuit func()
 
-	SDL_GetCurrentAudioDriver func() string
+	GetCurrentAudioDriver func() string
 
-	SDL_OpenAudio func(desired, obtained *SDL_AudioSpec) int
+	OpenAudio func(desired, obtained *AudioSpec) int
 
-	SDL_GetNumAudioDevices func(iscapture int) int
+	GetNumAudioDevices func(iscapture int) int
 
-	SDL_GetAudioDeviceName func(index, iscapture int) string
+	GetAudioDeviceName func(index, iscapture int) string
 
-	SDL_OpenAudioDevice func(
+	OpenAudioDevice func(
 		device string,
 		iscapture int,
-		desired, obtained *SDL_AudioSpec,
-		allowed_changes int) SDL_AudioDeviceID
+		desired, obtained *AudioSpec,
+		allowedChanges int) AudioDeviceID
 
-	SDL_GetAudioStatus func() SDL_AudioStatus
+	GetAudioStatus func() AudioStatus
 
-	SDL_GetAudioDeviceStatus func(
-		dev SDL_AudioDeviceID) SDL_AudioStatus
+	GetAudioDeviceStatus func(
+		dev AudioDeviceID) AudioStatus
 
-	SDL_PauseAudio func(
-		pause_on int)
+	PauseAudio func(
+		pauseOn int)
 
-	SDL_PauseAudioDevice func(
-		dev SDL_AudioDeviceID,
-		pause_on int)
+	PauseAudioDevice func(
+		dev AudioDeviceID,
+		pauseOn int)
 
-	SDL_LoadWAV_RW func(
-		src *SDL_RWops,
+	LoadWAVRW func(
+		src *RWops,
 		freesrc int,
-		spec *SDL_AudioSpec,
-		audio_buf **Uint8,
-		audio_len *Uint32) *SDL_AudioSpec
+		spec *AudioSpec,
+		audioBuf **uint8,
+		audioLen *uint32) *AudioSpec
 
-	SDL_FreeWAV func(
-		audio_buf *Uint8)
+	FreeWAV func(
+		audioBuf *uint8)
 
-	SDL_BuildAudioCVT func(
-		cvt *SDL_AudioCVT,
-		src_format SDL_AudioFormat,
-		src_channels Uint8,
-		src_rate int,
-		dst_format SDL_AudioFormat,
-		dst_channels Uint8,
-		dst_rate int) int
+	BuildAudioCVT func(
+		cvt *AudioCVT,
+		srcFormat AudioFormat,
+		srcChannels uint8,
+		srcRate int,
+		dstFormat AudioFormat,
+		dstChannels uint8,
+		dstRate int) int
 
-	SDL_ConvertAudio func(
-		cvt *SDL_AudioCVT) int
+	ConvertAudio func(
+		cvt *AudioCVT) int
 
-	SDL_MixAudio func(
-		dst, src *Uint8,
-		len Uint32,
+	MixAudio func(
+		dst, src *uint8,
+		len uint32,
 		volume int)
 
-	SDL_MixAudioFormat func(
-		dst, src *Uint8,
-		format SDL_AudioFormat,
-		len Uint32,
+	MixAudioFormat func(
+		dst, src *uint8,
+		format AudioFormat,
+		len uint32,
 		volume int)
 
-	SDL_LockAudio func()
+	LockAudio func()
 
-	SDL_LockAudioDevice func(dev SDL_AudioDeviceID)
+	LockAudioDevice func(dev AudioDeviceID)
 
-	SDL_UnlockAudio func()
+	UnlockAudio func()
 
-	SDL_UnlockAudioDevice func(dev SDL_AudioDeviceID)
+	UnlockAudioDevice func(dev AudioDeviceID)
 
-	SDL_CloseAudio func()
+	CloseAudio func()
 
-	SDL_CloseAudioDevice func(dev SDL_AudioDeviceID)
+	CloseAudioDevice func(dev AudioDeviceID)
 
 	//TODO(t):Figure out why this crashes
-	SDL_SetClipboardText func(text string) int
+	SetClipboardText func(text string) int
 
-	SDL_GetClipboardText func() string
+	GetClipboardText func() string
 
-	SDL_HasClipboardText func() SDL_bool
+	HasClipboardText func() Bool
 
-	SDL_GetCPUCount func() int
+	GetCPUCount func() int
 
-	SDL_GetCPUCacheLineSize func() int
+	GetCPUCacheLineSize func() int
 
-	SDL_HasRDTSC func() SDL_bool
+	HasRDTSC func() Bool
 
-	SDL_HasAltiVec func() SDL_bool
+	HasAltiVec func() Bool
 
-	SDL_HasMMX func() SDL_bool
+	HasMMX func() Bool
 
-	SDL_Has3DNow func() SDL_bool
+	Has3DNow func() Bool
 
-	SDL_HasSSE func() SDL_bool
+	HasSSE func() Bool
 
-	SDL_HasSSE2 func() SDL_bool
+	HasSSE2 func() Bool
 
-	SDL_HasSSE3 func() SDL_bool
+	HasSSE3 func() Bool
 
-	SDL_HasSSE41 func() SDL_bool
+	HasSSE41 func() Bool
 
-	SDL_HasSSE42 func() SDL_bool
+	HasSSE42 func() Bool
 
-	SDL_GetPixelFormatName func(format Uint32) string
+	GetPixelFormatName func(format uint32) string
 
-	SDL_PixelFormatEnumToMasks func(
-		format Uint32,
+	PixelFormatEnumToMasks func(
+		format uint32,
 		bpp *int,
-		Rmask, Gmask, Bmask, Amask *Uint32) SDL_bool
+		Rmask, Gmask, Bmask, Amask *uint32) Bool
 
-	SDL_MasksToPixelFormatEnum func(
-		bpp int, Rmask, Gmask, Bmask, Amask Uint32) Uint32
+	MasksToPixelFormatEnum func(
+		bpp int, Rmask, Gmask, Bmask, Amask uint32) uint32
 
-	SDL_AllocFormat func(pixel_format Uint32) *SDL_PixelFormat
+	AllocFormat func(pixelFormat uint32) *PixelFormat
 
-	SDL_FreeFormat func(format *SDL_PixelFormat)
+	FreeFormat func(format *PixelFormat)
 
-	SDL_AllocPalette func(ncolors int) *SDL_Palette
+	AllocPalette func(ncolors int) *Palette
 
-	SDL_SetPixelFormatPalette func(
-		format *SDL_PixelFormat, palette *SDL_Palette) int
+	SetPixelFormatPalette func(
+		format *PixelFormat, palette *Palette) int
 
-	SDL_SetPaletteColors func(
-		palette *SDL_Palette,
-		colors *SDL_Color,
+	SetPaletteColors func(
+		palette *Palette,
+		colors *Color,
 		firstcolor, ncolors int) int
 
-	SDL_FreePalette func(palette *SDL_Palette)
+	FreePalette func(palette *Palette)
 
-	SDL_MapRGB func(
-		format *SDL_PixelFormat, r, g, b Uint8) Uint32
+	MapRGB func(
+		format *PixelFormat, r, g, b uint8) uint32
 
-	SDL_MapRGBA func(
-		format *SDL_PixelFormat, r, g, b, a Uint8) Uint32
+	MapRGBA func(
+		format *PixelFormat, r, g, b, a uint8) uint32
 
-	SDL_GetRGB func(
-		pixel Uint32, format *SDL_PixelFormat, r, g, b *Uint8)
+	GetRGB func(
+		pixel uint32, format *PixelFormat, r, g, b *uint8)
 
-	SDL_GetRGBA func(
-		pixel Uint32, format *SDL_PixelFormat, r, g, b, a *Uint8)
+	GetRGBA func(
+		pixel uint32, format *PixelFormat, r, g, b, a *uint8)
 
-	SDL_CalculateGammaRamp func(gamma Float, ramp *Uint16)
+	CalculateGammaRamp func(gamma Float, ramp *uint16)
 
-	SDL_HasIntersection func(A, B *SDL_Rect) SDL_bool
+	HasIntersection func(A, B *Rect) Bool
 
-	SDL_IntersectRect func(A, B, result *SDL_Rect) SDL_bool
+	IntersectRect func(A, B, result *Rect) Bool
 
-	SDL_UnionRect func(A, B, result *SDL_Rect)
+	UnionRect func(A, B, result *Rect)
 
-	SDL_EnclosePoints func(
-		points *SDL_Point,
+	EnclosePoints func(
+		points *Point,
 		count int,
-		clip, result *SDL_Rect) SDL_bool
+		clip, result *Rect) Bool
 
-	SDL_IntersectRectAndLine func(
-		rect *SDL_Rect, X1, Y1, X2, Y2 *int) SDL_bool
+	IntersectRectAndLine func(
+		rect *Rect, X1, Y1, X2, Y2 *int) Bool
 
-	SDL_CreateRGBSurface func(
-		flags Uint32,
+	CreateRGBSurface func(
+		flags uint32,
 		width, height, depth int,
-		Rmask, Gmask, Bmask, Amask Uint32) *SDL_Surface
+		Rmask, Gmask, Bmask, Amask uint32) *Surface
 
-	SDL_CreateRGBSurfaceFrom func(
+	CreateRGBSurfaceFrom func(
 		pixels *Void,
 		width, height, depth, pitch int,
-		Rmask, Gmask, Bmask, Amask Uint32) *SDL_Surface
+		Rmask, Gmask, Bmask, Amask uint32) *Surface
 
-	SDL_FreeSurface func(surface *SDL_Surface)
+	FreeSurface func(surface *Surface)
 
-	SDL_SetSurfacePalette func(
-		surface *SDL_Surface, palette *SDL_Palette) int
+	SetSurfacePalette func(
+		surface *Surface, palette *Palette) int
 
-	SDL_LockSurface func(surface *SDL_Surface) int
+	LockSurface func(surface *Surface) int
 
-	SDL_UnlockSurface func(surface *SDL_Surface)
+	UnlockSurface func(surface *Surface)
 
-	SDL_LoadBMP_RW func(
-		src *SDL_RWops, freesrc int) *SDL_Surface
+	LoadBMPRW func(
+		src *RWops, freesrc int) *Surface
 
-	SDL_SaveBMP_RW func(
-		surface *SDL_Surface, dst *SDL_RWops, freedst int) int
+	SaveBMPRW func(
+		surface *Surface, dst *RWops, freedst int) int
 
-	SDL_SetSurfaceRLE func(surface *SDL_Surface, flag int) int
+	SetSurfaceRLE func(surface *Surface, flag int) int
 
-	SDL_SetColorKey func(
-		surface *SDL_Surface, flag SDL_bool, key Uint32) int
+	SetColorKey func(
+		surface *Surface, flag Bool, key uint32) int
 	// flag was int
 
-	SDL_GetColorKey func(
-		surface *SDL_Surface, key *Uint32) int
+	GetColorKey func(
+		surface *Surface, key *uint32) int
 
-	SDL_SetSurfaceColorMod func(
-		surface *SDL_Surface, r, g, b Uint8) int
+	SetSurfaceColorMod func(
+		surface *Surface, r, g, b uint8) int
 
-	SDL_GetSurfaceColorMod func(
-		surface *SDL_Surface, r, g, b *Uint8) int
+	GetSurfaceColorMod func(
+		surface *Surface, r, g, b *uint8) int
 
-	SDL_SetSurfaceAlphaMod func(
-		surface *SDL_Surface, alpha Uint8) int
+	SetSurfaceAlphaMod func(
+		surface *Surface, alpha uint8) int
 
-	SDL_GetSurfaceAlphaMod func(
-		surface *SDL_Surface, alpha *Uint8) int
+	GetSurfaceAlphaMod func(
+		surface *Surface, alpha *uint8) int
 
-	SDL_SetSurfaceBlendMode func(
-		surface *SDL_Surface, blendMode SDL_BlendMode) int
+	SetSurfaceBlendMode func(
+		surface *Surface, blendMode BlendMode) int
 
-	SDL_GetSurfaceBlendMode func(
-		surface *SDL_Surface, blendMode *SDL_BlendMode) int
+	GetSurfaceBlendMode func(
+		surface *Surface, blendMode *BlendMode) int
 
-	SDL_SetClipRect func(
-		surface *SDL_Surface, rect *SDL_Rect) SDL_bool
+	SetClipRect func(
+		surface *Surface, rect *Rect) Bool
 
-	SDL_GetClipRect func(
-		surface *SDL_Surface, rect *SDL_Rect)
+	GetClipRect func(
+		surface *Surface, rect *Rect)
 
-	SDL_ConvertSurface func(
-		src *SDL_Surface,
-		fmt *SDL_PixelFormat,
-		flags Uint32) *SDL_Surface
+	ConvertSurface func(
+		src *Surface,
+		fmt *PixelFormat,
+		flags uint32) *Surface
 
-	SDL_ConvertSurfaceFormat func(
-		src *SDL_Surface,
-		pixel_format Uint32,
-		flags Uint32) *SDL_Surface
+	ConvertSurfaceFormat func(
+		src *Surface,
+		pixelFormat uint32,
+		flags uint32) *Surface
 
-	SDL_ConvertPixels func(
+	ConvertPixels func(
 		width, height int,
-		src_format Uint32,
+		srcFormat uint32,
 		src *Void,
-		src_pitch int,
-		dst_format Uint32,
+		srcPitch int,
+		dstFormat uint32,
 		dst *Void,
-		dst_pitch int) int
+		dstPitch int) int
 
-	SDL_FillRect func(
-		dst *SDL_Surface, rect *SDL_Rect, color Uint32) int
+	FillRect func(
+		dst *Surface, rect *Rect, color uint32) int
 
-	SDL_FillRects func(
-		dst *SDL_Surface,
-		rects *SDL_Rect,
+	FillRects func(
+		dst *Surface,
+		rects *Rect,
 		count int,
-		color Uint32) int
+		color uint32) int
 
-	SDL_UpperBlit func(
-		src *SDL_Surface, srcrect *SDL_Rect,
-		dst *SDL_Surface, dstrect *SDL_Rect) int
+	UpperBlit func(
+		src *Surface, srcrect *Rect,
+		dst *Surface, dstrect *Rect) int
 
-	SDL_LowerBlit func(
-		src *SDL_Surface, srcrect *SDL_Rect,
-		dst *SDL_Surface, dstrect *SDL_Rect) int
+	LowerBlit func(
+		src *Surface, srcrect *Rect,
+		dst *Surface, dstrect *Rect) int
 
-	SDL_SoftStretch func(
-		src *SDL_Surface, srcrect *SDL_Rect,
-		dst *SDL_Surface, dstrect *SDL_Rect) int
+	SoftStretch func(
+		src *Surface, srcrect *Rect,
+		dst *Surface, dstrect *Rect) int
 
-	SDL_UpperBlitScaled func(
-		src *SDL_Surface, srcrect *SDL_Rect,
-		dst *SDL_Surface, dstrect *SDL_Rect) int
+	UpperBlitScaled func(
+		src *Surface, srcrect *Rect,
+		dst *Surface, dstrect *Rect) int
 
-	SDL_LowerBlitScaled func(
-		src *SDL_Surface, srcrect *SDL_Rect,
-		dst *SDL_Surface, dstrect *SDL_Rect) int
+	LowerBlitScaled func(
+		src *Surface, srcrect *Rect,
+		dst *Surface, dstrect *Rect) int
 
-	SDL_GetNumVideoDrivers func() int
+	GetNumVideoDrivers func() int
 
-	SDL_GetVideoDriver func(index int) string
+	GetVideoDriver func(index int) string
 
-	SDL_VideoInit func(driver_name string) int
+	VideoInit func(driverName string) int
 
-	SDL_VideoQuit func()
+	VideoQuit func()
 
-	SDL_GetCurrentVideoDriver func() string
+	GetCurrentVideoDriver func() string
 
-	SDL_GetNumVideoDisplays func() int
+	GetNumVideoDisplays func() int
 
-	SDL_GetDisplayName func(displayIndex int) string
+	GetDisplayName func(displayIndex int) string
 
-	SDL_GetDisplayBounds func(
-		displayIndex int, rect *SDL_Rect) int
+	GetDisplayBounds func(
+		displayIndex int, rect *Rect) int
 
-	SDL_GetNumDisplayModes func(displayIndex int) int
+	GetNumDisplayModes func(displayIndex int) int
 
-	SDL_GetDisplayMode func(
+	GetDisplayMode func(
 		displayIndex, modeIndex int,
-		mode *SDL_DisplayMode) int
+		mode *DisplayMode) int
 
-	SDL_GetDesktopDisplayMode func(
-		displayIndex int, mode *SDL_DisplayMode) int
+	GetDesktopDisplayMode func(
+		displayIndex int, mode *DisplayMode) int
 
-	SDL_GetCurrentDisplayMode func(
-		displayIndex int, mode *SDL_DisplayMode) int
+	GetCurrentDisplayMode func(
+		displayIndex int, mode *DisplayMode) int
 
-	SDL_GetClosestDisplayMode func(
+	GetClosestDisplayMode func(
 		displayIndex int,
-		mode *SDL_DisplayMode,
-		closest *SDL_DisplayMode) *SDL_DisplayMode
+		mode *DisplayMode,
+		closest *DisplayMode) *DisplayMode
 
-	SDL_GetWindowDisplayIndex func(window *SDL_Window) int
+	GetWindowDisplayIndex func(window *Window) int
 
-	SDL_SetWindowDisplayMode func(
-		window *SDL_Window, mode *SDL_DisplayMode) int
+	SetWindowDisplayMode func(
+		window *Window, mode *DisplayMode) int
 
-	SDL_GetWindowDisplayMode func(
-		window *SDL_Window, mode *SDL_DisplayMode) int
+	GetWindowDisplayMode func(
+		window *Window, mode *DisplayMode) int
 
-	SDL_GetWindowPixelFormat func(window *SDL_Window) Uint32
+	GetWindowPixelFormat func(window *Window) uint32
 
-	SDL_CreateWindow func(
+	CreateWindow func(
 		title string,
 		x, y, w, h int,
-		flags Uint32) *SDL_Window
+		flags uint32) *Window
 
-	SDL_CreateWindowFrom func(data *Void) *SDL_Window
+	CreateWindowFrom func(data *Void) *Window
 
-	SDL_GetWindowID func(window *SDL_Window) Uint32
+	GetWindowID func(window *Window) uint32
 
-	SDL_GetWindowFromID func(id Uint32) *SDL_Window
+	GetWindowFromID func(id uint32) *Window
 
-	SDL_GetWindowFlags func(window *SDL_Window) Uint32
+	GetWindowFlags func(window *Window) uint32
 
-	SDL_SetWindowTitle func(
-		window *SDL_Window, title string)
+	SetWindowTitle func(
+		window *Window, title string)
 
-	SDL_GetWindowTitle func(window *SDL_Window) string
+	GetWindowTitle func(window *Window) string
 
-	SDL_SetWindowIcon func(
-		window *SDL_Window, icon *SDL_Surface)
+	SetWindowIcon func(
+		window *Window, icon *Surface)
 
-	SDL_SetWindowData func(
-		window *SDL_Window, name string, userdata *Void) *Void
+	SetWindowData func(
+		window *Window, name string, userdata *Void) *Void
 
-	SDL_GetWindowData func(window *SDL_Window, name string) *Void
+	GetWindowData func(window *Window, name string) *Void
 
-	SDL_SetWindowPosition func(window *SDL_Window, x, y int)
+	SetWindowPosition func(window *Window, x, y int)
 
-	SDL_GetWindowPosition func(window *SDL_Window, x, y *int)
+	GetWindowPosition func(window *Window, x, y *int)
 
-	SDL_SetWindowSize func(window *SDL_Window, w, h int)
+	SetWindowSize func(window *Window, w, h int)
 
-	SDL_GetWindowSize func(window *SDL_Window, w, h *int)
+	GetWindowSize func(window *Window, w, h *int)
 
-	SDL_SetWindowMinimumSize func(
-		window *SDL_Window, min_w, min_h int)
+	SetWindowMinimumSize func(
+		window *Window, minW, minH int)
 
-	SDL_GetWindowMinimumSize func(
-		window *SDL_Window, w, h *int)
+	GetWindowMinimumSize func(
+		window *Window, w, h *int)
 
-	SDL_SetWindowMaximumSize func(
-		window *SDL_Window, max_w, max_h int)
+	SetWindowMaximumSize func(
+		window *Window, maxW, maxH int)
 
-	SDL_GetWindowMaximumSize func(
-		window *SDL_Window, w, h *int)
+	GetWindowMaximumSize func(
+		window *Window, w, h *int)
 
-	SDL_SetWindowBordered func(
-		window *SDL_Window, bordered SDL_bool)
+	SetWindowBordered func(
+		window *Window, bordered Bool)
 
-	SDL_ShowWindow func(window *SDL_Window)
+	ShowWindow func(window *Window)
 
-	SDL_HideWindow func(window *SDL_Window)
+	HideWindow func(window *Window)
 
-	SDL_RaiseWindow func(window *SDL_Window)
+	RaiseWindow func(window *Window)
 
-	SDL_MaximizeWindow func(window *SDL_Window)
+	MaximizeWindow func(window *Window)
 
-	SDL_MinimizeWindow func(window *SDL_Window)
+	MinimizeWindow func(window *Window)
 
-	SDL_RestoreWindow func(window *SDL_Window)
+	RestoreWindow func(window *Window)
 
-	SDL_SetWindowFullscreen func(
-		window *SDL_Window, flags Uint32) int
+	SetWindowFullscreen func(
+		window *Window, flags uint32) int
 
-	SDL_GetWindowSurface func(window *SDL_Window) *SDL_Surface
+	GetWindowSurface func(window *Window) *Surface
 
-	SDL_UpdateWindowSurface func(window *SDL_Window) int
+	UpdateWindowSurface func(window *Window) int
 
-	SDL_UpdateWindowSurfaceRects func(
-		window *SDL_Window, rects *SDL_Rect, numrects int) int
+	UpdateWindowSurfaceRects func(
+		window *Window, rects *Rect, numrects int) int
 
-	SDL_SetWindowGrab func(window *SDL_Window, grabbed SDL_bool)
+	SetWindowGrab func(window *Window, grabbed Bool)
 
-	SDL_GetWindowGrab func(window *SDL_Window) SDL_bool
+	GetWindowGrab func(window *Window) Bool
 
-	SDL_SetWindowBrightness func(
-		window *SDL_Window, brightness Float) int
+	SetWindowBrightness func(
+		window *Window, brightness Float) int
 
-	SDL_GetWindowBrightness func(window *SDL_Window) Float
+	GetWindowBrightness func(window *Window) Float
 
-	SDL_SetWindowGammaRamp func(
-		window *SDL_Window, red, green, blue *Uint16) int
+	SetWindowGammaRamp func(
+		window *Window, red, green, blue *uint16) int
 
-	SDL_GetWindowGammaRamp func(
-		window *SDL_Window, red, green, blue *Uint16) int
+	GetWindowGammaRamp func(
+		window *Window, red, green, blue *uint16) int
 
-	SDL_DestroyWindow func(window *SDL_Window)
+	DestroyWindow func(window *Window)
 
-	SDL_IsScreenSaverEnabled func() SDL_bool
+	IsScreenSaverEnabled func() Bool
 
-	SDL_EnableScreenSaver func()
+	EnableScreenSaver func()
 
-	SDL_DisableScreenSaver func()
+	DisableScreenSaver func()
 
-	SDL_GL_LoadLibrary func(path string) int
+	GLLoadLibrary func(path string) int
 
-	SDL_GL_GetProcAddress func(proc string) *Void
+	GLGetProcAddress func(proc string) *Void
 
-	SDL_GL_UnloadLibrary func()
+	GLUnloadLibrary func()
 
-	SDL_GL_ExtensionSupported func(extension string) SDL_bool
+	GLExtensionSupported func(extension string) Bool
 
-	SDL_GL_SetAttribute func(attr SDL_GLattr, value int) int
+	GLSetAttribute func(attr GLattr, value int) int
 
-	SDL_GL_GetAttribute func(attr SDL_GLattr, value *int) int
+	GLGetAttribute func(attr GLattr, value *int) int
 
-	SDL_GL_CreateContext func(window *SDL_Window) SDL_GLContext
+	GLCreateContext func(window *Window) GLContext
 
-	SDL_GL_MakeCurrent func(
-		window *SDL_Window, context SDL_GLContext) int
+	GLMakeCurrent func(
+		window *Window, context GLContext) int
 
-	SDL_GL_GetCurrentWindow func() *SDL_Window
+	GLGetCurrentWindow func() *Window
 
-	SDL_GL_GetCurrentContext func() SDL_GLContext
+	GLGetCurrentContext func() GLContext
 
-	SDL_GL_SetSwapInterval func(interval int) int
+	GLSetSwapInterval func(interval int) int
 
-	SDL_GL_GetSwapInterval func() int
+	GLGetSwapInterval func() int
 
-	SDL_GL_SwapWindow func(window *SDL_Window)
+	GLSwapWindow func(window *Window)
 
-	SDL_GL_DeleteContext func(context SDL_GLContext)
+	GLDeleteContext func(context GLContext)
 
-	SDL_GetKeyboardFocus func() *SDL_Window
+	GetKeyboardFocus func() *Window
 
-	SDL_GetKeyboardState func(numkeys *int) *Uint8
+	GetKeyboardState func(numkeys *int) *uint8
 
-	SDL_GetModState func() SDL_Keymod
+	GetModState func() Keymod
 
-	SDL_SetModState func(modstate SDL_Keymod)
+	SetModState func(modstate Keymod)
 
-	SDL_GetKeyFromScancode func(
-		scancode SDL_Scancode) SDL_Keycode
+	GetKeyFromScancode func(
+		scancode Scancode) Keycode
 
-	SDL_GetScancodeFromKey func(key SDL_Keycode) SDL_Scancode
+	GetScancodeFromKey func(key Keycode) Scancode
 
-	SDL_GetScancodeName func(scancode SDL_Scancode) string
+	GetScancodeName func(scancode Scancode) string
 
-	SDL_GetScancodeFromName func(name string) SDL_Scancode
+	GetScancodeFromName func(name string) Scancode
 
-	SDL_GetKeyName func(key SDL_Keycode) string
+	GetKeyName func(key Keycode) string
 
-	SDL_GetKeyFromName func(name string) SDL_Keycode
+	GetKeyFromName func(name string) Keycode
 
-	SDL_StartTextInput func()
+	StartTextInput func()
 
-	SDL_IsTextInputActive func() SDL_bool
+	IsTextInputActive func() Bool
 
-	SDL_StopTextInput func()
+	StopTextInput func()
 
-	SDL_SetTextInputRect func(rect *SDL_Rect)
+	SetTextInputRect func(rect *Rect)
 
-	SDL_HasScreenKeyboardSupport func() SDL_bool
+	HasScreenKeyboardSupport func() Bool
 
-	SDL_IsScreenKeyboardShown func(window *SDL_Window) SDL_bool
+	IsScreenKeyboardShown func(window *Window) Bool
 
-	SDL_GetMouseFocus func() *SDL_Window
+	GetMouseFocus func() *Window
 
-	SDL_GetMouseState func(x, y *int) Uint32
+	GetMouseState func(x, y *int) uint32
 
-	SDL_GetRelativeMouseState func(x, y *int) Uint32
+	GetRelativeMouseState func(x, y *int) uint32
 
-	SDL_WarpMouseInWindow func(window *SDL_Window, x, y int)
+	WarpMouseInWindow func(window *Window, x, y int)
 
-	SDL_SetRelativeMouseMode func(enabled SDL_bool) int
+	SetRelativeMouseMode func(enabled Bool) int
 
-	SDL_GetRelativeMouseMode func() SDL_bool
+	GetRelativeMouseMode func() Bool
 
-	SDL_CreateCursor func(
-		data, mask *Uint8, w, h, hot_x, hot_y int) *SDL_Cursor
+	CreateCursor func(
+		data, mask *uint8, w, h, hotX, hotY int) *Cursor
 
-	SDL_CreateColorCursor func(
-		surface *SDL_Surface, hot_x, hot_y int) *SDL_Cursor
+	CreateColorCursor func(
+		surface *Surface, hotX, hotY int) *Cursor
 
-	SDL_CreateSystemCursor func(id SDL_SystemCursor) *SDL_Cursor
+	CreateSystemCursor func(id SystemCursor) *Cursor
 
-	SDL_SetCursor func(cursor *SDL_Cursor)
+	SetCursor func(cursor *Cursor)
 
-	SDL_GetCursor func() *SDL_Cursor
+	GetCursor func() *Cursor
 
-	SDL_GetDefaultCursor func() *SDL_Cursor
+	GetDefaultCursor func() *Cursor
 
-	SDL_FreeCursor func(cursor *SDL_Cursor)
+	FreeCursor func(cursor *Cursor)
 
-	SDL_ShowCursor func(toggle int) int
+	ShowCursor func(toggle int) int
 
-	SDL_NumJoysticks func() int
+	NumJoysticks func() int
 
-	SDL_JoystickNameForIndex func(device_index int) string
+	JoystickNameForIndex func(deviceIndex int) string
 
-	SDL_JoystickOpen func(device_index int) *SDL_Joystick
+	JoystickOpen func(deviceIndex int) *Joystick
 
-	SDL_JoystickName func(joystick *SDL_Joystick) string
+	JoystickName func(joystick *Joystick) string
 
-	SDL_JoystickGetDeviceGUID func(
-		device_index int) SDL_JoystickGUID
+	JoystickGetDeviceGUID func(
+		deviceIndex int) JoystickGUID
 
-	SDL_JoystickGetGUID func(
-		joystick *SDL_Joystick) SDL_JoystickGUID
+	JoystickGetGUID func(
+		joystick *Joystick) JoystickGUID
 
-	SDL_JoystickGetGUIDString func(
-		guid SDL_JoystickGUID, GUID string, sGUID int)
+	JoystickGetGUIDString func(
+		guid JoystickGUID, GUID string, sGUID int)
 
-	SDL_JoystickGetGUIDFromString func(
-		pchGUID string) SDL_JoystickGUID
+	JoystickGetGUIDFromString func(
+		pchGUID string) JoystickGUID
 
-	SDL_JoystickGetAttached func(
-		joystick *SDL_Joystick) SDL_bool
+	JoystickGetAttached func(
+		joystick *Joystick) Bool
 
-	SDL_JoystickInstanceID func(
-		joystick *SDL_Joystick) SDL_JoystickID
+	JoystickInstanceID func(
+		joystick *Joystick) JoystickID
 
-	SDL_JoystickNumAxes func(joystick *SDL_Joystick) int
+	JoystickNumAxes func(joystick *Joystick) int
 
-	SDL_JoystickNumBalls func(joystick *SDL_Joystick) int
+	JoystickNumBalls func(joystick *Joystick) int
 
-	SDL_JoystickNumHats func(joystick *SDL_Joystick) int
+	JoystickNumHats func(joystick *Joystick) int
 
-	SDL_JoystickNumButtons func(joystick *SDL_Joystick) int
+	JoystickNumButtons func(joystick *Joystick) int
 
-	SDL_JoystickUpdate func()
+	JoystickUpdate func()
 
-	SDL_JoystickEventState func(state int) int
+	JoystickEventState func(state int) int
 
-	SDL_JoystickGetAxis func(
-		joystick *SDL_Joystick, axis int) Sint16
+	JoystickGetAxis func(
+		joystick *Joystick, axis int) int16
 
-	SDL_JoystickGetHat func(
-		joystick *SDL_Joystick, hat int) Uint8
+	JoystickGetHat func(
+		joystick *Joystick, hat int) uint8
 
-	SDL_JoystickGetBall func(
-		joystick *SDL_Joystick, ball int, dx, dy *int) int
+	JoystickGetBall func(
+		joystick *Joystick, ball int, dx, dy *int) int
 
-	SDL_JoystickGetButton func(
-		joystick *SDL_Joystick, button int) Uint8
+	JoystickGetButton func(
+		joystick *Joystick, button int) uint8
 
-	SDL_JoystickClose func(
-		joystick *SDL_Joystick)
+	JoystickClose func(
+		joystick *Joystick)
 
-	SDL_GameControllerAddMapping func(
+	GameControllerAddMapping func(
 		mappingString string) int
 
-	SDL_GameControllerMappingForGUID func(
-		guid SDL_JoystickGUID) string
+	GameControllerMappingForGUID func(
+		guid JoystickGUID) string
 
-	SDL_GameControllerMapping func(
-		gamecontroller *SDL_GameController) string
+	GameControllerMapping func(
+		gamecontroller *GameController) string
 
-	SDL_IsGameController func(
-		joystick_index int) SDL_bool
+	IsGameController func(
+		joystickIndex int) Bool
 
-	SDL_GameControllerNameForIndex func(
-		joystick_index int) string
+	GameControllerNameForIndex func(
+		joystickIndex int) string
 
-	SDL_GameControllerOpen func(
-		joystick_index int) *SDL_GameController
+	GameControllerOpen func(
+		joystickIndex int) *GameController
 
-	SDL_GameControllerName func(
-		gamecontroller *SDL_GameController) string
+	GameControllerName func(
+		gamecontroller *GameController) string
 
-	SDL_GameControllerGetAttached func(
-		gamecontroller *SDL_GameController) SDL_bool
+	GameControllerGetAttached func(
+		gamecontroller *GameController) Bool
 
-	SDL_GameControllerGetJoystick func(
-		gamecontroller *SDL_GameController) *SDL_Joystick
+	GameControllerGetJoystick func(
+		gamecontroller *GameController) *Joystick
 
-	SDL_GameControllerEventState func(
+	GameControllerEventState func(
 		state int) int
 
-	SDL_GameControllerUpdate func()
+	GameControllerUpdate func()
 
-	SDL_GameControllerGetAxisFromString func(
-		pchString string) SDL_GameControllerAxis
+	GameControllerGetAxisFromString func(
+		pchString string) GameControllerAxis
 
-	SDL_GameControllerGetStringForAxis func(
-		axis SDL_GameControllerAxis) string
+	GameControllerGetStringForAxis func(
+		axis GameControllerAxis) string
 
-	SDL_GameControllerGetBindForAxis func(
-		gamecontroller *SDL_GameController,
-		axis SDL_GameControllerAxis) SDL_GameControllerButtonBind
+	GameControllerGetBindForAxis func(
+		gamecontroller *GameController,
+		axis GameControllerAxis) GameControllerButtonBind
 
-	SDL_GameControllerGetAxis func(
-		gamecontroller *SDL_GameController,
-		axis SDL_GameControllerAxis) Sint16
+	GameControllerGetAxis func(
+		gamecontroller *GameController,
+		axis GameControllerAxis) int16
 
-	SDL_GameControllerGetButtonFromString func(
-		pchString string) SDL_GameControllerButton
+	GameControllerGetButtonFromString func(
+		pchString string) GameControllerButton
 
-	SDL_GameControllerGetStringForButton func(
-		button SDL_GameControllerButton) string
+	GameControllerGetStringForButton func(
+		button GameControllerButton) string
 
-	SDL_GameControllerGetBindForButton func(
-		gamecontroller *SDL_GameController,
-		button SDL_GameControllerButton) SDL_GameControllerButtonBind
+	GameControllerGetBindForButton func(
+		gamecontroller *GameController,
+		button GameControllerButton) GameControllerButtonBind
 
-	SDL_GameControllerGetButton func(
-		gamecontroller *SDL_GameController,
-		button SDL_GameControllerButton) Uint8
+	GameControllerGetButton func(
+		gamecontroller *GameController,
+		button GameControllerButton) uint8
 
-	SDL_GameControllerClose func(
-		gamecontroller *SDL_GameController)
+	GameControllerClose func(
+		gamecontroller *GameController)
 
-	SDL_GetNumTouchDevices func() int
+	GetNumTouchDevices func() int
 
-	SDL_GetTouchDevice func(index int) SDL_TouchID
+	GetTouchDevice func(index int) TouchID
 
-	SDL_GetNumTouchFingers func(touchID SDL_TouchID) int
+	GetNumTouchFingers func(touchID TouchID) int
 
-	SDL_GetTouchFinger func(
-		touchID SDL_TouchID, index int) *SDL_Finger
+	GetTouchFinger func(
+		touchID TouchID, index int) *Finger
 
-	SDL_RecordGesture func(touchId SDL_TouchID) int
+	RecordGesture func(touchId TouchID) int
 
-	SDL_SaveAllDollarTemplates func(src *SDL_RWops) int
+	SaveAllDollarTemplates func(src *RWops) int
 
-	SDL_SaveDollarTemplate func(
-		gestureId SDL_GestureID, src *SDL_RWops) int
+	SaveDollarTemplate func(
+		gestureId GestureID, src *RWops) int
 
-	SDL_LoadDollarTemplates func(
-		touchId SDL_TouchID, src *SDL_RWops) int
+	LoadDollarTemplates func(
+		touchId TouchID, src *RWops) int
 
-	SDL_PumpEvents func()
+	PumpEvents func()
 
-	SDL_PeepEvents func(
-		events *SDL_Event,
+	PeepEvents func(
+		events *Event,
 		numevents int,
-		action SDL_eventaction,
-		minType, maxType Uint32) int
+		action Eventaction,
+		minType, maxType uint32) int
 
-	SDL_HasEvent func(typ Uint32) SDL_bool
+	HasEvent func(typ uint32) Bool
 
-	SDL_HasEvents func(minType, maxType Uint32) SDL_bool
+	HasEvents func(minType, maxType uint32) Bool
 
-	SDL_FlushEvent func(typ Uint32)
+	FlushEvent func(typ uint32)
 
-	SDL_FlushEvents func(minType, maxType Uint32)
+	FlushEvents func(minType, maxType uint32)
 
-	SDL_PollEvent func(event *SDL_Event) int
+	PollEvent func(event *Event) int
 
-	SDL_WaitEvent func(event *SDL_Event) int
+	WaitEvent func(event *Event) int
 
-	SDL_WaitEventTimeout func(event *SDL_Event, timeout int) int
+	WaitEventTimeout func(event *Event, timeout int) int
 
-	SDL_PushEvent func(event *SDL_Event) int
+	PushEvent func(event *Event) int
 
-	SDL_SetEventFilter func(
-		filter SDL_EventFilter, userdata *Void)
+	SetEventFilter func(
+		filter EventFilter, userdata *Void)
 
-	SDL_GetEventFilter func(
-		filter *SDL_EventFilter, userdata **Void) SDL_bool
+	GetEventFilter func(
+		filter *EventFilter, userdata **Void) Bool
 
-	SDL_AddEventWatch func(
-		filter SDL_EventFilter, userdata *Void)
+	AddEventWatch func(
+		filter EventFilter, userdata *Void)
 
-	SDL_DelEventWatch func(
-		filter SDL_EventFilter, userdata *Void)
+	DelEventWatch func(
+		filter EventFilter, userdata *Void)
 
-	SDL_FilterEvents func(
-		filter SDL_EventFilter, userdata *Void)
+	FilterEvents func(
+		filter EventFilter, userdata *Void)
 
-	SDL_EventState func(typ Uint32, state int) Uint8
+	EventState func(typ uint32, state int) uint8
 
-	SDL_RegisterEvents func(numevents int) Uint32
+	RegisterEvents func(numevents int) uint32
 
-	SDL_NumHaptics func() int
+	NumHaptics func() int
 
-	SDL_HapticName func(device_index int) string
+	HapticName func(deviceIndex int) string
 
-	SDL_HapticOpen func(device_index int) *SDL_Haptic
+	HapticOpen func(deviceIndex int) *Haptic
 
-	SDL_HapticOpened func(device_index int) int
+	HapticOpened func(deviceIndex int) int
 
-	SDL_HapticIndex func(haptic *SDL_Haptic) int
+	HapticIndex func(haptic *Haptic) int
 
-	SDL_MouseIsHaptic func() int
+	MouseIsHaptic func() int
 
-	SDL_HapticOpenFromMouse func() *SDL_Haptic
+	HapticOpenFromMouse func() *Haptic
 
-	SDL_JoystickIsHaptic func(joystick *SDL_Joystick) int
+	JoystickIsHaptic func(joystick *Joystick) int
 
-	SDL_HapticOpenFromJoystick func(
-		joystick *SDL_Joystick) *SDL_Haptic
+	HapticOpenFromJoystick func(
+		joystick *Joystick) *Haptic
 
-	SDL_HapticClose func(haptic *SDL_Haptic)
+	HapticClose func(haptic *Haptic)
 
-	SDL_HapticNumEffects func(haptic *SDL_Haptic) int
+	HapticNumEffects func(haptic *Haptic) int
 
-	SDL_HapticNumEffectsPlaying func(haptic *SDL_Haptic) int
+	HapticNumEffectsPlaying func(haptic *Haptic) int
 
-	SDL_HapticQuery func(haptic *SDL_Haptic) Unsigned_int
+	HapticQuery func(haptic *Haptic) Unsigned_int
 
-	SDL_HapticNumAxes func(haptic *SDL_Haptic) int
+	HapticNumAxes func(haptic *Haptic) int
 
-	SDL_HapticEffectSupported func(
-		haptic *SDL_Haptic, effect *SDL_HapticEffect) int
+	HapticEffectSupported func(
+		haptic *Haptic, effect *HapticEffect) int
 
-	SDL_HapticNewEffect func(
-		haptic *SDL_Haptic, effect *SDL_HapticEffect) int
+	HapticNewEffect func(
+		haptic *Haptic, effect *HapticEffect) int
 
-	SDL_HapticUpdateEffect func(
-		haptic *SDL_Haptic,
+	HapticUpdateEffect func(
+		haptic *Haptic,
 		effect int,
-		data *SDL_HapticEffect) int
+		data *HapticEffect) int
 
-	SDL_HapticRunEffect func(
-		haptic *SDL_Haptic, effect int, iterations Uint32) int
+	HapticRunEffect func(
+		haptic *Haptic, effect int, iterations uint32) int
 
-	SDL_HapticStopEffect func(
-		haptic *SDL_Haptic, effect int) int
+	HapticStopEffect func(
+		haptic *Haptic, effect int) int
 
-	SDL_HapticDestroyEffect func(
-		haptic *SDL_Haptic, effect int)
+	HapticDestroyEffect func(
+		haptic *Haptic, effect int)
 
-	SDL_HapticGetEffectStatus func(
-		haptic *SDL_Haptic, effect int) int
+	HapticGetEffectStatus func(
+		haptic *Haptic, effect int) int
 
-	SDL_HapticSetGain func(haptic *SDL_Haptic, gain int) int
+	HapticSetGain func(haptic *Haptic, gain int) int
 
-	SDL_HapticSetAutocenter func(
-		haptic *SDL_Haptic, autocenter int) int
+	HapticSetAutocenter func(
+		haptic *Haptic, autocenter int) int
 
-	SDL_HapticPause func(haptic *SDL_Haptic) int
+	HapticPause func(haptic *Haptic) int
 
-	SDL_HapticUnpause func(haptic *SDL_Haptic) int
+	HapticUnpause func(haptic *Haptic) int
 
-	SDL_HapticStopAll func(haptic *SDL_Haptic) int
+	HapticStopAll func(haptic *Haptic) int
 
-	SDL_HapticRumbleSupported func(haptic *SDL_Haptic) int
+	HapticRumbleSupported func(haptic *Haptic) int
 
-	SDL_HapticRumbleInit func(haptic *SDL_Haptic) int
+	HapticRumbleInit func(haptic *Haptic) int
 
-	SDL_HapticRumblePlay func(
-		haptic *SDL_Haptic,
+	HapticRumblePlay func(
+		haptic *Haptic,
 		strength Float,
-		length Uint32) int
+		length uint32) int
 
-	SDL_HapticRumbleStop func(haptic *SDL_Haptic) int
+	HapticRumbleStop func(haptic *Haptic) int
 
-	SDL_SetHintWithPriority func(
+	SetHintWithPriority func(
 		name string,
 		value string,
-		priority SDL_HintPriority) SDL_bool
+		priority HintPriority) Bool
 
-	SDL_SetHint func(name string, value string) SDL_bool
+	SetHint func(name string, value string) Bool
 
-	SDL_GetHint func(name string) string
+	GetHint func(name string) string
 
-	SDL_AddHintCallback func(
-		name string, callback SDL_HintCallback, userdata *Void)
+	AddHintCallback func(
+		name string, callback HintCallback, userdata *Void)
 
-	SDL_DelHintCallback func(
-		name string, callback SDL_HintCallback, userdata *Void)
+	DelHintCallback func(
+		name string, callback HintCallback, userdata *Void)
 
-	SDL_ClearHints func()
+	ClearHints func()
 
-	SDL_LoadObject func(sofile string) *Void
+	LoadObject func(sofile string) *Void
 
-	SDL_LoadFunction func(handle *Void, name string) *Void
+	LoadFunction func(handle *Void, name string) *Void
 
-	SDL_UnloadObject func(handle *Void)
+	UnloadObject func(handle *Void)
 
-	SDL_LogSetAllPriority func(priority SDL_LogPriority)
+	LogSetAllPriority func(priority LogPriority)
 
-	SDL_LogSetPriority func(
-		category int, priority SDL_LogPriority)
+	LogSetPriority func(
+		category int, priority LogPriority)
 
-	SDL_LogGetPriority func(category int) SDL_LogPriority
+	LogGetPriority func(category int) LogPriority
 
-	SDL_LogResetPriorities func()
+	LogResetPriorities func()
 
-	/*TODO(t):
-	SDL_Log func( Char *fmt, ...)
-	SDL_LogVerbose func(int category,  Char *fmt, ...)
-	SDL_LogDebug func(int category,  Char *fmt, ...)
-	SDL_LogInfo func(int category,  Char *fmt, ...)
-	SDL_LogWarn func(int category,  Char *fmt, ...)
-	SDL_LogError func(int category,  Char *fmt, ...)
-	SDL_LogCritical func(int category,  Char *fmt, ...)
-	SDL_LogMessage func(int category,SDL_LogPriority priority,Char *fmt, ...)
-	SDL_LogMessageV func(int category,SDL_LogPriority priority,Char *fmt, va_list ap)
-	*/
+	LogMsg func(fmt string, va ...VArg) //NOTE(t): Was Log; Name conflict
 
-	SDL_LogGetOutputFunction func(
-		callback *SDL_LogOutputFunction,
+	LogVerbose func(category int, fmt string, va ...VArg)
+
+	LogDebug func(category int, fmt string, va ...VArg)
+
+	LogInfo func(category int, fmt string, va ...VArg)
+
+	LogWarn func(category int, fmt string, va ...VArg)
+
+	LogError func(category int, fmt string, va ...VArg)
+
+	LogCritical func(category int, fmt string, va ...VArg)
+
+	LogMessage func(category int, priority LogPriority, fmt string, va ...VArg)
+
+	LogMessageV func(category int, priority LogPriority, fmt string, ap VAList)
+
+	LogGetOutputFunction func(
+		callback *LogOutputFunction,
 		userdata **Void)
 
-	SDL_LogSetOutputFunction func(
-		callback SDL_LogOutputFunction,
+	LogSetOutputFunction func(
+		callback LogOutputFunction,
 		userdata *Void)
 
-	SDL_ShowMessageBox func(
-		messageboxdata *SDL_MessageBoxData, buttonid *int) int
+	ShowMessageBox func(
+		messageboxdata *MessageBoxData, buttonid *int) int
 
-	SDL_ShowSimpleMessageBox func(
-		flags Uint32,
+	ShowSimpleMessageBox func(
+		flags uint32,
 		title, message string,
-		window *SDL_Window) int
+		window *Window) int
 
-	SDL_GetPowerInfo func(secs, pct *int) SDL_PowerState
+	GetPowerInfo func(secs, pct *int) PowerState
 
-	SDL_GetNumRenderDrivers func() int
+	GetNumRenderDrivers func() int
 
-	SDL_GetRenderDriverInfo func(
-		index int, info *SDL_RendererInfo) int
+	GetRenderDriverInfo func(
+		index int, info *RendererInfo) int
 
-	SDL_CreateWindowAndRenderer func(
+	CreateWindowAndRenderer func(
 		width, height int,
-		window_flags Uint32,
-		window **SDL_Window,
-		renderer **SDL_Renderer) bool
+		windowFlags uint32,
+		window **Window,
+		renderer **Renderer) bool
 
-	SDL_CreateRenderer func(
-		window *SDL_Window,
+	CreateRenderer func(
+		window *Window,
 		index int,
-		flags Uint32) *SDL_Renderer
+		flags uint32) *Renderer
 
-	SDL_CreateSoftwareRenderer func(
-		surface *SDL_Surface) *SDL_Renderer
+	CreateSoftwareRenderer func(
+		surface *Surface) *Renderer
 
-	SDL_GetRenderer func(
-		window *SDL_Window) *SDL_Renderer
+	GetRenderer func(
+		window *Window) *Renderer
 
-	SDL_GetRendererInfo func(
-		renderer *SDL_Renderer, info *SDL_RendererInfo) int
+	GetRendererInfo func(
+		renderer *Renderer, info *RendererInfo) int
 
-	SDL_GetRendererOutputSize func(
-		renderer *SDL_Renderer, w, h *int) int
+	GetRendererOutputSize func(
+		renderer *Renderer, w, h *int) int
 
-	SDL_CreateTexture func(
-		renderer *SDL_Renderer,
-		format Uint32,
-		access, w, h int) *SDL_Texture
+	CreateTexture func(
+		renderer *Renderer,
+		format uint32,
+		access, w, h int) *Texture
 
-	SDL_CreateTextureFromSurface func(
-		renderer *SDL_Renderer,
-		surface *SDL_Surface) *SDL_Texture
+	CreateTextureFromSurface func(
+		renderer *Renderer,
+		surface *Surface) *Texture
 
-	SDL_QueryTexture func(
-		texture *SDL_Texture, format *Uint32, access, w, h *int) int
+	QueryTexture func(
+		texture *Texture, format *uint32, access, w, h *int) int
 
-	SDL_SetTextureColorMod func(
-		texture *SDL_Texture, r, g, b Uint8) int
+	SetTextureColorMod func(
+		texture *Texture, r, g, b uint8) int
 
-	SDL_GetTextureColorMod func(
-		texture *SDL_Texture, r, g, b *Uint8) int
+	GetTextureColorMod func(
+		texture *Texture, r, g, b *uint8) int
 
-	SDL_SetTextureAlphaMod func(
-		texture *SDL_Texture, alpha Uint8) int
+	SetTextureAlphaMod func(
+		texture *Texture, alpha uint8) int
 
-	SDL_GetTextureAlphaMod func(
-		texture *SDL_Texture, alpha *Uint8) int
+	GetTextureAlphaMod func(
+		texture *Texture, alpha *uint8) int
 
-	SDL_SetTextureBlendMode func(
-		texture *SDL_Texture, blendMode SDL_BlendMode) int
+	SetTextureBlendMode func(
+		texture *Texture, blendMode BlendMode) int
 
-	SDL_GetTextureBlendMode func(
-		texture *SDL_Texture, blendMode *SDL_BlendMode) int
+	GetTextureBlendMode func(
+		texture *Texture, blendMode *BlendMode) int
 
-	SDL_UpdateTexture func(
-		texture *SDL_Texture,
-		rect *SDL_Rect,
+	UpdateTexture func(
+		texture *Texture,
+		rect *Rect,
 		pixels *Void,
 		pitch int) int
 
-	SDL_LockTexture func(
-		texture *SDL_Texture,
-		rect *SDL_Rect,
+	LockTexture func(
+		texture *Texture,
+		rect *Rect,
 		pixels **Void,
 		pitch *int) int
 
-	SDL_UnlockTexture func(texture *SDL_Texture)
+	UnlockTexture func(texture *Texture)
 
-	SDL_RenderTargetSupported func(
-		renderer *SDL_Renderer) SDL_bool
+	RenderTargetSupported func(
+		renderer *Renderer) Bool
 
-	SDL_SetRenderTarget func(
-		renderer *SDL_Renderer, texture *SDL_Texture) int
+	SetRenderTarget func(
+		renderer *Renderer, texture *Texture) int
 
-	SDL_GetRenderTarget func(renderer *SDL_Renderer) *SDL_Texture
+	GetRenderTarget func(renderer *Renderer) *Texture
 
-	SDL_RenderSetLogicalSize func(
-		renderer *SDL_Renderer, w, h int) int
+	RenderSetLogicalSize func(
+		renderer *Renderer, w, h int) int
 
-	SDL_RenderGetLogicalSize func(
-		renderer *SDL_Renderer, w, h *int)
+	RenderGetLogicalSize func(
+		renderer *Renderer, w, h *int)
 
-	SDL_RenderSetViewport func(
-		renderer *SDL_Renderer, rect *SDL_Rect) int
+	RenderSetViewport func(
+		renderer *Renderer, rect *Rect) int
 
-	SDL_RenderGetViewport func(
-		renderer *SDL_Renderer, rect *SDL_Rect)
+	RenderGetViewport func(
+		renderer *Renderer, rect *Rect)
 
-	SDL_RenderSetClipRect func(
-		renderer *SDL_Renderer, rect *SDL_Rect) int
+	RenderSetClipRect func(
+		renderer *Renderer, rect *Rect) int
 
-	SDL_RenderGetClipRect func(
-		renderer *SDL_Renderer, rect *SDL_Rect)
+	RenderGetClipRect func(
+		renderer *Renderer, rect *Rect)
 
-	SDL_RenderSetScale func(
-		renderer *SDL_Renderer, scaleX, scaleY Float) int
+	RenderSetScale func(
+		renderer *Renderer, scaleX, scaleY Float) int
 
-	SDL_RenderGetScale func(
-		renderer *SDL_Renderer, scaleX, scaleY *Float)
+	RenderGetScale func(
+		renderer *Renderer, scaleX, scaleY *Float)
 
-	SDL_SetRenderDrawColor func(
-		renderer *SDL_Renderer, r, g, b, a Uint8) int
+	SetRenderDrawColor func(
+		renderer *Renderer, r, g, b, a uint8) int
 
-	SDL_GetRenderDrawColor func(
-		renderer *SDL_Renderer, r, g, b, a *Uint8) int
+	GetRenderDrawColor func(
+		renderer *Renderer, r, g, b, a *uint8) int
 
-	SDL_SetRenderDrawBlendMode func(
-		renderer *SDL_Renderer, blendMode SDL_BlendMode) int
+	SetRenderDrawBlendMode func(
+		renderer *Renderer, blendMode BlendMode) int
 
-	SDL_GetRenderDrawBlendMode func(
-		renderer *SDL_Renderer, blendMode *SDL_BlendMode) int
+	GetRenderDrawBlendMode func(
+		renderer *Renderer, blendMode *BlendMode) int
 
-	SDL_RenderClear func(renderer *SDL_Renderer) int
+	RenderClear func(renderer *Renderer) int
 
-	SDL_RenderDrawPoint func(
-		renderer *SDL_Renderer, x, y int) int
+	RenderDrawPoint func(
+		renderer *Renderer, x, y int) int
 
-	SDL_RenderDrawPoints func(
-		renderer *SDL_Renderer, points *SDL_Point, count int) int
+	RenderDrawPoints func(
+		renderer *Renderer, points *Point, count int) int
 
-	SDL_RenderDrawLine func(
-		renderer *SDL_Renderer, x1, y1, x2, y2 int) int
+	RenderDrawLine func(
+		renderer *Renderer, x1, y1, x2, y2 int) int
 
-	SDL_RenderDrawLines func(
-		renderer *SDL_Renderer, points *SDL_Point, count int) int
+	RenderDrawLines func(
+		renderer *Renderer, points *Point, count int) int
 
-	SDL_RenderDrawRect func(
-		renderer *SDL_Renderer, rect *SDL_Rect) int
+	RenderDrawRect func(
+		renderer *Renderer, rect *Rect) int
 
-	SDL_RenderDrawRects func(
-		renderer *SDL_Renderer, rects *SDL_Rect, count int) int
+	RenderDrawRects func(
+		renderer *Renderer, rects *Rect, count int) int
 
-	SDL_RenderFillRect func(
-		renderer *SDL_Renderer, rect *SDL_Rect) int
+	RenderFillRect func(
+		renderer *Renderer, rect *Rect) int
 
-	SDL_RenderFillRects func(
-		renderer *SDL_Renderer, rects *SDL_Rect, count int) int
+	RenderFillRects func(
+		renderer *Renderer, rects *Rect, count int) int
 
-	SDL_RenderCopy func(
-		renderer *SDL_Renderer,
-		texture *SDL_Texture,
-		srcrect, dstrect *SDL_Rect) int
+	RenderCopy func(
+		renderer *Renderer,
+		texture *Texture,
+		srcrect, dstrect *Rect) int
 
-	SDL_RenderCopyEx func(
-		renderer *SDL_Renderer,
-		texture *SDL_Texture,
-		srcrect, dstrect *SDL_Rect,
+	RenderCopyEx func(
+		renderer *Renderer,
+		texture *Texture,
+		srcrect, dstrect *Rect,
 		angle Double,
-		center *SDL_Point,
-		flip SDL_RendererFlip) int
+		center *Point,
+		flip RendererFlip) int
 
-	SDL_RenderReadPixels func(
-		renderer *SDL_Renderer,
-		rect *SDL_Rect,
-		format Uint32,
+	RenderReadPixels func(
+		renderer *Renderer,
+		rect *Rect,
+		format uint32,
 		pixels *Void,
 		pitch int) int
 
-	SDL_RenderPresent func(renderer *SDL_Renderer)
+	RenderPresent func(renderer *Renderer)
 
-	SDL_DestroyTexture func(texture *SDL_Texture)
+	DestroyTexture func(texture *Texture)
 
-	SDL_DestroyRenderer func(renderer *SDL_Renderer)
+	DestroyRenderer func(renderer *Renderer)
 
-	SDL_GL_BindTexture func(
-		texture *SDL_Texture, texw, texh *Float) int
+	GLBindTexture func(
+		texture *Texture, texw, texh *Float) int
 
-	SDL_GL_UnbindTexture func(texture *SDL_Texture) int
+	GLUnbindTexture func(texture *Texture) int
 
-	SDL_GetTicks func() Uint32
+	GetTicks func() uint32
 
-	SDL_GetPerformanceCounter func() Uint64
+	GetPerformanceCounter func() uint64
 
-	SDL_GetPerformanceFrequency func() Uint64
+	GetPerformanceFrequency func() uint64
 
-	SDL_Delay func(ms Uint32)
+	Delay func(ms uint32)
 
-	SDL_AddTimer func(
-		interval Uint32,
-		callback SDL_TimerCallback,
-		param *Void) SDL_TimerID
+	AddTimer func(
+		interval uint32,
+		callback TimerCallback,
+		param *Void) TimerID
 
-	SDL_RemoveTimer func(id SDL_TimerID) SDL_bool
+	RemoveTimer func(id TimerID) Bool
 
-	SDL_GetVersion func(ver *SDL_version)
+	GetVersion func(ver *Version)
 
-	SDL_GetRevision func() string
+	GetRevision func() string
 
-	SDL_GetRevisionNumber func() int
+	GetRevisionNumber func() int
 
-	SDL_Init func(flags Uint32) int
+	Init func(flags INIT) int
 
-	SDL_InitSubSystem func(flags Uint32) int
+	InitSubSystem func(flags uint32) int
 
-	SDL_QuitSubSystem func(flags Uint32)
+	QuitSubSystem func(flags uint32)
 
-	SDL_WasInit func(flags Uint32) Uint32
+	WasInit func(flags uint32) uint32
 
-	SDL_Quit func()
+	Quit func()
+
+	SetWindowShape func(window *Window, shape *Surface,
+		shapeMode *WindowShapeMode) int
+
+	GetShapedWindowMode func(
+		window *Window, shapeMode *WindowShapeMode) int
+
+	CreateShapedWindow func(title string,
+		x, y, w, h, Unsigned_int, flags uint32) *Window
+
+	IsShapedWindow func(window *Window) Bool
+
+	GetWindowWMInfo func(window *Window, info *SysWMinfo) bool
 )
 
-type SDL_Point struct {
+type Point struct {
 	X, Y int
 }
 
-type SDL_Rect struct {
+type Rect struct {
 	X, Y int
 	W, H int
 }
 
-type SDL_Surface struct {
-	Flags     Uint32
-	Format    *SDL_PixelFormat
-	W, H      int
-	Pitch     int
-	Pixels    unsafe.Pointer // *void
-	Userdata  unsafe.Pointer // *void
-	Locked    int
-	Lock_data unsafe.Pointer // *Void
-	Clip_rect SDL_Rect
-	Bmap      *SDL_BlitMap
-	Refcount  int
+type Surface struct {
+	Flags    uint32
+	Format   *PixelFormat
+	W, H     int
+	Pitch    int
+	Pixels   unsafe.Pointer // *void
+	Userdata unsafe.Pointer // *void
+	Locked   int
+	LockData unsafe.Pointer // *Void
+	ClipRect Rect
+	Bmap     *BlitMap
+	Refcount int
 }
 
-type SDL_Event struct { // length 56
-	Type SDL_EventType
-	_    [52]Uint8
+type Event struct { // length 56
+	Type EventType
+	_    [52]uint8
 	// other union members
 }
 
-type SDL_PixelFormat struct {
-	Format        Uint32
-	Palette       *SDL_Palette
-	BitsPerPixel  Uint8
-	BytesPerPixel Uint8
-	_, _          Uint8
-	Rmask         Uint32
-	Gmask         Uint32
-	Bmask         Uint32
-	Amask         Uint32
-	Rloss         Uint8
-	Gloss         Uint8
-	Bloss         Uint8
-	Aloss         Uint8
-	Rshift        Uint8
-	Gshift        Uint8
-	Bshift        Uint8
-	Ashift        Uint8
+type PixelFormat struct {
+	Format        uint32
+	Palette       *Palette
+	BitsPerPixel  uint8
+	BytesPerPixel uint8
+	_, _          uint8
+	Rmask         uint32
+	Gmask         uint32
+	Bmask         uint32
+	Amask         uint32
+	Rloss         uint8
+	Gloss         uint8
+	Bloss         uint8
+	Aloss         uint8
+	Rshift        uint8
+	Gshift        uint8
+	Bshift        uint8
+	Ashift        uint8
 	Refcount      int
-	Next          *SDL_PixelFormat
+	Next          *PixelFormat
 }
 
-type SDL_RWops struct {
-	size func(context *SDL_RWops) Sint64
-	seek func(context *SDL_RWops, offset Sint64, whence int) Sint64
-	read func(context *SDL_RWops, ptr *Void,
-		size, maxnum Size_t) Size_t
-	write func(context *SDL_RWops, ptr *Void,
-		size, num Size_t) Size_t
-	close func(context *SDL_RWops) int
-	typ   Uint32
+type RWops struct {
+	size func(context *RWops) int64
+	seek func(context *RWops, offset int64, whence int) int64
+	read func(
+		context *RWops, ptr *Void, size, maxnum Size) Size
+	write func(
+		context *RWops, ptr *Void, size, num Size) Size
+	close func(context *RWops) int
+	typ   uint32
 	_     [5]int
-	/*    union {
-	          struct
-	          {
-	              SDL_bool append;
-	              void *h;
-	              struct
-	              {
-	                  void *data;
-	                  size_t size;
-	                  size_t left;
-	              } buffer;
-	          } windowsio;
-
-	          struct
-	          {
-	              Uint8 *base;
-	              Uint8 *here;
-	              Uint8 *stop;
-	          } mem;
-	          struct
-	          {
-	              void *data1;
-	              void *data2;
-	          } unknown;
-	      } hidden
+	/*	union {
+		    struct {
+		        Bool append;
+		        void *h;
+		        struct {
+		            void *data;
+		            size_t size;
+		            size_t left;
+		        } buffer;
+		    } windowsio;
+		    struct {
+		        uint8 *base;
+		        uint8 *here;
+		        uint8 *stop;
+		    } mem;
+		    struct {
+		        void *data1;
+		        void *data2;
+		    } unknown;
+		} hidden
 	*/
 }
 
-type SDL_assert_state int
+type AssertState int
 
 const (
-	SDL_ASSERTION_RETRY SDL_assert_state = iota
-	SDL_ASSERTION_BREAK
-	SDL_ASSERTION_ABORT
-	SDL_ASSERTION_IGNORE
-	SDL_ASSERTION_ALWAYS_IGNORE
+	ASSERTION_RETRY AssertState = iota
+	ASSERTION_BREAK
+	ASSERTION_ABORT
+	ASSERTION_IGNORE
+	ASSERTION_ALWAYS_IGNORE
 )
 
-type SDL_assert_data struct {
-	always_ignore int
-	trigger_count uint
-	condition     *Char
-	filename      *Char
-	linenum       int
-	function      *Char
-	next          *SDL_assert_data
+type AssertData struct {
+	AlwaysIgnore int
+	TriggerCount uint
+	Condition    *Char
+	Filename     *Char
+	Linenum      int
+	Function     *Char
+	Next         *AssertData
 }
 
-func SDL_LoadBMP(file string) *SDL_Surface {
-	return SDL_LoadBMP_RW(SDL_RWFromFile(file, "rb"), 1)
+func LoadBMP(file string) *Surface {
+	return LoadBMPRW(RWFromFile(file, "rb"), 1)
 }
 
 func GetDllName() string {
@@ -1609,534 +1603,1268 @@ func GetApiList() outside.Apis {
 	return apiList
 }
 
+//NOTE(t):NewCallbackCDecl func must have return
+type dummy uintptr
+
+type AudioCallback func(
+	userdata *Void, stream *uint8, len int) dummy
+
+type HintCallback func(
+	userdata *Void, name, oldValue, newValue *Char) dummy
+
+type TimerCallback func(interval uint32, param *Void) uint32
+
+type LogOutputFunction func(
+	userdata *Void,
+	category int,
+	priority LogPriority,
+	message *Char) dummy
+
+const (
+	NONSHAPEABLE_WINDOW    = -1
+	INVALID_SHAPE_ARGUMENT = -2
+	WINDOW_LACKS_SHAPE     = -3
+)
+
+type WindowShapeModeType Enum
+
+const (
+	ShapeModeDefault WindowShapeModeType = iota
+	ShapeModeBinarizeAlpha
+	ShapeModeReverseBinarizeAlpha
+	ShapeModeColorKey
+)
+
+type WindowShapeParams struct {
+	//union
+	//binarizationCutoff uint8
+	ColorKey Color
+}
+
+type WindowShapeMode struct {
+	Mode       WindowShapeModeType
+	Parameters WindowShapeParams
+}
+
+type SYSWM_TYPE Enum
+
+const (
+	SYSWM_UNKNOWN SYSWM_TYPE = iota
+	SYSWM_WINDOWS
+	SYSWM_X11
+	SYSWM_DIRECTFB
+	SYSWM_COCOA
+	SYSWM_UIKIT
+)
+
+type SysWMinfo struct {
+	version   Version
+	subsystem SYSWM_TYPE
+	// union {
+	//     win struct {
+	//         HWND window
+	//     }
+	//     x11 struct {
+	//         Display *display
+	//         Window window
+	//     }
+	//     dfb struct  {
+	//         IDirectFB *dfb
+	//         IDirectFBWindow *window
+	//         IDirectFBSurface *surface
+	//     }
+	//     info struct {
+	//         NSWindow *window
+	//     } cocoa
+	//     int dummy
+	// }
+}
+
+type Version struct {
+	major, minor, patch uint8
+}
+
+type AssertionHandler func(
+	data *AssertData, userdata *Void) AssertState
+
+type AudioSpec struct {
+	freq     int
+	format   AudioFormat
+	channels uint8
+	silence  uint8
+	samples  uint16
+	padding  uint16
+	size     uint32
+	callback AudioCallback
+	userdata *Void
+}
+
+type AudioStatus Enum
+
+const (
+	AUDIO_STOPPED AudioStatus = iota
+	AUDIO_PLAYING
+	AUDIO_PAUSED
+)
+
+type BlendMode Enum
+
+const (
+	BLENDMODE_BLEND BlendMode = 1 << iota
+	BLENDMODE_ADD
+	BLENDMODE_MOD
+	BLENDMODE_NONE BlendMode = 0
+)
+
+type DisplayMode struct {
+	Format      uint32
+	W           int
+	H           int
+	RefreshRate int
+	Driverdata  *Void
+}
+
+type Errorcode Enum
+
+const (
+	ENOMEM Errorcode = iota
+	EFREAD
+	EFWRITE
+	EFSEEK
+	UNSUPPORTED
+	LASTERROR
+)
+
+type Eventaction Enum
+
+const (
+	ADDEVENT Eventaction = iota
+	PEEKEVENT
+	GETEVENT
+)
+
+type EventFilter func(userdata *Void, event *Event) int
+
+type Finger struct {
+	Id       FingerID
+	X        float32
+	Y        float32
+	Pressure float32
+}
+
+type GameControllerAxis Enum
+
+const (
+	CONTROLLER_AXIS_INVALID GameControllerAxis = iota - 1
+	CONTROLLER_AXIS_LEFTX
+	CONTROLLER_AXIS_LEFTY
+	CONTROLLER_AXIS_RIGHTX
+	CONTROLLER_AXIS_RIGHTY
+	CONTROLLER_AXIS_TRIGGERLEFT
+	CONTROLLER_AXIS_TRIGGERRIGHT
+	CONTROLLER_AXIS_MAX
+)
+
+type GameControllerButton Enum
+
+const (
+	CONTROLLER_BUTTON_INVALID GameControllerButton = iota - 1
+	CONTROLLER_BUTTON_A
+	CONTROLLER_BUTTON_B
+	CONTROLLER_BUTTON_X
+	CONTROLLER_BUTTON_Y
+	CONTROLLER_BUTTON_BACK
+	CONTROLLER_BUTTON_GUIDE
+	CONTROLLER_BUTTON_START
+	CONTROLLER_BUTTON_LEFTSTICK
+	CONTROLLER_BUTTON_RIGHTSTICK
+	CONTROLLER_BUTTON_LEFTSHOULDER
+	CONTROLLER_BUTTON_RIGHTSHOULDER
+	CONTROLLER_BUTTON_DPAD_UP
+	CONTROLLER_BUTTON_DPAD_DOWN
+	CONTROLLER_BUTTON_DPAD_LEFT
+	CONTROLLER_BUTTON_DPAD_RIGHT
+	CONTROLLER_BUTTON_MAX
+)
+
+type GameControllerButtonBind struct {
+	BindType GameControllerBindType
+	// union {
+	// Button int
+	// Axis   int
+	Hat struct {
+		Hat     int
+		HatMask int
+	}
+	// }
+}
+
+type GameControllerBindType Enum
+
+const (
+	CONTROLLER_BINDTYPE_NONE GameControllerBindType = iota
+	CONTROLLER_BINDTYPE_BUTTON
+	CONTROLLER_BINDTYPE_AXIS
+	CONTROLLER_BINDTYPE_HAT
+)
+
+type GLattr Enum
+
+const (
+	GL_RED_SIZE GLattr = iota
+	GL_GREEN_SIZE
+	GL_BLUE_SIZE
+	GL_ALPHA_SIZE
+	GL_BUFFER_SIZE
+	GL_DOUBLEBUFFER
+	GL_DEPTH_SIZE
+	GL_STENCIL_SIZE
+	GL_ACCUM_RED_SIZE
+	GL_ACCUM_GREEN_SIZE
+	GL_ACCUM_BLUE_SIZE
+	GL_ACCUM_ALPHA_SIZE
+	GL_STEREO
+	GL_MULTISAMPLEBUFFERS
+	GL_MULTISAMPLESAMPLES
+	GL_ACCELERATED_VISUAL
+	GL_RETAINED_BACKING
+	GL_CONTEXT_MAJOR_VERSION
+	GL_CONTEXT_MINOR_VERSION
+	GL_CONTEXT_EGL
+	GL_CONTEXT_FLAGS
+	GL_CONTEXT_PROFILE_MASK
+	GL_SHARE_WITH_CURRENT_CONTEXT
+)
+
+type HapticEffect struct {
+	//Union
+	// Type      uint16
+	// Constant  HapticConstant
+	// Periodic  HapticPeriodic
+	Condition HapticCondition
+	Ramp      HapticRamp
+	Leftright HapticLeftRight
+	Custom    HapticCustom
+}
+
+type HapticLeftRight struct {
+	Type           uint16
+	Length         uint32
+	LargeMagnitude uint16
+	SmallMagnitude uint16
+}
+
+type HapticDirectionType uint8
+
+const (
+	HAPTIC_POLAR HapticDirectionType = iota
+	HAPTIC_CARTESIAN
+	HAPTIC_SPHERICAL
+)
+
+type HapticDirection struct {
+	Type HapticDirectionType
+	Dir  [3]int32
+}
+
+type HapticCustom struct {
+	Type         uint16
+	Direction    HapticDirection
+	Length       uint32
+	Delay        uint16
+	Button       uint16
+	Interval     uint16
+	Channels     uint8
+	Period       uint16
+	Samples      uint16
+	Data         *uint16
+	AttackLength uint16
+	AttackLevel  uint16
+	FadeLength   uint16
+	FadeLevel    uint16
+}
+
+type HapticRamp struct {
+	Type         uint16
+	Direction    HapticDirection
+	Length       uint32
+	Delay        uint16
+	Button       uint16
+	Interval     uint16
+	Start        int16
+	End          int16
+	AttackLength uint16
+	AttackLevel  uint16
+	FadeLength   uint16
+	FadeLevel    uint16
+}
+
+type HapticCondition struct {
+	Type       uint16
+	Direction  HapticDirection
+	Length     uint32
+	Delay      uint16
+	Button     uint16
+	Interval   uint16
+	RightSat   [3]uint16
+	LeftSat    [3]uint16
+	RightCoeff [3]int16
+	LeftCoeff  [3]int16
+	Deadband   [3]uint16
+	Center     [3]int16
+}
+
+type HapticConstant struct {
+	Type         uint16
+	Direction    HapticDirection
+	Length       uint32
+	Delay        uint16
+	Button       uint16
+	Interval     uint16
+	Level        int16
+	AttackLength uint16
+	AttackLevel  uint16
+	FadeLength   uint16
+	FadeLevel    uint16
+}
+
+type HapticPeriodic struct {
+	Type         uint16
+	Direction    HapticDirection
+	Length       uint32
+	Delay        uint16
+	Button       uint16
+	Interval     uint16
+	Period       uint16
+	Magnitude    int16
+	Offset       int16
+	Phase        uint16
+	AttackLength uint16
+	AttackLevel  uint16
+	FadeLength   uint16
+	FadeLevel    uint16
+}
+
+type HintPriority Enum
+
+const (
+	HINT_DEFAULT HintPriority = iota
+	HINT_NORMAL
+	HINT_OVERRIDE
+)
+
+type JoystickGUID struct {
+	data [16]uint8
+}
+
+type Keymod Enum
+
+const (
+	KMOD_LSHIFT Keymod = 1 << iota
+	KMOD_RSHIFT
+	_
+	_
+	_ // 0x10
+	_
+	KMOD_LCTRL
+	KMOD_RCTRL
+	KMOD_LALT // 0x100
+	KMOD_RALT
+	KMOD_LGUI
+	KMOD_RGUI
+	KMOD_NUM // 0x1000
+	KMOD_CAPS
+	KMOD_MODE
+	KMOD_RESERVED
+	KMOD_NONE Keymod = 0
+)
+
+type LogPriority Enum
+
+const (
+	LOG_PRIORITY_VERBOSE = iota + 1
+	LOG_PRIORITY_DEBUG
+	LOG_PRIORITY_INFO
+	LOG_PRIORITY_WARN
+	LOG_PRIORITY_ERROR
+	LOG_PRIORITY_CRITICAL
+	NUM_LOG_PRIORITIES
+)
+
+type MessageBoxData struct {
+	Flags       uint32
+	Window      *Window
+	Title       *Char
+	Message     *Char
+	Numbuttons  int
+	Buttons     *MessageBoxButtonData
+	ColorScheme *MessageBoxColorScheme
+}
+
+type MessageBoxColor struct{ r, g, b uint8 }
+
+type MessageBoxColorScheme struct {
+	colors [MESSAGEBOX_COLOR_MAX]MessageBoxColor
+}
+
+type MessageBoxButtonData struct {
+	flags    uint32
+	buttonid int
+	text     *Char
+}
+
+type MessageBoxColorType Enum
+
+const (
+	MESSAGEBOX_COLOR_BACKGROUND MessageBoxColorType = iota
+	MESSAGEBOX_COLOR_TEXT
+	MESSAGEBOX_COLOR_BUTTON_BORDER
+	MESSAGEBOX_COLOR_BUTTON_BACKGROUND
+	MESSAGEBOX_COLOR_BUTTON_SELECTED
+	MESSAGEBOX_COLOR_MAX
+)
+
+type Palette struct {
+	NColors  int
+	Colors   *Color
+	Version  uint32
+	Refcount int
+}
+
+type PowerState Enum
+
+const (
+	POWERSTATE_UNKNOWN PowerState = iota
+	POWERSTATE_ON_BATTERY
+	POWERSTATE_NO_BATTERY
+	POWERSTATE_CHARGING
+	POWERSTATE_CHARGED
+)
+
+type RendererFlip Enum
+
+const (
+	FLIP_NONE RendererFlip = iota
+	FLIP_HORIZONTAL
+	FLIP_VERTICAL
+)
+
+type RendererInfo struct {
+	Name              *Char
+	Flags             uint32
+	NumTextureFormats uint32
+	TextureFormats    [16]uint32
+	MaxTextureWidth   int
+	MaxTextureHeight  int
+}
+
+type Scancode Enum
+
+const (
+	SCANCODE_UNKNOWN Scancode = iota
+	_
+	_
+	_
+	SCANCODE_A
+	SCANCODE_B
+	SCANCODE_C
+	SCANCODE_D
+	SCANCODE_E
+	SCANCODE_F
+	SCANCODE_G // 10
+	SCANCODE_H
+	SCANCODE_I
+	SCANCODE_J
+	SCANCODE_K
+	SCANCODE_L
+	SCANCODE_M
+	SCANCODE_N
+	SCANCODE_O
+	SCANCODE_P
+	SCANCODE_Q // 20
+	SCANCODE_R
+	SCANCODE_S
+	SCANCODE_T
+	SCANCODE_U
+	SCANCODE_V
+	SCANCODE_W
+	SCANCODE_X
+	SCANCODE_Y
+	SCANCODE_Z
+	SCANCODE_1 // 30
+	SCANCODE_2
+	SCANCODE_3
+	SCANCODE_4
+	SCANCODE_5
+	SCANCODE_6
+	SCANCODE_7
+	SCANCODE_8
+	SCANCODE_9
+	SCANCODE_0
+	SCANCODE_RETURN // 40
+	SCANCODE_ESCAPE
+	SCANCODE_BACKSPACE
+	SCANCODE_TAB
+	SCANCODE_SPACE
+	SCANCODE_MINUS
+	SCANCODE_EQUALS
+	SCANCODE_LEFTBRACKET
+	SCANCODE_RIGHTBRACKET
+	SCANCODE_BACKSLASH
+	SCANCODE_NONUSHASH // 50
+	SCANCODE_SEMICOLON
+	SCANCODE_APOSTROPHE
+	SCANCODE_GRAVE
+	SCANCODE_COMMA
+	SCANCODE_PERIOD
+	SCANCODE_SLASH
+	SCANCODE_CAPSLOCK
+	SCANCODE_F1
+	SCANCODE_F2
+	SCANCODE_F3 // 60
+	SCANCODE_F4
+	SCANCODE_F5
+	SCANCODE_F6
+	SCANCODE_F7
+	SCANCODE_F8
+	SCANCODE_F9
+	SCANCODE_F10
+	SCANCODE_F11
+	SCANCODE_F12
+	SCANCODE_PRINTSCREEN // 70
+	SCANCODE_SCROLLLOCK
+	SCANCODE_PAUSE
+	SCANCODE_INSERT
+	SCANCODE_HOME
+	SCANCODE_PAGEUP
+	SCANCODE_DELETE
+	SCANCODE_END
+	SCANCODE_PAGEDOWN
+	SCANCODE_RIGHT
+	SCANCODE_LEFT // 80
+	SCANCODE_DOWN
+	SCANCODE_UP
+	SCANCODE_NUMLOCKCLEAR
+	SCANCODE_KP_DIVIDE
+	SCANCODE_KP_MULTIPLY
+	SCANCODE_KP_MINUS
+	SCANCODE_KP_PLUS
+	SCANCODE_KP_ENTER
+	SCANCODE_KP_1
+	SCANCODE_KP_2 // 90
+	SCANCODE_KP_3
+	SCANCODE_KP_4
+	SCANCODE_KP_5
+	SCANCODE_KP_6
+	SCANCODE_KP_7
+	SCANCODE_KP_8
+	SCANCODE_KP_9
+	SCANCODE_KP_0
+	SCANCODE_KP_PERIOD
+	SCANCODE_NONUSBACKSLASH // 100
+	SCANCODE_APPLICATION
+	SCANCODE_POWER
+	SCANCODE_KP_EQUALS
+	SCANCODE_F13
+	SCANCODE_F14
+	SCANCODE_F15
+	SCANCODE_F16
+	SCANCODE_F17
+	SCANCODE_F18
+	SCANCODE_F19 // 110
+	SCANCODE_F20
+	SCANCODE_F21
+	SCANCODE_F22
+	SCANCODE_F23
+	SCANCODE_F24
+	SCANCODE_EXECUTE
+	SCANCODE_HELP
+	SCANCODE_MENU
+	SCANCODE_SELECT
+	SCANCODE_STOP // 120
+	SCANCODE_AGAIN
+	SCANCODE_UNDO
+	SCANCODE_CUT
+	SCANCODE_COPY
+	SCANCODE_PASTE
+	SCANCODE_FIND
+	SCANCODE_MUTE
+	SCANCODE_VOLUMEUP
+	SCANCODE_VOLUMEDOWN
+	_SCANCODE_LOCKINGCAPSLOCK // 130
+	_SCANCODE_LOCKINGNUMLOCK
+	_SCANCODE_LOCKINGSCROLLLOCK
+	SCANCODE_KP_COMMA
+	SCANCODE_KP_EQUALSAS400
+	SCANCODE_INTERNATIONAL1
+	SCANCODE_INTERNATIONAL2
+	SCANCODE_INTERNATIONAL3
+	SCANCODE_INTERNATIONAL4
+	SCANCODE_INTERNATIONAL5
+	SCANCODE_INTERNATIONAL6 // 140
+	SCANCODE_INTERNATIONAL7
+	SCANCODE_INTERNATIONAL8
+	SCANCODE_INTERNATIONAL9
+	SCANCODE_LANG1
+	SCANCODE_LANG2
+	SCANCODE_LANG3
+	SCANCODE_LANG4
+	SCANCODE_LANG5
+	SCANCODE_LANG6
+	SCANCODE_LANG7 // 150
+	SCANCODE_LANG8
+	SCANCODE_LANG9
+	SCANCODE_ALTERASE
+	SCANCODE_SYSREQ
+	SCANCODE_CANCEL
+	SCANCODE_CLEAR
+	SCANCODE_PRIOR
+	SCANCODE_RETURN2
+	SCANCODE_SEPARATOR
+	SCANCODE_OUT // 160
+	SCANCODE_OPER
+	SCANCODE_CLEARAGAIN
+	SCANCODE_CRSEL
+	SCANCODE_EXSEL
+	_
+	_
+	_
+	_
+	_
+	_ // 170
+	_
+	_
+	_
+	_
+	_
+	SCANCODE_KP_00
+	SCANCODE_KP_000
+	SCANCODE_THOUSANDSSEPARATOR
+	SCANCODE_DECIMALSEPARATOR
+	SCANCODE_CURRENCYUNIT // 180
+	SCANCODE_CURRENCYSUBUNIT
+	SCANCODE_KP_LEFTPAREN
+	SCANCODE_KP_RIGHTPAREN
+	SCANCODE_KP_LEFTBRACE
+	SCANCODE_KP_RIGHTBRACE
+	SCANCODE_KP_TAB
+	SCANCODE_KP_BACKSPACE
+	SCANCODE_KP_A
+	SCANCODE_KP_B
+	SCANCODE_KP_C // 190
+	SCANCODE_KP_D
+	SCANCODE_KP_E
+	SCANCODE_KP_F
+	SCANCODE_KP_XOR
+	SCANCODE_KP_POWER
+	SCANCODE_KP_PERCENT
+	SCANCODE_KP_LESS
+	SCANCODE_KP_GREATER
+	SCANCODE_KP_AMPERSAND
+	SCANCODE_KP_DBLAMPERSAND // 200
+	SCANCODE_KP_VERTICALBAR
+	SCANCODE_KP_DBLVERTICALBAR
+	SCANCODE_KP_COLON
+	SCANCODE_KP_HASH
+	SCANCODE_KP_SPACE
+	SCANCODE_KP_AT
+	SCANCODE_KP_EXCLAM
+	SCANCODE_KP_MEMSTORE
+	SCANCODE_KP_MEMRECALL
+	SCANCODE_KP_MEMCLEAR // 210
+	SCANCODE_KP_MEMADD
+	SCANCODE_KP_MEMSUBTRACT
+	SCANCODE_KP_MEMMULTIPLY
+	SCANCODE_KP_MEMDIVIDE
+	SCANCODE_KP_PLUSMINUS
+	SCANCODE_KP_CLEAR
+	SCANCODE_KP_CLEARENTRY
+	SCANCODE_KP_BINARY
+	SCANCODE_KP_OCTAL
+	SCANCODE_KP_DECIMAL // 220
+	SCANCODE_KP_HEXADECIMAL
+	_
+	_
+	SCANCODE_LCTRL
+	SCANCODE_LSHIFT
+	SCANCODE_LALT
+	SCANCODE_LGUI
+	SCANCODE_RCTRL
+	SCANCODE_RSHIFT
+	SCANCODE_RALT // 230
+	SCANCODE_RGUI
+)
+const (
+	_ Scancode = iota + 0x100
+	SCANCODE_MODE
+	SCANCODE_AUDIONEXT
+	SCANCODE_AUDIOPREV
+	SCANCODE_AUDIOSTOP
+	SCANCODE_AUDIOPLAY
+	SCANCODE_AUDIOMUTE
+	SCANCODE_MEDIASELECT
+	SCANCODE_WWW
+	SCANCODE_MAIL
+	SCANCODE_CALCULATOR
+	SCANCODE_COMPUTER
+	SCANCODE_AC_SEARCH
+	SCANCODE_AC_HOME
+	SCANCODE_AC_BACK
+	SCANCODE_AC_FORWARD
+	SCANCODE_AC_STOP
+	SCANCODE_AC_REFRESH
+	SCANCODE_AC_BOOKMARKS
+	SCANCODE_BRIGHTNESSDOWN
+	SCANCODE_BRIGHTNESSUP
+	SCANCODE_DISPLAYSWITCH
+	SCANCODE_KBDILLUMTOGGLE
+	SCANCODE_KBDILLUMDOWN
+	SCANCODE_KBDILLUMUP
+	SCANCODE_EJECT
+	SCANCODE_SLEEP
+	SCANCODE_APP1
+	SCANCODE_APP2
+	NUM_SCANCODES Scancode = 0x200
+)
+
+type SystemCursor Enum
+
+const (
+	SYSTEM_CURSOR_ARROW SystemCursor = iota
+	SYSTEM_CURSOR_IBEAM
+	SYSTEM_CURSOR_WAIT
+	SYSTEM_CURSOR_CROSSHAIR
+	SYSTEM_CURSOR_WAITARROW
+	SYSTEM_CURSOR_SIZENWSE
+	SYSTEM_CURSOR_SIZENESW
+	SYSTEM_CURSOR_SIZEWE
+	SYSTEM_CURSOR_SIZENS
+	SYSTEM_CURSOR_SIZEALL
+	SYSTEM_CURSOR_NO
+	SYSTEM_CURSOR_HAND
+	NUM_SYSTEM_CURSORS
+)
+
+type ThreadPriority Enum
+
+const (
+	THREAD_PRIORITY_LOW ThreadPriority = iota
+	THREAD_PRIORITY_NORMAL
+	THREAD_PRIORITY_HIGH
+)
+
 var dll = "SDL2.dll"
 
 var apiList = outside.Apis{
-	{"SDL_abs", &SDL_abs},
-	{"SDL_AddEventWatch", &SDL_AddEventWatch},
-	{"SDL_AddHintCallback", &SDL_AddHintCallback},
-	{"SDL_AddTimer", &SDL_AddTimer},
-	{"SDL_AllocFormat", &SDL_AllocFormat},
-	{"SDL_AllocPalette", &SDL_AllocPalette},
-	{"SDL_AllocRW", &SDL_AllocRW},
-	{"SDL_atan", &SDL_atan},
-	{"SDL_atan2", &SDL_atan2},
-	{"SDL_atof", &SDL_atof},
-	{"SDL_atoi", &SDL_atoi},
-	{"SDL_AtomicCAS", &SDL_AtomicCAS},
-	{"SDL_AtomicCASPtr", &SDL_AtomicCASPtr},
-	{"SDL_AtomicLock", &SDL_AtomicLock},
-	{"SDL_AtomicTryLock", &SDL_AtomicTryLock},
-	{"SDL_AtomicUnlock", &SDL_AtomicUnlock},
-	{"SDL_AudioInit", &SDL_AudioInit},
-	{"SDL_AudioQuit", &SDL_AudioQuit},
-	{"SDL_BuildAudioCVT", &SDL_BuildAudioCVT},
-	{"SDL_CalculateGammaRamp", &SDL_CalculateGammaRamp},
-	{"SDL_calloc", &SDL_calloc},
-	{"SDL_ceil", &SDL_ceil},
-	{"SDL_ClearError", &SDL_ClearError},
-	{"SDL_ClearHints", &SDL_ClearHints},
-	{"SDL_CloseAudio", &SDL_CloseAudio},
-	{"SDL_CloseAudioDevice", &SDL_CloseAudioDevice},
-	{"SDL_CondBroadcast", &SDL_CondBroadcast},
-	{"SDL_CondSignal", &SDL_CondSignal},
-	{"SDL_CondWait", &SDL_CondWait},
-	{"SDL_CondWaitTimeout", &SDL_CondWaitTimeout},
-	{"SDL_ConvertAudio", &SDL_ConvertAudio},
-	{"SDL_ConvertPixels", &SDL_ConvertPixels},
-	{"SDL_ConvertSurface", &SDL_ConvertSurface},
-	{"SDL_ConvertSurfaceFormat", &SDL_ConvertSurfaceFormat},
-	{"SDL_copysign", &SDL_copysign},
-	{"SDL_cos", &SDL_cos},
-	{"SDL_cosf", &SDL_cosf},
-	{"SDL_CreateColorCursor", &SDL_CreateColorCursor},
-	{"SDL_CreateCond", &SDL_CreateCond},
-	{"SDL_CreateCursor", &SDL_CreateCursor},
-	{"SDL_CreateMutex", &SDL_CreateMutex},
-	{"SDL_CreateRenderer", &SDL_CreateRenderer},
-	{"SDL_CreateRGBSurface", &SDL_CreateRGBSurface},
-	{"SDL_CreateRGBSurfaceFrom", &SDL_CreateRGBSurfaceFrom},
-	{"SDL_CreateSemaphore", &SDL_CreateSemaphore},
-	//TODO(t):{"SDL_CreateShapedWindow", &SDL_CreateShapedWindow},
-	{"SDL_CreateSoftwareRenderer", &SDL_CreateSoftwareRenderer},
-	{"SDL_CreateSystemCursor", &SDL_CreateSystemCursor},
-	{"SDL_CreateTexture", &SDL_CreateTexture},
-	{"SDL_CreateTextureFromSurface", &SDL_CreateTextureFromSurface},
-	{"SDL_CreateThread", &SDL_CreateThread},
-	{"SDL_CreateWindow", &SDL_CreateWindow},
-	{"SDL_CreateWindowAndRenderer", &SDL_CreateWindowAndRenderer},
-	{"SDL_CreateWindowFrom", &SDL_CreateWindowFrom},
-	{"SDL_Delay", &SDL_Delay},
-	{"SDL_DelEventWatch", &SDL_DelEventWatch},
-	{"SDL_DelHintCallback", &SDL_DelHintCallback},
-	{"SDL_DestroyCond", &SDL_DestroyCond},
-	{"SDL_DestroyMutex", &SDL_DestroyMutex},
-	{"SDL_DestroyRenderer", &SDL_DestroyRenderer},
-	{"SDL_DestroySemaphore", &SDL_DestroySemaphore},
-	{"SDL_DestroyTexture", &SDL_DestroyTexture},
-	{"SDL_DestroyWindow", &SDL_DestroyWindow},
-	{"SDL_DisableScreenSaver", &SDL_DisableScreenSaver},
-	{"SDL_EnableScreenSaver", &SDL_EnableScreenSaver},
-	{"SDL_EnclosePoints", &SDL_EnclosePoints},
-	{"SDL_Error", &SDL_Error},
-	{"SDL_EventState", &SDL_EventState},
-	{"SDL_fabs", &SDL_fabs},
-	{"SDL_FillRect", &SDL_FillRect},
-	{"SDL_FillRects", &SDL_FillRects},
-	{"SDL_FilterEvents", &SDL_FilterEvents},
-	{"SDL_floor", &SDL_floor},
-	{"SDL_FlushEvent", &SDL_FlushEvent},
-	{"SDL_FlushEvents", &SDL_FlushEvents},
-	{"SDL_free", &SDL_free},
-	{"SDL_FreeCursor", &SDL_FreeCursor},
-	{"SDL_FreeFormat", &SDL_FreeFormat},
-	{"SDL_FreePalette", &SDL_FreePalette},
-	{"SDL_FreeRW", &SDL_FreeRW},
-	{"SDL_FreeSurface", &SDL_FreeSurface},
-	{"SDL_FreeWAV", &SDL_FreeWAV},
-	{"SDL_GameControllerAddMapping", &SDL_GameControllerAddMapping},
-	{"SDL_GameControllerClose", &SDL_GameControllerClose},
-	{"SDL_GameControllerEventState", &SDL_GameControllerEventState},
-	{"SDL_GameControllerGetAttached", &SDL_GameControllerGetAttached},
-	{"SDL_GameControllerGetAxis", &SDL_GameControllerGetAxis},
-	{"SDL_GameControllerGetAxisFromString", &SDL_GameControllerGetAxisFromString},
-	{"SDL_GameControllerGetBindForAxis", &SDL_GameControllerGetBindForAxis},
-	{"SDL_GameControllerGetBindForButton", &SDL_GameControllerGetBindForButton},
-	{"SDL_GameControllerGetButton", &SDL_GameControllerGetButton},
-	{"SDL_GameControllerGetButtonFromString", &SDL_GameControllerGetButtonFromString},
-	{"SDL_GameControllerGetJoystick", &SDL_GameControllerGetJoystick},
-	{"SDL_GameControllerGetStringForAxis", &SDL_GameControllerGetStringForAxis},
-	{"SDL_GameControllerGetStringForButton", &SDL_GameControllerGetStringForButton},
-	{"SDL_GameControllerMapping", &SDL_GameControllerMapping},
-	{"SDL_GameControllerMappingForGUID", &SDL_GameControllerMappingForGUID},
-	{"SDL_GameControllerName", &SDL_GameControllerName},
-	{"SDL_GameControllerNameForIndex", &SDL_GameControllerNameForIndex},
-	{"SDL_GameControllerOpen", &SDL_GameControllerOpen},
-	{"SDL_GameControllerUpdate", &SDL_GameControllerUpdate},
-	{"SDL_GetAssertionReport", &SDL_GetAssertionReport},
-	{"SDL_GetAudioDeviceName", &SDL_GetAudioDeviceName},
-	{"SDL_GetAudioDeviceStatus", &SDL_GetAudioDeviceStatus},
-	{"SDL_GetAudioDriver", &SDL_GetAudioDriver},
-	{"SDL_GetAudioStatus", &SDL_GetAudioStatus},
-	{"SDL_GetClipboardText", &SDL_GetClipboardText},
-	{"SDL_GetClipRect", &SDL_GetClipRect},
-	{"SDL_GetClosestDisplayMode", &SDL_GetClosestDisplayMode},
-	{"SDL_GetColorKey", &SDL_GetColorKey},
-	{"SDL_GetCPUCacheLineSize", &SDL_GetCPUCacheLineSize},
-	{"SDL_GetCPUCount", &SDL_GetCPUCount},
-	{"SDL_GetCurrentAudioDriver", &SDL_GetCurrentAudioDriver},
-	{"SDL_GetCurrentDisplayMode", &SDL_GetCurrentDisplayMode},
-	{"SDL_GetCurrentVideoDriver", &SDL_GetCurrentVideoDriver},
-	{"SDL_GetCursor", &SDL_GetCursor},
-	{"SDL_GetDefaultCursor", &SDL_GetDefaultCursor},
-	{"SDL_GetDesktopDisplayMode", &SDL_GetDesktopDisplayMode},
-	{"SDL_GetDisplayBounds", &SDL_GetDisplayBounds},
-	{"SDL_GetDisplayMode", &SDL_GetDisplayMode},
-	{"SDL_GetDisplayName", &SDL_GetDisplayName},
-	{"SDL_getenv", &SDL_getenv},
-	{"SDL_GetError", &SDL_GetError},
-	{"SDL_GetEventFilter", &SDL_GetEventFilter},
-	{"SDL_GetHint", &SDL_GetHint},
-	{"SDL_GetKeyboardFocus", &SDL_GetKeyboardFocus},
-	{"SDL_GetKeyboardState", &SDL_GetKeyboardState},
-	{"SDL_GetKeyFromName", &SDL_GetKeyFromName},
-	{"SDL_GetKeyFromScancode", &SDL_GetKeyFromScancode},
-	{"SDL_GetKeyName", &SDL_GetKeyName},
-	{"SDL_GetModState", &SDL_GetModState},
-	{"SDL_GetMouseFocus", &SDL_GetMouseFocus},
-	{"SDL_GetMouseState", &SDL_GetMouseState},
-	{"SDL_GetNumAudioDevices", &SDL_GetNumAudioDevices},
-	{"SDL_GetNumAudioDrivers", &SDL_GetNumAudioDrivers},
-	{"SDL_GetNumDisplayModes", &SDL_GetNumDisplayModes},
-	{"SDL_GetNumRenderDrivers", &SDL_GetNumRenderDrivers},
-	{"SDL_GetNumTouchDevices", &SDL_GetNumTouchDevices},
-	{"SDL_GetNumTouchFingers", &SDL_GetNumTouchFingers},
-	{"SDL_GetNumVideoDisplays", &SDL_GetNumVideoDisplays},
-	{"SDL_GetNumVideoDrivers", &SDL_GetNumVideoDrivers},
-	{"SDL_GetPerformanceCounter", &SDL_GetPerformanceCounter},
-	{"SDL_GetPerformanceFrequency", &SDL_GetPerformanceFrequency},
-	{"SDL_GetPixelFormatName", &SDL_GetPixelFormatName},
-	{"SDL_GetPlatform", &SDL_GetPlatform},
-	{"SDL_GetPowerInfo", &SDL_GetPowerInfo},
-	{"SDL_GetRelativeMouseMode", &SDL_GetRelativeMouseMode},
-	{"SDL_GetRelativeMouseState", &SDL_GetRelativeMouseState},
-	{"SDL_GetRenderDrawBlendMode", &SDL_GetRenderDrawBlendMode},
-	{"SDL_GetRenderDrawColor", &SDL_GetRenderDrawColor},
-	{"SDL_GetRenderDriverInfo", &SDL_GetRenderDriverInfo},
-	{"SDL_GetRenderer", &SDL_GetRenderer},
-	{"SDL_GetRendererInfo", &SDL_GetRendererInfo},
-	{"SDL_GetRendererOutputSize", &SDL_GetRendererOutputSize},
-	{"SDL_GetRenderTarget", &SDL_GetRenderTarget},
-	{"SDL_GetRevision", &SDL_GetRevision},
-	{"SDL_GetRevisionNumber", &SDL_GetRevisionNumber},
-	{"SDL_GetRGB", &SDL_GetRGB},
-	{"SDL_GetRGBA", &SDL_GetRGBA},
-	{"SDL_GetScancodeFromKey", &SDL_GetScancodeFromKey},
-	{"SDL_GetScancodeFromName", &SDL_GetScancodeFromName},
-	{"SDL_GetScancodeName", &SDL_GetScancodeName},
-	//TODO(t):{"SDL_GetShapedWindowMode", &SDL_GetShapedWindowMode},
-	{"SDL_GetSurfaceAlphaMod", &SDL_GetSurfaceAlphaMod},
-	{"SDL_GetSurfaceBlendMode", &SDL_GetSurfaceBlendMode},
-	{"SDL_GetSurfaceColorMod", &SDL_GetSurfaceColorMod},
-	{"SDL_GetTextureAlphaMod", &SDL_GetTextureAlphaMod},
-	{"SDL_GetTextureBlendMode", &SDL_GetTextureBlendMode},
-	{"SDL_GetTextureColorMod", &SDL_GetTextureColorMod},
-	{"SDL_GetThreadID", &SDL_GetThreadID},
-	{"SDL_GetThreadName", &SDL_GetThreadName},
-	{"SDL_GetTicks", &SDL_GetTicks},
-	{"SDL_GetTouchDevice", &SDL_GetTouchDevice},
-	{"SDL_GetTouchFinger", &SDL_GetTouchFinger},
-	{"SDL_GetVersion", &SDL_GetVersion},
-	{"SDL_GetVideoDriver", &SDL_GetVideoDriver},
-	{"SDL_GetWindowBrightness", &SDL_GetWindowBrightness},
-	{"SDL_GetWindowData", &SDL_GetWindowData},
-	{"SDL_GetWindowDisplayIndex", &SDL_GetWindowDisplayIndex},
-	{"SDL_GetWindowDisplayMode", &SDL_GetWindowDisplayMode},
-	{"SDL_GetWindowFlags", &SDL_GetWindowFlags},
-	{"SDL_GetWindowFromID", &SDL_GetWindowFromID},
-	{"SDL_GetWindowGammaRamp", &SDL_GetWindowGammaRamp},
-	{"SDL_GetWindowGrab", &SDL_GetWindowGrab},
-	{"SDL_GetWindowID", &SDL_GetWindowID},
-	{"SDL_GetWindowMaximumSize", &SDL_GetWindowMaximumSize},
-	{"SDL_GetWindowMinimumSize", &SDL_GetWindowMinimumSize},
-	{"SDL_GetWindowPixelFormat", &SDL_GetWindowPixelFormat},
-	{"SDL_GetWindowPosition", &SDL_GetWindowPosition},
-	{"SDL_GetWindowSize", &SDL_GetWindowSize},
-	{"SDL_GetWindowSurface", &SDL_GetWindowSurface},
-	{"SDL_GetWindowTitle", &SDL_GetWindowTitle},
-	//TODO(t):{"SDL_GetWindowWMInfo", &SDL_GetWindowWMInfo},
-	{"SDL_GL_BindTexture", &SDL_GL_BindTexture},
-	{"SDL_GL_CreateContext", &SDL_GL_CreateContext},
-	{"SDL_GL_DeleteContext", &SDL_GL_DeleteContext},
-	{"SDL_GL_ExtensionSupported", &SDL_GL_ExtensionSupported},
-	{"SDL_GL_GetAttribute", &SDL_GL_GetAttribute},
-	{"SDL_GL_GetCurrentContext", &SDL_GL_GetCurrentContext},
-	{"SDL_GL_GetCurrentWindow", &SDL_GL_GetCurrentWindow},
-	{"SDL_GL_GetProcAddress", &SDL_GL_GetProcAddress},
-	{"SDL_GL_GetSwapInterval", &SDL_GL_GetSwapInterval},
-	{"SDL_GL_LoadLibrary", &SDL_GL_LoadLibrary},
-	{"SDL_GL_MakeCurrent", &SDL_GL_MakeCurrent},
-	{"SDL_GL_SetAttribute", &SDL_GL_SetAttribute},
-	{"SDL_GL_SetSwapInterval", &SDL_GL_SetSwapInterval},
-	{"SDL_GL_SwapWindow", &SDL_GL_SwapWindow},
-	{"SDL_GL_UnbindTexture", &SDL_GL_UnbindTexture},
-	{"SDL_GL_UnloadLibrary", &SDL_GL_UnloadLibrary},
-	{"SDL_HapticClose", &SDL_HapticClose},
-	{"SDL_HapticDestroyEffect", &SDL_HapticDestroyEffect},
-	{"SDL_HapticEffectSupported", &SDL_HapticEffectSupported},
-	{"SDL_HapticGetEffectStatus", &SDL_HapticGetEffectStatus},
-	{"SDL_HapticIndex", &SDL_HapticIndex},
-	{"SDL_HapticName", &SDL_HapticName},
-	{"SDL_HapticNewEffect", &SDL_HapticNewEffect},
-	{"SDL_HapticNumAxes", &SDL_HapticNumAxes},
-	{"SDL_HapticNumEffects", &SDL_HapticNumEffects},
-	{"SDL_HapticNumEffectsPlaying", &SDL_HapticNumEffectsPlaying},
-	{"SDL_HapticOpen", &SDL_HapticOpen},
-	{"SDL_HapticOpened", &SDL_HapticOpened},
-	{"SDL_HapticOpenFromJoystick", &SDL_HapticOpenFromJoystick},
-	{"SDL_HapticOpenFromMouse", &SDL_HapticOpenFromMouse},
-	{"SDL_HapticPause", &SDL_HapticPause},
-	{"SDL_HapticQuery", &SDL_HapticQuery},
-	{"SDL_HapticRumbleInit", &SDL_HapticRumbleInit},
-	{"SDL_HapticRumblePlay", &SDL_HapticRumblePlay},
-	{"SDL_HapticRumbleStop", &SDL_HapticRumbleStop},
-	{"SDL_HapticRumbleSupported", &SDL_HapticRumbleSupported},
-	{"SDL_HapticRunEffect", &SDL_HapticRunEffect},
-	{"SDL_HapticSetAutocenter", &SDL_HapticSetAutocenter},
-	{"SDL_HapticSetGain", &SDL_HapticSetGain},
-	{"SDL_HapticStopAll", &SDL_HapticStopAll},
-	{"SDL_HapticStopEffect", &SDL_HapticStopEffect},
-	{"SDL_HapticUnpause", &SDL_HapticUnpause},
-	{"SDL_HapticUpdateEffect", &SDL_HapticUpdateEffect},
-	{"SDL_Has3DNow", &SDL_Has3DNow},
-	{"SDL_HasAltiVec", &SDL_HasAltiVec},
-	{"SDL_HasClipboardText", &SDL_HasClipboardText},
-	{"SDL_HasEvent", &SDL_HasEvent},
-	{"SDL_HasEvents", &SDL_HasEvents},
-	{"SDL_HasIntersection", &SDL_HasIntersection},
-	{"SDL_HasMMX", &SDL_HasMMX},
-	{"SDL_HasRDTSC", &SDL_HasRDTSC},
-	{"SDL_HasScreenKeyboardSupport", &SDL_HasScreenKeyboardSupport},
-	{"SDL_HasSSE", &SDL_HasSSE},
-	{"SDL_HasSSE2", &SDL_HasSSE2},
-	{"SDL_HasSSE3", &SDL_HasSSE3},
-	{"SDL_HasSSE41", &SDL_HasSSE41},
-	{"SDL_HasSSE42", &SDL_HasSSE42},
-	{"SDL_HideWindow", &SDL_HideWindow},
-	{"SDL_iconv", &SDL_iconv},
-	{"SDL_iconv_close", &SDL_iconv_close},
-	{"SDL_iconv_open", &SDL_iconv_open},
-	{"SDL_iconv_string", &SDL_iconv_string},
-	{"SDL_Init", &SDL_Init},
-	{"SDL_InitSubSystem", &SDL_InitSubSystem},
-	{"SDL_IntersectRect", &SDL_IntersectRect},
-	{"SDL_IntersectRectAndLine", &SDL_IntersectRectAndLine},
-	{"SDL_isdigit", &SDL_isdigit},
-	{"SDL_IsGameController", &SDL_IsGameController},
-	{"SDL_IsScreenKeyboardShown", &SDL_IsScreenKeyboardShown},
-	{"SDL_IsScreenSaverEnabled", &SDL_IsScreenSaverEnabled},
-	//TODO(t):{"SDL_IsShapedWindow", &SDL_IsShapedWindow},
-	{"SDL_isspace", &SDL_isspace},
-	{"SDL_IsTextInputActive", &SDL_IsTextInputActive},
-	{"SDL_itoa", &SDL_itoa},
-	{"SDL_JoystickClose", &SDL_JoystickClose},
-	{"SDL_JoystickEventState", &SDL_JoystickEventState},
-	{"SDL_JoystickGetAttached", &SDL_JoystickGetAttached},
-	{"SDL_JoystickGetAxis", &SDL_JoystickGetAxis},
-	{"SDL_JoystickGetBall", &SDL_JoystickGetBall},
-	{"SDL_JoystickGetButton", &SDL_JoystickGetButton},
-	{"SDL_JoystickGetDeviceGUID", &SDL_JoystickGetDeviceGUID},
-	{"SDL_JoystickGetGUID", &SDL_JoystickGetGUID},
-	{"SDL_JoystickGetGUIDFromString", &SDL_JoystickGetGUIDFromString},
-	{"SDL_JoystickGetGUIDString", &SDL_JoystickGetGUIDString},
-	{"SDL_JoystickGetHat", &SDL_JoystickGetHat},
-	{"SDL_JoystickInstanceID", &SDL_JoystickInstanceID},
-	{"SDL_JoystickIsHaptic", &SDL_JoystickIsHaptic},
-	{"SDL_JoystickName", &SDL_JoystickName},
-	{"SDL_JoystickNameForIndex", &SDL_JoystickNameForIndex},
-	{"SDL_JoystickNumAxes", &SDL_JoystickNumAxes},
-	{"SDL_JoystickNumBalls", &SDL_JoystickNumBalls},
-	{"SDL_JoystickNumButtons", &SDL_JoystickNumButtons},
-	{"SDL_JoystickNumHats", &SDL_JoystickNumHats},
-	{"SDL_JoystickOpen", &SDL_JoystickOpen},
-	{"SDL_JoystickUpdate", &SDL_JoystickUpdate},
-	{"SDL_lltoa", &SDL_lltoa},
-	{"SDL_LoadBMP_RW", &SDL_LoadBMP_RW},
-	{"SDL_LoadDollarTemplates", &SDL_LoadDollarTemplates},
-	{"SDL_LoadFunction", &SDL_LoadFunction},
-	{"SDL_LoadObject", &SDL_LoadObject},
-	{"SDL_LoadWAV_RW", &SDL_LoadWAV_RW},
-	{"SDL_LockAudio", &SDL_LockAudio},
-	{"SDL_LockAudioDevice", &SDL_LockAudioDevice},
-	{"SDL_LockMutex", &SDL_LockMutex},
-	{"SDL_LockSurface", &SDL_LockSurface},
-	{"SDL_LockTexture", &SDL_LockTexture},
-	//TODO(t):{"SDL_Log", &SDL_Log},
-	{"SDL_log", &SDL_log},
-	//TODO(t):{"SDL_LogCritical", &SDL_LogCritical},
-	//TODO(t):{"SDL_LogDebug", &SDL_LogDebug},
-	//TODO(t):{"SDL_LogError", &SDL_LogError},
-	{"SDL_LogGetOutputFunction", &SDL_LogGetOutputFunction},
-	{"SDL_LogGetPriority", &SDL_LogGetPriority},
-	//TODO(t):{"SDL_LogInfo", &SDL_LogInfo},
-	//TODO(t):{"SDL_LogMessage", &SDL_LogMessage},
-	//TODO(t):{"SDL_LogMessageV", &SDL_LogMessageV},
-	{"SDL_LogResetPriorities", &SDL_LogResetPriorities},
-	{"SDL_LogSetAllPriority", &SDL_LogSetAllPriority},
-	{"SDL_LogSetOutputFunction", &SDL_LogSetOutputFunction},
-	{"SDL_LogSetPriority", &SDL_LogSetPriority},
-	//TODO(t):{"SDL_LogVerbose", &SDL_LogVerbose},
-	//TODO(t):{"SDL_LogWarn", &SDL_LogWarn},
-	{"SDL_LowerBlit", &SDL_LowerBlit},
-	{"SDL_LowerBlitScaled", &SDL_LowerBlitScaled},
-	{"SDL_ltoa", &SDL_ltoa},
-	{"SDL_malloc", &SDL_malloc},
-	{"SDL_MapRGB", &SDL_MapRGB},
-	{"SDL_MapRGBA", &SDL_MapRGBA},
-	{"SDL_MasksToPixelFormatEnum", &SDL_MasksToPixelFormatEnum},
-	{"SDL_MaximizeWindow", &SDL_MaximizeWindow},
-	{"SDL_memcmp", &SDL_memcmp},
-	{"SDL_memcpy", &SDL_memcpy},
-	{"SDL_memmove", &SDL_memmove},
-	{"SDL_memset", &SDL_memset},
-	{"SDL_MinimizeWindow", &SDL_MinimizeWindow},
-	{"SDL_MixAudio", &SDL_MixAudio},
-	{"SDL_MixAudioFormat", &SDL_MixAudioFormat},
-	{"SDL_MouseIsHaptic", &SDL_MouseIsHaptic},
-	{"SDL_NumHaptics", &SDL_NumHaptics},
-	{"SDL_NumJoysticks", &SDL_NumJoysticks},
-	{"SDL_OpenAudio", &SDL_OpenAudio},
-	{"SDL_OpenAudioDevice", &SDL_OpenAudioDevice},
-	{"SDL_PauseAudio", &SDL_PauseAudio},
-	{"SDL_PauseAudioDevice", &SDL_PauseAudioDevice},
-	{"SDL_PeepEvents", &SDL_PeepEvents},
-	{"SDL_PixelFormatEnumToMasks", &SDL_PixelFormatEnumToMasks},
-	{"SDL_PollEvent", &SDL_PollEvent},
-	{"SDL_pow", &SDL_pow},
-	{"SDL_PumpEvents", &SDL_PumpEvents},
-	{"SDL_PushEvent", &SDL_PushEvent},
-	{"SDL_qsort", &SDL_qsort},
-	{"SDL_QueryTexture", &SDL_QueryTexture},
-	{"SDL_Quit", &SDL_Quit},
-	{"SDL_QuitSubSystem", &SDL_QuitSubSystem},
-	{"SDL_RaiseWindow", &SDL_RaiseWindow},
-	{"SDL_ReadBE16", &SDL_ReadBE16},
-	{"SDL_ReadBE32", &SDL_ReadBE32},
-	{"SDL_ReadBE64", &SDL_ReadBE64},
-	{"SDL_ReadLE16", &SDL_ReadLE16},
-	{"SDL_ReadLE32", &SDL_ReadLE32},
-	{"SDL_ReadLE64", &SDL_ReadLE64},
-	{"SDL_ReadU8", &SDL_ReadU8},
-	{"SDL_realloc", &SDL_realloc},
-	{"SDL_RecordGesture", &SDL_RecordGesture},
-	{"SDL_RegisterEvents", &SDL_RegisterEvents},
-	{"SDL_RemoveTimer", &SDL_RemoveTimer},
-	{"SDL_RenderClear", &SDL_RenderClear},
-	{"SDL_RenderCopy", &SDL_RenderCopy},
-	{"SDL_RenderCopyEx", &SDL_RenderCopyEx},
-	{"SDL_RenderDrawLine", &SDL_RenderDrawLine},
-	{"SDL_RenderDrawLines", &SDL_RenderDrawLines},
-	{"SDL_RenderDrawPoint", &SDL_RenderDrawPoint},
-	{"SDL_RenderDrawPoints", &SDL_RenderDrawPoints},
-	{"SDL_RenderDrawRect", &SDL_RenderDrawRect},
-	{"SDL_RenderDrawRects", &SDL_RenderDrawRects},
-	{"SDL_RenderFillRect", &SDL_RenderFillRect},
-	{"SDL_RenderFillRects", &SDL_RenderFillRects},
-	{"SDL_RenderGetClipRect", &SDL_RenderGetClipRect},
-	{"SDL_RenderGetLogicalSize", &SDL_RenderGetLogicalSize},
-	{"SDL_RenderGetScale", &SDL_RenderGetScale},
-	{"SDL_RenderGetViewport", &SDL_RenderGetViewport},
-	{"SDL_RenderPresent", &SDL_RenderPresent},
-	{"SDL_RenderReadPixels", &SDL_RenderReadPixels},
-	{"SDL_RenderSetClipRect", &SDL_RenderSetClipRect},
-	{"SDL_RenderSetLogicalSize", &SDL_RenderSetLogicalSize},
-	{"SDL_RenderSetScale", &SDL_RenderSetScale},
-	{"SDL_RenderSetViewport", &SDL_RenderSetViewport},
-	{"SDL_RenderTargetSupported", &SDL_RenderTargetSupported},
-	{"SDL_ReportAssertion", &SDL_ReportAssertion},
-	{"SDL_ResetAssertionReport", &SDL_ResetAssertionReport},
-	{"SDL_RestoreWindow", &SDL_RestoreWindow},
-	{"SDL_RWFromConstMem", &SDL_RWFromConstMem},
-	{"SDL_RWFromFile", &SDL_RWFromFile},
-	{"SDL_RWFromFP", &SDL_RWFromFP},
-	{"SDL_RWFromMem", &SDL_RWFromMem},
-	{"SDL_SaveAllDollarTemplates", &SDL_SaveAllDollarTemplates},
-	{"SDL_SaveBMP_RW", &SDL_SaveBMP_RW},
-	{"SDL_SaveDollarTemplate", &SDL_SaveDollarTemplate},
-	{"SDL_scalbn", &SDL_scalbn},
-	{"SDL_SemPost", &SDL_SemPost},
-	{"SDL_SemTryWait", &SDL_SemTryWait},
-	{"SDL_SemValue", &SDL_SemValue},
-	{"SDL_SemWait", &SDL_SemWait},
-	{"SDL_SemWaitTimeout", &SDL_SemWaitTimeout},
-	{"SDL_SetAssertionHandler", &SDL_SetAssertionHandler},
-	{"SDL_SetClipboardText", &SDL_SetClipboardText},
-	{"SDL_SetClipRect", &SDL_SetClipRect},
-	{"SDL_SetColorKey", &SDL_SetColorKey},
-	{"SDL_SetCursor", &SDL_SetCursor},
-	{"SDL_setenv", &SDL_setenv},
-	//TODO(t):{"SDL_SetError", &SDL_SetError},
-	{"SDL_SetEventFilter", &SDL_SetEventFilter},
-	{"SDL_SetHint", &SDL_SetHint},
-	{"SDL_SetHintWithPriority", &SDL_SetHintWithPriority},
-	{"SDL_SetMainReady", &SDL_SetMainReady},
-	{"SDL_SetModState", &SDL_SetModState},
-	{"SDL_SetPaletteColors", &SDL_SetPaletteColors},
-	{"SDL_SetPixelFormatPalette", &SDL_SetPixelFormatPalette},
-	{"SDL_SetRelativeMouseMode", &SDL_SetRelativeMouseMode},
-	{"SDL_SetRenderDrawBlendMode", &SDL_SetRenderDrawBlendMode},
-	{"SDL_SetRenderDrawColor", &SDL_SetRenderDrawColor},
-	{"SDL_SetRenderTarget", &SDL_SetRenderTarget},
-	{"SDL_SetSurfaceAlphaMod", &SDL_SetSurfaceAlphaMod},
-	{"SDL_SetSurfaceBlendMode", &SDL_SetSurfaceBlendMode},
-	{"SDL_SetSurfaceColorMod", &SDL_SetSurfaceColorMod},
-	{"SDL_SetSurfacePalette", &SDL_SetSurfacePalette},
-	{"SDL_SetSurfaceRLE", &SDL_SetSurfaceRLE},
-	{"SDL_SetTextInputRect", &SDL_SetTextInputRect},
-	{"SDL_SetTextureAlphaMod", &SDL_SetTextureAlphaMod},
-	{"SDL_SetTextureBlendMode", &SDL_SetTextureBlendMode},
-	{"SDL_SetTextureColorMod", &SDL_SetTextureColorMod},
-	{"SDL_SetThreadPriority", &SDL_SetThreadPriority},
-	{"SDL_SetWindowBordered", &SDL_SetWindowBordered},
-	{"SDL_SetWindowBrightness", &SDL_SetWindowBrightness},
-	{"SDL_SetWindowData", &SDL_SetWindowData},
-	{"SDL_SetWindowDisplayMode", &SDL_SetWindowDisplayMode},
-	{"SDL_SetWindowFullscreen", &SDL_SetWindowFullscreen},
-	{"SDL_SetWindowGammaRamp", &SDL_SetWindowGammaRamp},
-	{"SDL_SetWindowGrab", &SDL_SetWindowGrab},
-	{"SDL_SetWindowIcon", &SDL_SetWindowIcon},
-	{"SDL_SetWindowMaximumSize", &SDL_SetWindowMaximumSize},
-	{"SDL_SetWindowMinimumSize", &SDL_SetWindowMinimumSize},
-	{"SDL_SetWindowPosition", &SDL_SetWindowPosition},
-	//TODO(t):{"SDL_SetWindowShape", &SDL_SetWindowShape},
-	{"SDL_SetWindowSize", &SDL_SetWindowSize},
-	{"SDL_SetWindowTitle", &SDL_SetWindowTitle},
-	{"SDL_ShowCursor", &SDL_ShowCursor},
-	{"SDL_ShowMessageBox", &SDL_ShowMessageBox},
-	{"SDL_ShowSimpleMessageBox", &SDL_ShowSimpleMessageBox},
-	{"SDL_ShowWindow", &SDL_ShowWindow},
-	{"SDL_sin", &SDL_sin},
-	{"SDL_sinf", &SDL_sinf},
-	//TODO(t):{"SDL_snprintf", &SDL_snprintf},
-	{"SDL_SoftStretch", &SDL_SoftStretch},
-	{"SDL_sqrt", &SDL_sqrt},
-	//TODO(t):{"SDL_sscanf", &SDL_sscanf},
-	{"SDL_StartTextInput", &SDL_StartTextInput},
-	{"SDL_StopTextInput", &SDL_StopTextInput},
-	{"SDL_strcasecmp", &SDL_strcasecmp},
-	{"SDL_strchr", &SDL_strchr},
-	{"SDL_strcmp", &SDL_strcmp},
-	{"SDL_strdup", &SDL_strdup},
-	{"SDL_strlcat", &SDL_strlcat},
-	{"SDL_strlcpy", &SDL_strlcpy},
-	{"SDL_strlen", &SDL_strlen},
-	{"SDL_strlwr", &SDL_strlwr},
-	{"SDL_strncasecmp", &SDL_strncasecmp},
-	{"SDL_strncmp", &SDL_strncmp},
-	{"SDL_strrchr", &SDL_strrchr},
-	{"SDL_strrev", &SDL_strrev},
-	{"SDL_strstr", &SDL_strstr},
-	{"SDL_strtod", &SDL_strtod},
-	{"SDL_strtol", &SDL_strtol},
-	{"SDL_strtoll", &SDL_strtoll},
-	{"SDL_strtoul", &SDL_strtoul},
-	{"SDL_strtoull", &SDL_strtoull},
-	{"SDL_strupr", &SDL_strupr},
-	{"SDL_ThreadID", &SDL_ThreadID},
-	{"SDL_TLSCreate", &SDL_TLSCreate},
-	{"SDL_TLSGet", &SDL_TLSGet},
-	{"SDL_TLSSet", &SDL_TLSSet},
-	{"SDL_tolower", &SDL_tolower},
-	{"SDL_toupper", &SDL_toupper},
-	{"SDL_TryLockMutex", &SDL_TryLockMutex},
-	{"SDL_uitoa", &SDL_uitoa},
-	{"SDL_ulltoa", &SDL_ulltoa},
-	{"SDL_ultoa", &SDL_ultoa},
-	{"SDL_UnionRect", &SDL_UnionRect},
-	{"SDL_UnloadObject", &SDL_UnloadObject},
-	{"SDL_UnlockAudio", &SDL_UnlockAudio},
-	{"SDL_UnlockAudioDevice", &SDL_UnlockAudioDevice},
-	{"SDL_UnlockMutex", &SDL_UnlockMutex},
-	{"SDL_UnlockSurface", &SDL_UnlockSurface},
-	{"SDL_UnlockTexture", &SDL_UnlockTexture},
-	{"SDL_UpdateTexture", &SDL_UpdateTexture},
-	{"SDL_UpdateWindowSurface", &SDL_UpdateWindowSurface},
-	{"SDL_UpdateWindowSurfaceRects", &SDL_UpdateWindowSurfaceRects},
-	{"SDL_UpperBlit", &SDL_UpperBlit},
-	{"SDL_UpperBlitScaled", &SDL_UpperBlitScaled},
-	{"SDL_utf8strlcpy", &SDL_utf8strlcpy},
-	{"SDL_VideoInit", &SDL_VideoInit},
-	{"SDL_VideoQuit", &SDL_VideoQuit},
-	{"SDL_vsnprintf", &SDL_vsnprintf},
-	{"SDL_WaitEvent", &SDL_WaitEvent},
-	{"SDL_WaitEventTimeout", &SDL_WaitEventTimeout},
-	{"SDL_WaitThread", &SDL_WaitThread},
-	{"SDL_WarpMouseInWindow", &SDL_WarpMouseInWindow},
-	{"SDL_WasInit", &SDL_WasInit},
-	{"SDL_wcslcat", &SDL_wcslcat},
-	{"SDL_wcslcpy", &SDL_wcslcpy},
-	{"SDL_wcslen", &SDL_wcslen},
-	{"SDL_WriteBE16", &SDL_WriteBE16},
-	{"SDL_WriteBE32", &SDL_WriteBE32},
-	{"SDL_WriteBE64", &SDL_WriteBE64},
-	{"SDL_WriteLE16", &SDL_WriteLE16},
-	{"SDL_WriteLE32", &SDL_WriteLE32},
-	{"SDL_WriteLE64", &SDL_WriteLE64},
-	{"SDL_WriteU8", &SDL_WriteU8},
+	{"SDL_abs", &Abs},
+	{"SDL_AddEventWatch", &AddEventWatch},
+	{"SDL_AddHintCallback", &AddHintCallback},
+	{"SDL_AddTimer", &AddTimer},
+	{"SDL_AllocFormat", &AllocFormat},
+	{"SDL_AllocPalette", &AllocPalette},
+	{"SDL_AllocRW", &AllocRW},
+	{"SDL_atan", &Atan},
+	{"SDL_atan2", &Atan2},
+	{"SDL_atof", &Atof},
+	{"SDL_atoi", &Atoi},
+	{"SDL_AtomicCAS", &AtomicCAS},
+	{"SDL_AtomicCASPtr", &AtomicCASPtr},
+	{"SDL_AtomicLock", &AtomicLock},
+	{"SDL_AtomicTryLock", &AtomicTryLock},
+	{"SDL_AtomicUnlock", &AtomicUnlock},
+	{"SDL_AudioInit", &AudioInit},
+	{"SDL_AudioQuit", &AudioQuit},
+	{"SDL_BuildAudioCVT", &BuildAudioCVT},
+	{"SDL_CalculateGammaRamp", &CalculateGammaRamp},
+	{"SDL_calloc", &Calloc},
+	{"SDL_ceil", &Ceil},
+	{"SDL_ClearError", &ClearError},
+	{"SDL_ClearHints", &ClearHints},
+	{"SDL_CloseAudio", &CloseAudio},
+	{"SDL_CloseAudioDevice", &CloseAudioDevice},
+	{"SDL_CondBroadcast", &CondBroadcast},
+	{"SDL_CondSignal", &CondSignal},
+	{"SDL_CondWait", &CondWait},
+	{"SDL_CondWaitTimeout", &CondWaitTimeout},
+	{"SDL_ConvertAudio", &ConvertAudio},
+	{"SDL_ConvertPixels", &ConvertPixels},
+	{"SDL_ConvertSurface", &ConvertSurface},
+	{"SDL_ConvertSurfaceFormat", &ConvertSurfaceFormat},
+	{"SDL_copysign", &Copysign},
+	{"SDL_cos", &Cos},
+	{"SDL_cosf", &Cosf},
+	{"SDL_CreateColorCursor", &CreateColorCursor},
+	{"SDL_CreateCond", &CreateCond},
+	{"SDL_CreateCursor", &CreateCursor},
+	{"SDL_CreateMutex", &CreateMutex},
+	{"SDL_CreateRenderer", &CreateRenderer},
+	{"SDL_CreateRGBSurface", &CreateRGBSurface},
+	{"SDL_CreateRGBSurfaceFrom", &CreateRGBSurfaceFrom},
+	{"SDL_CreateSemaphore", &CreateSemaphore},
+	{"SDL_CreateShapedWindow", &CreateShapedWindow},
+	{"SDL_CreateSoftwareRenderer", &CreateSoftwareRenderer},
+	{"SDL_CreateSystemCursor", &CreateSystemCursor},
+	{"SDL_CreateTexture", &CreateTexture},
+	{"SDL_CreateTextureFromSurface", &CreateTextureFromSurface},
+	{"SDL_CreateThread", &CreateThread},
+	{"SDL_CreateWindow", &CreateWindow},
+	{"SDL_CreateWindowAndRenderer", &CreateWindowAndRenderer},
+	{"SDL_CreateWindowFrom", &CreateWindowFrom},
+	{"SDL_Delay", &Delay},
+	{"SDL_DelEventWatch", &DelEventWatch},
+	{"SDL_DelHintCallback", &DelHintCallback},
+	{"SDL_DestroyCond", &DestroyCond},
+	{"SDL_DestroyMutex", &DestroyMutex},
+	{"SDL_DestroyRenderer", &DestroyRenderer},
+	{"SDL_DestroySemaphore", &DestroySemaphore},
+	{"SDL_DestroyTexture", &DestroyTexture},
+	{"SDL_DestroyWindow", &DestroyWindow},
+	{"SDL_DisableScreenSaver", &DisableScreenSaver},
+	{"SDL_EnableScreenSaver", &EnableScreenSaver},
+	{"SDL_EnclosePoints", &EnclosePoints},
+	{"SDL_Error", &Error},
+	{"SDL_EventState", &EventState},
+	{"SDL_fabs", &Fabs},
+	{"SDL_FillRect", &FillRect},
+	{"SDL_FillRects", &FillRects},
+	{"SDL_FilterEvents", &FilterEvents},
+	{"SDL_floor", &Floor},
+	{"SDL_FlushEvent", &FlushEvent},
+	{"SDL_FlushEvents", &FlushEvents},
+	{"SDL_free", &Free},
+	{"SDL_FreeCursor", &FreeCursor},
+	{"SDL_FreeFormat", &FreeFormat},
+	{"SDL_FreePalette", &FreePalette},
+	{"SDL_FreeRW", &FreeRW},
+	{"SDL_FreeSurface", &FreeSurface},
+	{"SDL_FreeWAV", &FreeWAV},
+	{"SDL_GameControllerAddMapping", &GameControllerAddMapping},
+	{"SDL_GameControllerClose", &GameControllerClose},
+	{"SDL_GameControllerEventState", &GameControllerEventState},
+	{"SDL_GameControllerGetAttached", &GameControllerGetAttached},
+	{"SDL_GameControllerGetAxis", &GameControllerGetAxis},
+	{"SDL_GameControllerGetAxisFromString", &GameControllerGetAxisFromString},
+	{"SDL_GameControllerGetBindForAxis", &GameControllerGetBindForAxis},
+	{"SDL_GameControllerGetBindForButton", &GameControllerGetBindForButton},
+	{"SDL_GameControllerGetButton", &GameControllerGetButton},
+	{"SDL_GameControllerGetButtonFromString", &GameControllerGetButtonFromString},
+	{"SDL_GameControllerGetJoystick", &GameControllerGetJoystick},
+	{"SDL_GameControllerGetStringForAxis", &GameControllerGetStringForAxis},
+	{"SDL_GameControllerGetStringForButton", &GameControllerGetStringForButton},
+	{"SDL_GameControllerMapping", &GameControllerMapping},
+	{"SDL_GameControllerMappingForGUID", &GameControllerMappingForGUID},
+	{"SDL_GameControllerName", &GameControllerName},
+	{"SDL_GameControllerNameForIndex", &GameControllerNameForIndex},
+	{"SDL_GameControllerOpen", &GameControllerOpen},
+	{"SDL_GameControllerUpdate", &GameControllerUpdate},
+	{"SDL_GetAssertionReport", &GetAssertionReport},
+	{"SDL_GetAudioDeviceName", &GetAudioDeviceName},
+	{"SDL_GetAudioDeviceStatus", &GetAudioDeviceStatus},
+	{"SDL_GetAudioDriver", &GetAudioDriver},
+	{"SDL_GetAudioStatus", &GetAudioStatus},
+	{"SDL_GetClipboardText", &GetClipboardText},
+	{"SDL_GetClipRect", &GetClipRect},
+	{"SDL_GetClosestDisplayMode", &GetClosestDisplayMode},
+	{"SDL_GetColorKey", &GetColorKey},
+	{"SDL_GetCPUCacheLineSize", &GetCPUCacheLineSize},
+	{"SDL_GetCPUCount", &GetCPUCount},
+	{"SDL_GetCurrentAudioDriver", &GetCurrentAudioDriver},
+	{"SDL_GetCurrentDisplayMode", &GetCurrentDisplayMode},
+	{"SDL_GetCurrentVideoDriver", &GetCurrentVideoDriver},
+	{"SDL_GetCursor", &GetCursor},
+	{"SDL_GetDefaultCursor", &GetDefaultCursor},
+	{"SDL_GetDesktopDisplayMode", &GetDesktopDisplayMode},
+	{"SDL_GetDisplayBounds", &GetDisplayBounds},
+	{"SDL_GetDisplayMode", &GetDisplayMode},
+	{"SDL_GetDisplayName", &GetDisplayName},
+	{"SDL_getenv", &Getenv},
+	{"SDL_GetError", &GetError},
+	{"SDL_GetEventFilter", &GetEventFilter},
+	{"SDL_GetHint", &GetHint},
+	{"SDL_GetKeyboardFocus", &GetKeyboardFocus},
+	{"SDL_GetKeyboardState", &GetKeyboardState},
+	{"SDL_GetKeyFromName", &GetKeyFromName},
+	{"SDL_GetKeyFromScancode", &GetKeyFromScancode},
+	{"SDL_GetKeyName", &GetKeyName},
+	{"SDL_GetModState", &GetModState},
+	{"SDL_GetMouseFocus", &GetMouseFocus},
+	{"SDL_GetMouseState", &GetMouseState},
+	{"SDL_GetNumAudioDevices", &GetNumAudioDevices},
+	{"SDL_GetNumAudioDrivers", &GetNumAudioDrivers},
+	{"SDL_GetNumDisplayModes", &GetNumDisplayModes},
+	{"SDL_GetNumRenderDrivers", &GetNumRenderDrivers},
+	{"SDL_GetNumTouchDevices", &GetNumTouchDevices},
+	{"SDL_GetNumTouchFingers", &GetNumTouchFingers},
+	{"SDL_GetNumVideoDisplays", &GetNumVideoDisplays},
+	{"SDL_GetNumVideoDrivers", &GetNumVideoDrivers},
+	{"SDL_GetPerformanceCounter", &GetPerformanceCounter},
+	{"SDL_GetPerformanceFrequency", &GetPerformanceFrequency},
+	{"SDL_GetPixelFormatName", &GetPixelFormatName},
+	{"SDL_GetPlatform", &GetPlatform},
+	{"SDL_GetPowerInfo", &GetPowerInfo},
+	{"SDL_GetRelativeMouseMode", &GetRelativeMouseMode},
+	{"SDL_GetRelativeMouseState", &GetRelativeMouseState},
+	{"SDL_GetRenderDrawBlendMode", &GetRenderDrawBlendMode},
+	{"SDL_GetRenderDrawColor", &GetRenderDrawColor},
+	{"SDL_GetRenderDriverInfo", &GetRenderDriverInfo},
+	{"SDL_GetRenderer", &GetRenderer},
+	{"SDL_GetRendererInfo", &GetRendererInfo},
+	{"SDL_GetRendererOutputSize", &GetRendererOutputSize},
+	{"SDL_GetRenderTarget", &GetRenderTarget},
+	{"SDL_GetRevision", &GetRevision},
+	{"SDL_GetRevisionNumber", &GetRevisionNumber},
+	{"SDL_GetRGB", &GetRGB},
+	{"SDL_GetRGBA", &GetRGBA},
+	{"SDL_GetScancodeFromKey", &GetScancodeFromKey},
+	{"SDL_GetScancodeFromName", &GetScancodeFromName},
+	{"SDL_GetScancodeName", &GetScancodeName},
+	{"SDL_GetShapedWindowMode", &GetShapedWindowMode},
+	{"SDL_GetSurfaceAlphaMod", &GetSurfaceAlphaMod},
+	{"SDL_GetSurfaceBlendMode", &GetSurfaceBlendMode},
+	{"SDL_GetSurfaceColorMod", &GetSurfaceColorMod},
+	{"SDL_GetTextureAlphaMod", &GetTextureAlphaMod},
+	{"SDL_GetTextureBlendMode", &GetTextureBlendMode},
+	{"SDL_GetTextureColorMod", &GetTextureColorMod},
+	{"SDL_GetThreadID", &GetThreadID},
+	{"SDL_GetThreadName", &GetThreadName},
+	{"SDL_GetTicks", &GetTicks},
+	{"SDL_GetTouchDevice", &GetTouchDevice},
+	{"SDL_GetTouchFinger", &GetTouchFinger},
+	{"SDL_GetVersion", &GetVersion},
+	{"SDL_GetVideoDriver", &GetVideoDriver},
+	{"SDL_GetWindowBrightness", &GetWindowBrightness},
+	{"SDL_GetWindowData", &GetWindowData},
+	{"SDL_GetWindowDisplayIndex", &GetWindowDisplayIndex},
+	{"SDL_GetWindowDisplayMode", &GetWindowDisplayMode},
+	{"SDL_GetWindowFlags", &GetWindowFlags},
+	{"SDL_GetWindowFromID", &GetWindowFromID},
+	{"SDL_GetWindowGammaRamp", &GetWindowGammaRamp},
+	{"SDL_GetWindowGrab", &GetWindowGrab},
+	{"SDL_GetWindowID", &GetWindowID},
+	{"SDL_GetWindowMaximumSize", &GetWindowMaximumSize},
+	{"SDL_GetWindowMinimumSize", &GetWindowMinimumSize},
+	{"SDL_GetWindowPixelFormat", &GetWindowPixelFormat},
+	{"SDL_GetWindowPosition", &GetWindowPosition},
+	{"SDL_GetWindowSize", &GetWindowSize},
+	{"SDL_GetWindowSurface", &GetWindowSurface},
+	{"SDL_GetWindowTitle", &GetWindowTitle},
+	{"SDL_GetWindowWMInfo", &GetWindowWMInfo},
+	{"SDL_GL_BindTexture", &GLBindTexture},
+	{"SDL_GL_CreateContext", &GLCreateContext},
+	{"SDL_GL_DeleteContext", &GLDeleteContext},
+	{"SDL_GL_ExtensionSupported", &GLExtensionSupported},
+	{"SDL_GL_GetAttribute", &GLGetAttribute},
+	{"SDL_GL_GetCurrentContext", &GLGetCurrentContext},
+	{"SDL_GL_GetCurrentWindow", &GLGetCurrentWindow},
+	{"SDL_GL_GetProcAddress", &GLGetProcAddress},
+	{"SDL_GL_GetSwapInterval", &GLGetSwapInterval},
+	{"SDL_GL_LoadLibrary", &GLLoadLibrary},
+	{"SDL_GL_MakeCurrent", &GLMakeCurrent},
+	{"SDL_GL_SetAttribute", &GLSetAttribute},
+	{"SDL_GL_SetSwapInterval", &GLSetSwapInterval},
+	{"SDL_GL_SwapWindow", &GLSwapWindow},
+	{"SDL_GL_UnbindTexture", &GLUnbindTexture},
+	{"SDL_GL_UnloadLibrary", &GLUnloadLibrary},
+	{"SDL_HapticClose", &HapticClose},
+	{"SDL_HapticDestroyEffect", &HapticDestroyEffect},
+	{"SDL_HapticEffectSupported", &HapticEffectSupported},
+	{"SDL_HapticGetEffectStatus", &HapticGetEffectStatus},
+	{"SDL_HapticIndex", &HapticIndex},
+	{"SDL_HapticName", &HapticName},
+	{"SDL_HapticNewEffect", &HapticNewEffect},
+	{"SDL_HapticNumAxes", &HapticNumAxes},
+	{"SDL_HapticNumEffects", &HapticNumEffects},
+	{"SDL_HapticNumEffectsPlaying", &HapticNumEffectsPlaying},
+	{"SDL_HapticOpen", &HapticOpen},
+	{"SDL_HapticOpened", &HapticOpened},
+	{"SDL_HapticOpenFromJoystick", &HapticOpenFromJoystick},
+	{"SDL_HapticOpenFromMouse", &HapticOpenFromMouse},
+	{"SDL_HapticPause", &HapticPause},
+	{"SDL_HapticQuery", &HapticQuery},
+	{"SDL_HapticRumbleInit", &HapticRumbleInit},
+	{"SDL_HapticRumblePlay", &HapticRumblePlay},
+	{"SDL_HapticRumbleStop", &HapticRumbleStop},
+	{"SDL_HapticRumbleSupported", &HapticRumbleSupported},
+	{"SDL_HapticRunEffect", &HapticRunEffect},
+	{"SDL_HapticSetAutocenter", &HapticSetAutocenter},
+	{"SDL_HapticSetGain", &HapticSetGain},
+	{"SDL_HapticStopAll", &HapticStopAll},
+	{"SDL_HapticStopEffect", &HapticStopEffect},
+	{"SDL_HapticUnpause", &HapticUnpause},
+	{"SDL_HapticUpdateEffect", &HapticUpdateEffect},
+	{"SDL_Has3DNow", &Has3DNow},
+	{"SDL_HasAltiVec", &HasAltiVec},
+	{"SDL_HasClipboardText", &HasClipboardText},
+	{"SDL_HasEvent", &HasEvent},
+	{"SDL_HasEvents", &HasEvents},
+	{"SDL_HasIntersection", &HasIntersection},
+	{"SDL_HasMMX", &HasMMX},
+	{"SDL_HasRDTSC", &HasRDTSC},
+	{"SDL_HasScreenKeyboardSupport", &HasScreenKeyboardSupport},
+	{"SDL_HasSSE", &HasSSE},
+	{"SDL_HasSSE2", &HasSSE2},
+	{"SDL_HasSSE3", &HasSSE3},
+	{"SDL_HasSSE41", &HasSSE41},
+	{"SDL_HasSSE42", &HasSSE42},
+	{"SDL_HideWindow", &HideWindow},
+	{"SDL_iconv", &Iconv},
+	{"SDL_iconv_close", &IconvClose},
+	{"SDL_iconv_open", &IconvOpen},
+	{"SDL_iconv_string", &IconvString},
+	{"SDL_Init", &Init},
+	{"SDL_InitSubSystem", &InitSubSystem},
+	{"SDL_IntersectRect", &IntersectRect},
+	{"SDL_IntersectRectAndLine", &IntersectRectAndLine},
+	{"SDL_isdigit", &Isdigit},
+	{"SDL_IsGameController", &IsGameController},
+	{"SDL_IsScreenKeyboardShown", &IsScreenKeyboardShown},
+	{"SDL_IsScreenSaverEnabled", &IsScreenSaverEnabled},
+	{"SDL_IsShapedWindow", &IsShapedWindow},
+	{"SDL_isspace", &Isspace},
+	{"SDL_IsTextInputActive", &IsTextInputActive},
+	{"SDL_itoa", &Itoa},
+	{"SDL_JoystickClose", &JoystickClose},
+	{"SDL_JoystickEventState", &JoystickEventState},
+	{"SDL_JoystickGetAttached", &JoystickGetAttached},
+	{"SDL_JoystickGetAxis", &JoystickGetAxis},
+	{"SDL_JoystickGetBall", &JoystickGetBall},
+	{"SDL_JoystickGetButton", &JoystickGetButton},
+	{"SDL_JoystickGetDeviceGUID", &JoystickGetDeviceGUID},
+	{"SDL_JoystickGetGUID", &JoystickGetGUID},
+	{"SDL_JoystickGetGUIDFromString", &JoystickGetGUIDFromString},
+	{"SDL_JoystickGetGUIDString", &JoystickGetGUIDString},
+	{"SDL_JoystickGetHat", &JoystickGetHat},
+	{"SDL_JoystickInstanceID", &JoystickInstanceID},
+	{"SDL_JoystickIsHaptic", &JoystickIsHaptic},
+	{"SDL_JoystickName", &JoystickName},
+	{"SDL_JoystickNameForIndex", &JoystickNameForIndex},
+	{"SDL_JoystickNumAxes", &JoystickNumAxes},
+	{"SDL_JoystickNumBalls", &JoystickNumBalls},
+	{"SDL_JoystickNumButtons", &JoystickNumButtons},
+	{"SDL_JoystickNumHats", &JoystickNumHats},
+	{"SDL_JoystickOpen", &JoystickOpen},
+	{"SDL_JoystickUpdate", &JoystickUpdate},
+	{"SDL_lltoa", &Lltoa},
+	{"SDL_LoadBMP_RW", &LoadBMPRW},
+	{"SDL_LoadDollarTemplates", &LoadDollarTemplates},
+	{"SDL_LoadFunction", &LoadFunction},
+	{"SDL_LoadObject", &LoadObject},
+	{"SDL_LoadWAV_RW", &LoadWAVRW},
+	{"SDL_LockAudio", &LockAudio},
+	{"SDL_LockAudioDevice", &LockAudioDevice},
+	{"SDL_LockMutex", &LockMutex},
+	{"SDL_LockSurface", &LockSurface},
+	{"SDL_LockTexture", &LockTexture},
+	{"SDL_Log", &LogMsg},
+	{"SDL_log", &Log},
+	{"SDL_LogCritical", &LogCritical},
+	{"SDL_LogDebug", &LogDebug},
+	{"SDL_LogError", &LogError},
+	{"SDL_LogGetOutputFunction", &LogGetOutputFunction},
+	{"SDL_LogGetPriority", &LogGetPriority},
+	{"SDL_LogInfo", &LogInfo},
+	{"SDL_LogMessage", &LogMessage},
+	{"SDL_LogMessageV", &LogMessageV},
+	{"SDL_LogResetPriorities", &LogResetPriorities},
+	{"SDL_LogSetAllPriority", &LogSetAllPriority},
+	{"SDL_LogSetOutputFunction", &LogSetOutputFunction},
+	{"SDL_LogSetPriority", &LogSetPriority},
+	{"SDL_LogVerbose", &LogVerbose},
+	{"SDL_LogWarn", &LogWarn},
+	{"SDL_LowerBlit", &LowerBlit},
+	{"SDL_LowerBlitScaled", &LowerBlitScaled},
+	{"SDL_ltoa", &Ltoa},
+	{"SDL_malloc", &Malloc},
+	{"SDL_MapRGB", &MapRGB},
+	{"SDL_MapRGBA", &MapRGBA},
+	{"SDL_MasksToPixelFormatEnum", &MasksToPixelFormatEnum},
+	{"SDL_MaximizeWindow", &MaximizeWindow},
+	{"SDL_memcmp", &Memcmp},
+	{"SDL_memcpy", &Memcpy},
+	{"SDL_memmove", &Memmove},
+	{"SDL_memset", &Memset},
+	{"SDL_MinimizeWindow", &MinimizeWindow},
+	{"SDL_MixAudio", &MixAudio},
+	{"SDL_MixAudioFormat", &MixAudioFormat},
+	{"SDL_MouseIsHaptic", &MouseIsHaptic},
+	{"SDL_NumHaptics", &NumHaptics},
+	{"SDL_NumJoysticks", &NumJoysticks},
+	{"SDL_OpenAudio", &OpenAudio},
+	{"SDL_OpenAudioDevice", &OpenAudioDevice},
+	{"SDL_PauseAudio", &PauseAudio},
+	{"SDL_PauseAudioDevice", &PauseAudioDevice},
+	{"SDL_PeepEvents", &PeepEvents},
+	{"SDL_PixelFormatEnumToMasks", &PixelFormatEnumToMasks},
+	{"SDL_PollEvent", &PollEvent},
+	{"SDL_pow", &Pow},
+	{"SDL_PumpEvents", &PumpEvents},
+	{"SDL_PushEvent", &PushEvent},
+	{"SDL_qsort", &Qsort},
+	{"SDL_QueryTexture", &QueryTexture},
+	{"SDL_Quit", &Quit},
+	{"SDL_QuitSubSystem", &QuitSubSystem},
+	{"SDL_RaiseWindow", &RaiseWindow},
+	{"SDL_ReadBE16", &ReadBE16},
+	{"SDL_ReadBE32", &ReadBE32},
+	{"SDL_ReadBE64", &ReadBE64},
+	{"SDL_ReadLE16", &ReadLE16},
+	{"SDL_ReadLE32", &ReadLE32},
+	{"SDL_ReadLE64", &ReadLE64},
+	{"SDL_ReadU8", &ReadU8},
+	{"SDL_realloc", &Realloc},
+	{"SDL_RecordGesture", &RecordGesture},
+	{"SDL_RegisterEvents", &RegisterEvents},
+	{"SDL_RemoveTimer", &RemoveTimer},
+	{"SDL_RenderClear", &RenderClear},
+	{"SDL_RenderCopy", &RenderCopy},
+	{"SDL_RenderCopyEx", &RenderCopyEx},
+	{"SDL_RenderDrawLine", &RenderDrawLine},
+	{"SDL_RenderDrawLines", &RenderDrawLines},
+	{"SDL_RenderDrawPoint", &RenderDrawPoint},
+	{"SDL_RenderDrawPoints", &RenderDrawPoints},
+	{"SDL_RenderDrawRect", &RenderDrawRect},
+	{"SDL_RenderDrawRects", &RenderDrawRects},
+	{"SDL_RenderFillRect", &RenderFillRect},
+	{"SDL_RenderFillRects", &RenderFillRects},
+	{"SDL_RenderGetClipRect", &RenderGetClipRect},
+	{"SDL_RenderGetLogicalSize", &RenderGetLogicalSize},
+	{"SDL_RenderGetScale", &RenderGetScale},
+	{"SDL_RenderGetViewport", &RenderGetViewport},
+	{"SDL_RenderPresent", &RenderPresent},
+	{"SDL_RenderReadPixels", &RenderReadPixels},
+	{"SDL_RenderSetClipRect", &RenderSetClipRect},
+	{"SDL_RenderSetLogicalSize", &RenderSetLogicalSize},
+	{"SDL_RenderSetScale", &RenderSetScale},
+	{"SDL_RenderSetViewport", &RenderSetViewport},
+	{"SDL_RenderTargetSupported", &RenderTargetSupported},
+	{"SDL_ReportAssertion", &ReportAssertion},
+	{"SDL_ResetAssertionReport", &ResetAssertionReport},
+	{"SDL_RestoreWindow", &RestoreWindow},
+	{"SDL_RWFromConstMem", &RWFromConstMem},
+	{"SDL_RWFromFile", &RWFromFile},
+	{"SDL_RWFromFP", &RWFromFP},
+	{"SDL_RWFromMem", &RWFromMem},
+	{"SDL_SaveAllDollarTemplates", &SaveAllDollarTemplates},
+	{"SDL_SaveBMP_RW", &SaveBMPRW},
+	{"SDL_SaveDollarTemplate", &SaveDollarTemplate},
+	{"SDL_scalbn", &Scalbn},
+	{"SDL_SemPost", &SemPost},
+	{"SDL_SemTryWait", &SemTryWait},
+	{"SDL_SemValue", &SemValue},
+	{"SDL_SemWait", &SemWait},
+	{"SDL_SemWaitTimeout", &SemWaitTimeout},
+	{"SDL_SetAssertionHandler", &SetAssertionHandler},
+	{"SDL_SetClipboardText", &SetClipboardText},
+	{"SDL_SetClipRect", &SetClipRect},
+	{"SDL_SetColorKey", &SetColorKey},
+	{"SDL_SetCursor", &SetCursor},
+	{"SDL_setenv", &Setenv},
+	{"SDL_SetError", &SetError},
+	{"SDL_SetEventFilter", &SetEventFilter},
+	{"SDL_SetHint", &SetHint},
+	{"SDL_SetHintWithPriority", &SetHintWithPriority},
+	{"SDL_SetMainReady", &SetMainReady},
+	{"SDL_SetModState", &SetModState},
+	{"SDL_SetPaletteColors", &SetPaletteColors},
+	{"SDL_SetPixelFormatPalette", &SetPixelFormatPalette},
+	{"SDL_SetRelativeMouseMode", &SetRelativeMouseMode},
+	{"SDL_SetRenderDrawBlendMode", &SetRenderDrawBlendMode},
+	{"SDL_SetRenderDrawColor", &SetRenderDrawColor},
+	{"SDL_SetRenderTarget", &SetRenderTarget},
+	{"SDL_SetSurfaceAlphaMod", &SetSurfaceAlphaMod},
+	{"SDL_SetSurfaceBlendMode", &SetSurfaceBlendMode},
+	{"SDL_SetSurfaceColorMod", &SetSurfaceColorMod},
+	{"SDL_SetSurfacePalette", &SetSurfacePalette},
+	{"SDL_SetSurfaceRLE", &SetSurfaceRLE},
+	{"SDL_SetTextInputRect", &SetTextInputRect},
+	{"SDL_SetTextureAlphaMod", &SetTextureAlphaMod},
+	{"SDL_SetTextureBlendMode", &SetTextureBlendMode},
+	{"SDL_SetTextureColorMod", &SetTextureColorMod},
+	{"SDL_SetThreadPriority", &SetThreadPriority},
+	{"SDL_SetWindowBordered", &SetWindowBordered},
+	{"SDL_SetWindowBrightness", &SetWindowBrightness},
+	{"SDL_SetWindowData", &SetWindowData},
+	{"SDL_SetWindowDisplayMode", &SetWindowDisplayMode},
+	{"SDL_SetWindowFullscreen", &SetWindowFullscreen},
+	{"SDL_SetWindowGammaRamp", &SetWindowGammaRamp},
+	{"SDL_SetWindowGrab", &SetWindowGrab},
+	{"SDL_SetWindowIcon", &SetWindowIcon},
+	{"SDL_SetWindowMaximumSize", &SetWindowMaximumSize},
+	{"SDL_SetWindowMinimumSize", &SetWindowMinimumSize},
+	{"SDL_SetWindowPosition", &SetWindowPosition},
+	{"SDL_SetWindowShape", &SetWindowShape},
+	{"SDL_SetWindowSize", &SetWindowSize},
+	{"SDL_SetWindowTitle", &SetWindowTitle},
+	{"SDL_ShowCursor", &ShowCursor},
+	{"SDL_ShowMessageBox", &ShowMessageBox},
+	{"SDL_ShowSimpleMessageBox", &ShowSimpleMessageBox},
+	{"SDL_ShowWindow", &ShowWindow},
+	{"SDL_sin", &Sin},
+	{"SDL_sinf", &Sinf},
+	{"SDL_snprintf", &Snprintf},
+	{"SDL_SoftStretch", &SoftStretch},
+	{"SDL_sqrt", &Sqrt},
+	{"SDL_sscanf", &Sscanf},
+	{"SDL_StartTextInput", &StartTextInput},
+	{"SDL_StopTextInput", &StopTextInput},
+	{"SDL_strcasecmp", &Strcasecmp},
+	{"SDL_strchr", &Strchr},
+	{"SDL_strcmp", &Strcmp},
+	{"SDL_strdup", &Strdup},
+	{"SDL_strlcat", &Strlcat},
+	{"SDL_strlcpy", &Strlcpy},
+	{"SDL_strlen", &Strlen},
+	{"SDL_strlwr", &Strlwr},
+	{"SDL_strncasecmp", &Strncasecmp},
+	{"SDL_strncmp", &Strncmp},
+	{"SDL_strrchr", &Strrchr},
+	{"SDL_strrev", &Strrev},
+	{"SDL_strstr", &Strstr},
+	{"SDL_strtod", &Strtod},
+	{"SDL_strtol", &Strtol},
+	{"SDL_strtoll", &Strtoll},
+	{"SDL_strtoul", &Strtoul},
+	{"SDL_strtoull", &Strtoull},
+	{"SDL_strupr", &Strupr},
+	{"SDL_ThreadID", &ThreadID},
+	{"SDL_TLSCreate", &TLSCreate},
+	{"SDL_TLSGet", &TLSGet},
+	{"SDL_TLSSet", &TLSSet},
+	{"SDL_tolower", &Tolower},
+	{"SDL_toupper", &Toupper},
+	{"SDL_TryLockMutex", &TryLockMutex},
+	{"SDL_uitoa", &Uitoa},
+	{"SDL_ulltoa", &Ulltoa},
+	{"SDL_ultoa", &Ultoa},
+	{"SDL_UnionRect", &UnionRect},
+	{"SDL_UnloadObject", &UnloadObject},
+	{"SDL_UnlockAudio", &UnlockAudio},
+	{"SDL_UnlockAudioDevice", &UnlockAudioDevice},
+	{"SDL_UnlockMutex", &UnlockMutex},
+	{"SDL_UnlockSurface", &UnlockSurface},
+	{"SDL_UnlockTexture", &UnlockTexture},
+	{"SDL_UpdateTexture", &UpdateTexture},
+	{"SDL_UpdateWindowSurface", &UpdateWindowSurface},
+	{"SDL_UpdateWindowSurfaceRects", &UpdateWindowSurfaceRects},
+	{"SDL_UpperBlit", &UpperBlit},
+	{"SDL_UpperBlitScaled", &UpperBlitScaled},
+	{"SDL_utf8strlcpy", &Utf8strlcpy},
+	{"SDL_VideoInit", &VideoInit},
+	{"SDL_VideoQuit", &VideoQuit},
+	{"SDL_vsnprintf", &Vsnprintf},
+	{"SDL_WaitEvent", &WaitEvent},
+	{"SDL_WaitEventTimeout", &WaitEventTimeout},
+	{"SDL_WaitThread", &WaitThread},
+	{"SDL_WarpMouseInWindow", &WarpMouseInWindow},
+	{"SDL_WasInit", &WasInit},
+	{"SDL_wcslcat", &Wcslcat},
+	{"SDL_wcslcpy", &Wcslcpy},
+	{"SDL_wcslen", &Wcslen},
+	{"SDL_WriteBE16", &WriteBE16},
+	{"SDL_WriteBE32", &WriteBE32},
+	{"SDL_WriteBE64", &WriteBE64},
+	{"SDL_WriteLE16", &WriteLE16},
+	{"SDL_WriteLE32", &WriteLE32},
+	{"SDL_WriteLE64", &WriteLE64},
+	{"SDL_WriteU8", &WriteU8},
 }
-
-//NOTE(t):NewCallbackCDecl func must have return
-type SDL_AudioCallback func(
-	userdata *Void, stream *Uint8, len int) int
-
-type SDL_HintCallback func(
-	userdata *Void, name, oldValue, newValue *Char) int
-
-type SDL_TimerCallback func(
-	interval Uint32, param *Void) Uint32
-
-type SDL_LogOutputFunction func(
-	userdata *Void,
-	category int,
-	priority int, // SDL_LogPriority
-	message *Char) int
