@@ -1,8 +1,8 @@
 // Copyright (c) 2013 Tony Wilson. All rights reserved.
 // See LICENCE file for permissions and restrictions.
 
-//sdl2sprint is a direct translation of the spriteminimal
-//example in the SDL2 distribution.
+//spriteminimal is a direct translation of the C example
+//in the SDL2 distribution.
 package main
 
 import (
@@ -164,7 +164,7 @@ func main() {
 // === API Definitions =========================================
 
 type (
-	void          struct{}
+	void      struct{}
 	BlitMap   struct{}
 	EventType uint32
 	Palette   struct{}
