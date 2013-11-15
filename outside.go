@@ -31,6 +31,7 @@ import (
 //TODO(t): analyse args and optimize inArgs
 //TODO(t): optionally call method for er
 //TODO(t): Fix in-place modified cstring caching
+//TODO(t): Distinguish between funcs in Go and external
 
 type (
 	EP  string
@@ -137,10 +138,8 @@ type Apis []struct {
 //TODO(t):check for unexported fields
 
 func inStructs(unicode bool, a []r.Value, st uint32, sl []uint64) {
-	// Printf("%b %b\n", st, sl)
 	for i := 0; st != 0 && i < len(a); i++ {
-		if st&1 != 0 {
-			v := a[i]
+		if v := a[i]; st&1 != 0 && v.Pointer() != 0 {
 			s := r.Indirect(v)
 			//TODO(t): handle &bool on in and out
 			//TODO(t): setup *string on init
@@ -219,10 +218,8 @@ func inStructs(unicode bool, a []r.Value, st uint32, sl []uint64) {
 }
 
 func outStructs(unicode bool, a []r.Value, st uint32, sl []uint64) {
-	// Printf("%b %b\n", st, sl)
 	for i := 0; st != 0 && i < len(a); i++ {
-		if st&1 != 0 {
-			v := a[i]
+		if v := a[i]; st&1 != 0 && v.Pointer() != 0 {
 			s := r.Indirect(v)
 			//TODO(t): handle &bool on in and out
 			//TODO(t): setup *string on init
@@ -540,6 +537,22 @@ func convert(v r.Value, t r.Type, u bool) r.Value {
 				dispose(tu, t)
 			}
 			v = r.ValueOf(s).Convert(t)
+		case r.Ptr:
+			var s []*uintptr
+			if tu := uintptr(v.Uint()); tu != 0 {
+				a := (*[1 << 17]*uintptr)(unsafe.Pointer(tu)) //TODO(t): SIZE?
+				i := 0
+				for ; a[i] != nil; i++ {
+				}
+				if i > 0 {
+					s = make([]*uintptr, i)
+					for j := 0; j < i; j++ {
+						s[j] = a[j]
+					}
+				}
+				dispose(tu, t)
+			}
+			v = r.ValueOf(s).Convert(t)
 		default:
 			panic("only string slice return type valid")
 		}
@@ -616,8 +629,9 @@ func funcAnalysis(t r.Type) (ia uint32, sli []uint64, oa uint32, slo []uint64) {
 	for i := t.NumIn() - 1; i >= 0; i-- {
 		ia <<= 1
 		oa <<= 1
-		if t.In(i).Kind() == r.Ptr {
-			s := t.In(i).Elem()
+		ti := t.In(i)
+		if ti.Kind() == r.Ptr && ti.Elem().Kind() == r.Struct {
+			s := ti.Elem()
 			if s.Kind() == r.Struct && s.NumField() != 0 {
 				// if s.NumField() > 64 {
 				// 	panic("funcAnalysis: overflows 64 field limit")
@@ -656,6 +670,39 @@ func funcAnalysis(t r.Type) (ia uint32, sli []uint64, oa uint32, slo []uint64) {
 					slo = append(slo, sao)
 					oa |= 1
 				}
+			}
+		}
+	}
+	if t.NumOut() > 0 {
+		oa <<= 1
+		to := t.Out(0)
+		if to.Kind() == r.Ptr && to.Elem().Kind() == r.Struct {
+			s := to.Elem()
+			nf := s.NumField()
+			if nf > 64 {
+				nf = 64
+			}
+			var sao uint64
+			for j := nf - 1; j >= 0; j-- {
+				sao <<= 1
+				if f := s.Field(j); !f.Anonymous {
+					ft := f.Type
+					switch ft {
+					case vs:
+						sao |= 1
+					case ovs:
+						sao |= 1
+					default:
+						// switch ft.Kind() {
+						// case r.Func:
+						// 	sao |= 1
+						// }
+					}
+				}
+			}
+			if sao != 0 {
+				slo = append(slo, sao)
+				oa |= 1
 			}
 		}
 	}
