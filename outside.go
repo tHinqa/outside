@@ -15,6 +15,7 @@ import (
 
 //import . "fmt"
 
+//TODO(t): in/out flat structs within structs
 //TODO(t): check gc-proof
 //TODO(t): add type ReverseBool for calling code clarity?
 //TODO(t): size<32 returns?
@@ -150,6 +151,7 @@ func inStructs(unicode bool, a []r.Value, st uint32, sl []uint64) {
 				if sf&1 != 0 {
 					f := s.Field(j)
 					ft := f.Type()
+					// Println("in", s.Type().Field(j).Name, ft)
 					switch ft {
 					case ovs, vs: // Get rid of reconversions
 						if f.Pointer() > 0xFFFF { // Allows for Windows INTRESOURCE
@@ -218,6 +220,10 @@ func inStructs(unicode bool, a []r.Value, st uint32, sl []uint64) {
 }
 
 func outStructs(unicode bool, a []r.Value, st uint32, sl []uint64) {
+	if st&1 != 0 { // TODO(t): Handle return struct
+		sl = sl[1:]
+	}
+	st >>= 1 // TODO(t): Handle return struct
 	for i := 0; st != 0 && i < len(a); i++ {
 		if v := a[i]; st&1 != 0 && v.Pointer() != 0 {
 			s := r.Indirect(v)
@@ -230,9 +236,9 @@ func outStructs(unicode bool, a []r.Value, st uint32, sl []uint64) {
 				if sf&1 != 0 {
 					f := s.Field(j)
 					ft := f.Type()
+					// Println("out", s.Type().Field(j).Name, ft)
 					switch ft {
-					case ovs, vs: // Get rid of reconversions
-						//TODO(t):What happens on null!!!
+					case ovs, vs: // Get rid of reconversions?
 						if f.Pointer() > 0xFFFF {
 							var p string
 							if unicode {
@@ -464,12 +470,14 @@ func AddApis(am Apis) {
 				}
 			}
 		} else {
+			// name := a.Ep
 			apiCall = func(i []r.Value) []r.Value {
 				TOT++
 				var rr r.Value
 				inStructs(unicode, i, fai, sli)
 				ina := inArgs(unicode, i)
 				r1, r2, err := p.Call(ina...)
+				// Printf("%s %v %v %b %x %b %x\n", name, i, ot, fai, sli, fao, slo)
 				outStructs(unicode, i, fao, slo)
 				//TODO(t): handle Win64
 				if ot != nil {
@@ -673,8 +681,8 @@ func funcAnalysis(t r.Type) (ia uint32, sli []uint64, oa uint32, slo []uint64) {
 			}
 		}
 	}
+	oa <<= 1
 	if t.NumOut() > 0 {
-		oa <<= 1
 		to := t.Out(0)
 		if to.Kind() == r.Ptr && to.Elem().Kind() == r.Struct {
 			s := to.Elem()
