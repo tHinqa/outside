@@ -151,9 +151,9 @@ func inStructs(unicode bool, a []r.Value, st uint32, sl []uint64) {
 				if sf&1 != 0 {
 					f := s.Field(j)
 					ft := f.Type()
-					// Println("in", s.Type().Field(j).Name, ft)
 					switch ft {
 					case ovs, vs: // Get rid of reconversions
+						// Println("in", s.Type().Field(j).Name, ft, s.Type().Name(), s.UnsafeAddr())
 						if f.Pointer() > 0xFFFF { // Allows for Windows INTRESOURCE
 							ts := r.Indirect(f).String()
 							if ts != "" {
@@ -231,14 +231,13 @@ func outStructs(unicode bool, a []r.Value, st uint32, sl []uint64) {
 			//TODO(t): setup *string on init
 			sf := sl[len(sl)-1]
 			sl = sl[:len(sl)-1]
-			// Printf("%d %b\n", i, sf)
 			for j := 0; sf != 0 && j < s.NumField(); j++ {
 				if sf&1 != 0 {
 					f := s.Field(j)
 					ft := f.Type()
-					// Println("out", s.Type().Field(j).Name, ft)
 					switch ft {
 					case ovs, vs: // Get rid of reconversions?
+						// Println("out", s.Type().Field(j).Name, ft, s.Type().Name(), s.UnsafeAddr())
 						if f.Pointer() > 0xFFFF {
 							var p string
 							if unicode {
@@ -479,7 +478,6 @@ func AddApis(am Apis) {
 				r1, r2, err := p.Call(ina...)
 				// Printf("%s %v %v %b %x %b %x\n", name, i, ot, fai, sli, fao, slo)
 				outStructs(unicode, i, fao, slo)
-				//TODO(t): handle Win64
 				if ot != nil {
 					if ot.Size() == 4 {
 						rr = r.ValueOf(r1)
@@ -641,9 +639,6 @@ func funcAnalysis(t r.Type) (ia uint32, sli []uint64, oa uint32, slo []uint64) {
 		if ti.Kind() == r.Ptr && ti.Elem().Kind() == r.Struct {
 			s := ti.Elem()
 			if s.Kind() == r.Struct && s.NumField() != 0 {
-				// if s.NumField() > 64 {
-				// 	panic("funcAnalysis: overflows 64 field limit")
-				// }
 				nf := s.NumField()
 				if nf > 64 {
 					nf = 64
