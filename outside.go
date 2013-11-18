@@ -33,6 +33,7 @@ import (
 //TODO(t): optionally call method for er
 //TODO(t): Fix in-place modified cstring caching
 //TODO(t): Distinguish between funcs in Go and external
+//TODO(t): handle dispose in structs?
 
 type (
 	EP  string
@@ -51,8 +52,8 @@ var (
 var proxies []*syscall.Proc
 
 func init() {
-	var o POVString
-	var v PVString
+	var o *OVString
+	var v *VString
 	ovs = r.TypeOf(o)
 	vs = r.TypeOf(v)
 	dll, err := syscall.LoadDLL("outsideCall.dll")
@@ -152,6 +153,7 @@ func inStructs(unicode bool, a []r.Value, st uint32, sl []uint64) {
 					f := s.Field(j)
 					ft := f.Type()
 					switch ft {
+					//TODO(t): why did ovs get included
 					case ovs, vs: // Get rid of reconversions
 						// Println("in", s.Type().Field(j).Name, ft, s.Type().Name(), s.UnsafeAddr())
 						if f.Pointer() > 0xFFFF { // Allows for Windows INTRESOURCE
@@ -163,14 +165,14 @@ func inStructs(unicode bool, a []r.Value, st uint32, sl []uint64) {
 										t, _ = syscall.UTF16PtrFromString(ts)
 										//utfCstring[ts] = t //TODO(t):Fix caching
 									}
-									f.Set(r.ValueOf((PVString)(unsafe.Pointer(t))))
+									f.Set(r.ValueOf((*VString)(unsafe.Pointer(t))))
 								} else {
 									t := cString[ts]
 									if t == nil {
 										t, _ = syscall.BytePtrFromString(ts)
 										//cString[ts] = t //TODO(t):Fix caching
 									}
-									f.Set(r.ValueOf((PVString)(unsafe.Pointer(t))))
+									f.Set(r.ValueOf((*VString)(unsafe.Pointer(t))))
 								}
 							}
 						}
@@ -236,7 +238,19 @@ func outStructs(unicode bool, a []r.Value, st uint32, sl []uint64) {
 					f := s.Field(j)
 					ft := f.Type()
 					switch ft {
-					case ovs, vs: // Get rid of reconversions?
+					case ovs: // Get rid of reconversions?
+						// Println("out", s.Type().Field(j).Name, ft, s.Type().Name(), s.UnsafeAddr())
+						if f.Pointer() > 0xFFFF {
+							var p string
+							if unicode {
+								p = UniStrToString(f.Pointer())
+							} else {
+								p = CStrToString(f.Pointer())
+							}
+							var p2 = OVString(p)
+							f.Set(r.ValueOf(&p2))
+						}
+					case vs: // Get rid of reconversions?
 						// Println("out", s.Type().Field(j).Name, ft, s.Type().Name(), s.UnsafeAddr())
 						if f.Pointer() > 0xFFFF {
 							var p string
@@ -569,7 +583,7 @@ func convert(v r.Value, t r.Type, u bool) r.Value {
 }
 
 func dispose(v uintptr, t r.Type) {
-	if m, ok := t.MethodByName("Dispose"); ok && true {
+	if m, ok := t.MethodByName("Dispose"); ok {
 		// && m.Func.Type().NumIn() == 2 {
 		f := m.Func
 		tv := r.NewAt(f.Type().In(1).Elem(),
@@ -585,7 +599,6 @@ func CStrToString(cs uintptr) (ret string) {
 	b := (*[1 << 24]byte)(unsafe.Pointer(cs))
 	for i := 0; ; i++ {
 		if b[i] == 0 {
-			//TODO(t):fix when [::] goes live
 			ret = string(b[0:i])
 			return
 		}
@@ -599,7 +612,6 @@ func UniStrToString(cs uintptr) (ret string) {
 	b := (*[1 << 24]uint16)(unsafe.Pointer(cs))
 	for i := 0; ; i++ {
 		if b[i] == 0 {
-			//TODO(t):fix when [::] goes live
 			ret = syscall.UTF16ToString(b[0:i])
 			return
 		}
