@@ -30,7 +30,7 @@ import (
 //TODO(t): add race protection
 //TODO(t): lru deletion for cstring & utfcstring
 //TODO(t): analyse args and optimize inArgs
-//TODO(t): optionally call method for er
+//TODO(t): optionally call method for err
 //TODO(t): Fix in-place modified cstring caching
 //TODO(t): Distinguish between funcs in Go and external
 //TODO(t): handle dispose in structs?
@@ -47,6 +47,7 @@ type (
 
 var (
 	ovs, vs r.Type
+	rsaNo   = r.ValueOf(false)
 )
 
 var proxies []*syscall.Proc
@@ -478,12 +479,18 @@ func AddApis(am Apis) {
 					if et == nil {
 						return []r.Value{rr}
 					} else {
-						return []r.Value{rr, convert(r.ValueOf(err), et, unicode)}
+						return []r.Value{rr, convert(r.ValueOf(err), et, unicode, rsaNo)}
 					}
 				}
 			}
 		} else {
 			// name := a.Ep
+			retSizeArg := -1
+			if nOut >= 1 && ot.Kind() == r.Slice {
+				if sa, ok := ot.Elem().MethodByName("SizeArg"); ok {
+					retSizeArg = int(sa.Func.Call([]r.Value{r.New(ot.Elem()).Elem()})[0].Int() - 1)
+				}
+			}
 			apiCall = func(i []r.Value) []r.Value {
 				TOT++
 				var rr r.Value
@@ -499,10 +506,15 @@ func AddApis(am Apis) {
 						rr = r.ValueOf((uint64(r2) << 32) | uint64(r1))
 						//BUG: Go1.1.2 reflect sets incorrect 64bit value
 					}
+					vrsa := rsaNo
+					if retSizeArg != -1 {
+						vrsa = i[retSizeArg]
+					}
+					v1 := convert(rr, ot, unicode, vrsa)
 					if et == nil {
-						return []r.Value{convert(rr, ot, unicode)}
+						return []r.Value{v1}
 					} else {
-						return []r.Value{convert(rr, ot, unicode), convert(r.ValueOf(err), et, unicode)}
+						return []r.Value{v1, convert(r.ValueOf(err), et, unicode, rsaNo)}
 					}
 				} else {
 					return nil
@@ -514,7 +526,7 @@ func AddApis(am Apis) {
 	}
 }
 
-func convert(v r.Value, t r.Type, u bool) r.Value {
+func convert(v r.Value, t r.Type, u bool, sl r.Value) r.Value {
 	switch t.Kind() {
 	case r.Bool:
 		if uintptr(v.Uint()) == 0 {
@@ -542,21 +554,38 @@ func convert(v r.Value, t r.Type, u bool) r.Value {
 	case r.Slice:
 		switch t.Elem().Kind() {
 		case r.String:
-			var s []string
+			// TODO(t): Speed benefit if using pukka string
+			// var s []string
 			if tu := uintptr(v.Uint()); tu != 0 {
 				a := (*[1 << 16]uintptr)(unsafe.Pointer(tu)) //TODO(t): SIZE?
 				i := 0
-				for ; a[i] != 0; i++ {
+			again:
+				switch sl.Kind() {
+				case r.Ptr:
+					sl = sl.Elem()
+					goto again
+				case r.Uint64, r.Uint32, r.Uint16, r.Uint8, r.Uint:
+					i = int(sl.Uint())
+				case r.Int64, r.Int32, r.Int16, r.Int8, r.Int:
+					i = int(sl.Int())
+				case r.Bool:
+					for ; a[i] != 0; i++ {
+					}
 				}
 				if i > 0 {
-					s = make([]string, i)
+					// s = make([]string, i)
+					v = r.MakeSlice(t, 0, i)
 					for j := 0; j < i; j++ {
-						s[j] = CStrToString(a[j])
+						// s[j] = CStrToString(a[j])
+						// NOTE(t): Now way to index a slice as above?
+						v = r.Append(v, r.ValueOf(CStrToString(a[j])).Convert(t.Elem()))
 					}
 				}
 				dispose(tu, t)
+			} else {
+				v = r.Zero(t)
 			}
-			v = r.ValueOf(s).Convert(t)
+			// v = r.ValueOf(s).Convert(t)
 		case r.Ptr:
 			var s []*uintptr
 			if tu := uintptr(v.Uint()); tu != 0 {
