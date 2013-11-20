@@ -487,8 +487,8 @@ func AddApis(am Apis) {
 			// name := a.Ep
 			retSizeArg := -1
 			if nOut >= 1 && ot.Kind() == r.Slice {
-				if sa, ok := ot.Elem().MethodByName("SizeArg"); ok {
-					retSizeArg = int(sa.Func.Call([]r.Value{r.New(ot.Elem()).Elem()})[0].Int() - 1)
+				if sa, ok := ot.MethodByName("SizeArg"); ok {
+					retSizeArg = int(sa.Func.Call([]r.Value{r.Indirect(r.New(ot))})[0].Int() - 1)
 				}
 			}
 			apiCall = func(i []r.Value) []r.Value {
@@ -555,7 +555,7 @@ func convert(v r.Value, t r.Type, u bool, sl r.Value) r.Value {
 		switch t.Elem().Kind() {
 		case r.String:
 			// TODO(t): Speed benefit if using pukka string
-			// var s []string
+			var s []string
 			if tu := uintptr(v.Uint()); tu != 0 {
 				a := (*[1 << 16]uintptr)(unsafe.Pointer(tu)) //TODO(t): SIZE?
 				i := 0
@@ -573,19 +573,19 @@ func convert(v r.Value, t r.Type, u bool, sl r.Value) r.Value {
 					}
 				}
 				if i > 0 {
-					// s = make([]string, i)
-					v = r.MakeSlice(t, 0, i)
+					s = make([]string, i)
+					// v = r.MakeSlice(t, 0, i)
 					for j := 0; j < i; j++ {
-						// s[j] = CStrToString(a[j])
+						s[j] = CStrToString(a[j])
 						// NOTE(t): Now way to index a slice as above?
-						v = r.Append(v, r.ValueOf(CStrToString(a[j])).Convert(t.Elem()))
+						// v = r.Append(v, r.ValueOf(CStrToString(a[j])).Convert(t.Elem()))
 					}
 				}
 				dispose(tu, t)
-			} else {
-				v = r.Zero(t)
+				// } else {
+				// 	v = r.Zero(t)
 			}
-			// v = r.ValueOf(s).Convert(t)
+			v = r.ValueOf(s).Convert(t)
 		case r.Ptr:
 			var s []*uintptr
 			if tu := uintptr(v.Uint()); tu != 0 {
