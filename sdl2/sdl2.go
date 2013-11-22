@@ -1465,11 +1465,11 @@ var (
 
 	Init func(flags INIT) int
 
-	InitSubSystem func(flags uint32) int
+	InitSubSystem func(flags INIT) int
 
-	QuitSubSystem func(flags uint32)
+	QuitSubSystem func(flags INIT)
 
-	WasInit func(flags uint32) uint32
+	WasInit func(flags INIT) INIT
 
 	Quit func()
 

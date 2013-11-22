@@ -9,6 +9,13 @@ import (
 )
 
 func Test(t *testing.T) {
+	if Init(INIT_TIMER|INIT_VIDEO) < 0 {
+		t.Error(GetError())
+	}
+	Quit()
+}
+
+func aTest(t *testing.T) {
 	t.Log("GetPlatform", GetPlatform())
 	m := Malloc(4096)
 	t.Log("Malloc", m)
