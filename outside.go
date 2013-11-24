@@ -9,7 +9,6 @@ import (
 	"math"
 	"os"
 	r "reflect"
-	"syscall"
 	"unsafe"
 )
 
@@ -39,7 +38,7 @@ type (
 	EP  string
 	EPs []EP
 	ep  struct {
-		proc    *syscall.Proc
+		proc    *sproc
 		dll     string
 		unicode bool
 	}
@@ -50,22 +49,22 @@ var (
 	rsaNo   = r.ValueOf(false)
 )
 
-var proxies []*syscall.Proc
+var proxies []*sproc
 
 func init() {
 	var o *OVString
 	var v *VString
 	ovs = r.TypeOf(o)
 	vs = r.TypeOf(v)
-	dll, err := syscall.LoadDLL("outsideCall.dll")
+	dll, err := load("outsideCall.dll")
 	if err == nil {
-		proxies = make([]*syscall.Proc, 15)
+		proxies = make([]*sproc, 15)
 		one := ""
 		for i := 0; i < 15; i++ {
 			if i == 10 {
 				one = "1"
 			}
-			proxies[i] = dll.MustFindProc("doubleProxy" + one + string(48+i%10))
+			proxies[i] = dll.mustFindProc("doubleProxy" + one + string(48+i%10))
 		}
 	}
 }
@@ -73,7 +72,7 @@ func init() {
 var (
 	callbacks  = make(map[uintptr]uintptr)
 	cString    = make(map[string]*byte)
-	dllMap     = make(map[string]*syscall.DLL)
+	dllMap     = make(map[string]*sdll)
 	epMap      = make(map[EP]ep)
 	utfCstring = make(map[string]*uint16)
 	dataMap    = make(map[EP]r.Type)
@@ -82,7 +81,7 @@ var (
 //Total outside calls made
 var TOT uint64
 
-func GetProc(s string) *syscall.Proc {
+func GetProc(s string) *sproc {
 	m, ok := epMap[EP(s)]
 	if ok {
 		return m.proc
@@ -92,7 +91,7 @@ func GetProc(s string) *syscall.Proc {
 
 func DoneOutside() {
 	for _, d := range dllMap {
-		d.Release()
+		d.release()
 	}
 	callbacks = nil
 	cString = nil
@@ -102,12 +101,12 @@ func DoneOutside() {
 	dataMap = nil
 }
 
-func GetDLL(d string) *syscall.DLL {
+func GetDLL(d string) *sdll {
 	// TODO(t): RACE
 	// TODO(t): Make HModule return
 	ep, err := dllMap[d]
 	if err == false {
-		epa, err := syscall.LoadDLL(d)
+		epa, err := load(d)
 		if err == nil {
 			dllMap[d] = epa
 			return epa
@@ -163,14 +162,14 @@ func inStructs(unicode bool, a []r.Value, st uint32, sl []uint64) {
 								if unicode {
 									t := utfCstring[ts]
 									if t == nil {
-										t, _ = syscall.UTF16PtrFromString(ts)
+										t, _ = utf16PtrFromString(ts)
 										//utfCstring[ts] = t //TODO(t):Fix caching
 									}
 									f.Set(r.ValueOf((*VString)(unsafe.Pointer(t))))
 								} else {
 									t := cString[ts]
 									if t == nil {
-										t, _ = syscall.BytePtrFromString(ts)
+										t, _ = bytePtrFromString(ts)
 										//cString[ts] = t //TODO(t):Fix caching
 									}
 									f.Set(r.ValueOf((*VString)(unsafe.Pointer(t))))
@@ -205,7 +204,7 @@ func inStructs(unicode bool, a []r.Value, st uint32, sl []uint64) {
 									})
 									addr := unsafe.Pointer(s.Field(j).UnsafeAddr())
 									old := *(*uintptr)(addr)
-									ncb := syscall.NewCallback(m.Interface())
+									ncb := newCallback(m.Interface())
 									*(*uintptr)(addr) = ncb
 									// temporary - for reverse
 									callbacks[fc] = ncb
@@ -319,7 +318,7 @@ func inArgs(unicode bool, a []r.Value) []uintptr {
 						}
 						return x.Call(args)
 					})
-					ncb := syscall.NewCallback(m.Interface())
+					ncb := newCallback(m.Interface())
 					callbacks[f] = ncb
 				}
 				ret[i] = callbacks[f]
@@ -356,7 +355,7 @@ func inArgs(unicode bool, a []r.Value) []uintptr {
 			case r.String:
 				s := make([]*byte, v.Len()+1)
 				for i := 0; i < v.Len(); i++ {
-					s[i], _ = syscall.BytePtrFromString(v.Index(i).String())
+					s[i], _ = bytePtrFromString(v.Index(i).String())
 				}
 				ret[i] = (uintptr)(unsafe.Pointer(&s[0]))
 			case r.Interface:
@@ -372,14 +371,14 @@ func inArgs(unicode bool, a []r.Value) []uintptr {
 							if unicode {
 								t := utfCstring[s]
 								if t == nil {
-									t, _ = syscall.UTF16PtrFromString(s)
+									t, _ = utf16PtrFromString(s)
 									// utfCstring[s] = t //TODO(t):Fix caching
 								}
 								ret[i] = (uintptr)(unsafe.Pointer(t))
 							} else {
 								t := cString[s]
 								if t == nil {
-									t, _ = syscall.BytePtrFromString(s)
+									t, _ = bytePtrFromString(s)
 									// cString[s] = t //TODO(t):Fix caching
 								}
 								ret[i] = (uintptr)(unsafe.Pointer(t))
@@ -396,7 +395,7 @@ func inArgs(unicode bool, a []r.Value) []uintptr {
 						case r.String:
 							s := make([]*byte, v.Len()+1)
 							for i := 0; i < v.Len(); i++ {
-								s[i], _ = syscall.BytePtrFromString(v.Index(i).String())
+								s[i], _ = bytePtrFromString(v.Index(i).String())
 							}
 							ret[i] = (uintptr)(unsafe.Pointer(&s[0]))
 						}
@@ -413,14 +412,14 @@ func inArgs(unicode bool, a []r.Value) []uintptr {
 				if unicode {
 					t := utfCstring[s]
 					if t == nil {
-						t, _ = syscall.UTF16PtrFromString(s)
+						t, _ = utf16PtrFromString(s)
 						// utfCstring[s] = t //TODO(t):Fix caching
 					}
 					ret[i] = (uintptr)(unsafe.Pointer(t))
 				} else {
 					t := cString[s]
 					if t == nil {
-						t, _ = syscall.BytePtrFromString(s)
+						t, _ = bytePtrFromString(s)
 						// cString[s] = t //TODO(t):Fix caching
 					}
 					ret[i] = (uintptr)(unsafe.Pointer(t))
@@ -472,8 +471,8 @@ func AddApis(am Apis) {
 					inStructs(unicode, i, fai, sli)
 					ina := inArgs(unicode, i)
 					proxy := proxies[len(ina)]
-					ina2 := append([]uintptr{p.Addr()}, ina...)
-					r1, r2, err := proxy.Call(ina2...)
+					ina2 := append([]uintptr{p.addr()}, ina...)
+					r1, r2, err := proxy.call(ina2...)
 					outStructs(unicode, i, fao, slo)
 					rr = r.ValueOf(math.Float64frombits((uint64(r2) << 32) | uint64(r1)))
 					if et == nil {
@@ -496,7 +495,7 @@ func AddApis(am Apis) {
 				var rr r.Value
 				inStructs(unicode, i, fai, sli)
 				ina := inArgs(unicode, i)
-				r1, r2, err := p.Call(ina...)
+				r1, r2, err := p.call(ina...)
 				// Printf("%s %v %v %b %x %b %x\n", name, i, ot, fai, sli, fao, slo)
 				outStructs(unicode, i, fao, slo)
 				if ot != nil {
@@ -641,17 +640,17 @@ func UniStrToString(cs uintptr) (ret string) {
 	b := (*[1 << 24]uint16)(unsafe.Pointer(cs))
 	for i := 0; ; i++ {
 		if b[i] == 0 {
-			ret = syscall.UTF16ToString(b[0:i])
+			ret = utf16ToString(b[0:i])
 			return
 		}
 	}
 }
 
-func apiAddr(e EP) (p *syscall.Proc, u bool) {
+func apiAddr(e EP) (p *sproc, u bool) {
 	ps, ok := epMap[e]
 	if ok {
 		if ps.proc == nil {
-			t, err := GetDLL(ps.dll).FindProc(string(e))
+			t, err := GetDLL(ps.dll).findProc(string(e))
 			if err == nil {
 				ps.proc = t
 				//TODO(t): Race
@@ -787,5 +786,5 @@ func AddDllData(d string, unicode bool, am Data) {
 func GetData(e EP) interface{} {
 	p, _ := apiAddr(e)
 	t, _ := dataMap[e]
-	return r.NewAt(t, unsafe.Pointer(p.Addr())).Interface()
+	return r.NewAt(t, unsafe.Pointer(p.addr())).Interface()
 }
