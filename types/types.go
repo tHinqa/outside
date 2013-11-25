@@ -1,7 +1,7 @@
 package types
 
 import (
-	"syscall"
+	// "syscall"
 	"unsafe"
 )
 
@@ -35,7 +35,7 @@ func (us *UString) String() string {
 	b := (*[1 << 24]uint16)(unsafe.Pointer(us))
 	for i := 0; ; i++ {
 		if b[i] == 0 {
-			return syscall.UTF16ToString(b[0:i])
+			return utf16ToString(b[0:i])
 		}
 	}
 }

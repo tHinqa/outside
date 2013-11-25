@@ -1,0 +1,15 @@
+long call0(long);
+long call1(long,long);
+long call2(long,long,long);
+long call3(long,long,long,long);
+long call4(long,long,long,long,long);
+long call5(long,long,long,long,long,long);
+long call6(long,long,long,long,long,long,long);
+long call7(long,long,long,long,long,long,long,long);
+long call8(long,long,long,long,long,long,long,long,long);
+long call9(long,long,long,long,long,long,long,long,long,long);
+long call10(long,long,long,long,long,long,long,long,long,long,long);
+long call11(long,long,long,long,long,long,long,long,long,long,long,long);
+long call12(long,long,long,long,long,long,long,long,long,long,long,long,long);
+long call13(long,long,long,long,long,long,long,long,long,long,long,long,long,long);
+long call14(long,long,long,long,long,long,long,long,long,long,long,long,long,long,long);

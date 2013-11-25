@@ -9,6 +9,7 @@ import (
 	"math"
 	"os"
 	r "reflect"
+	"runtime"
 	"unsafe"
 )
 
@@ -33,6 +34,7 @@ import (
 //TODO(t): Fix in-place modified cstring caching
 //TODO(t): Distinguish between funcs in Go and external
 //TODO(t): handle dispose in structs?
+//TODO(t): add defer
 
 type (
 	EP  string
@@ -56,15 +58,17 @@ func init() {
 	var v *VString
 	ovs = r.TypeOf(o)
 	vs = r.TypeOf(v)
-	dll, err := load("outsideCall.dll")
-	if err == nil {
-		proxies = make([]*sproc, 15)
-		one := ""
-		for i := 0; i < 15; i++ {
-			if i == 10 {
-				one = "1"
+	if runtime.GOOS == "windows" {
+		dll, err := load("outsideCall.dll")
+		if err == nil {
+			proxies = make([]*sproc, 15)
+			one := ""
+			for i := 0; i < 15; i++ {
+				if i == 10 {
+					one = "1"
+				}
+				proxies[i] = dll.mustFindProc("doubleProxy" + one + string(48+i%10))
 			}
-			proxies[i] = dll.mustFindProc("doubleProxy" + one + string(48+i%10))
 		}
 	}
 }

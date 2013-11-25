@@ -1,3 +1,6 @@
+// Copyright (c) 2013 Tony Wilson. All rights reserved.
+// See LICENCE file for permissions and restrictions.
+
 package outside
 
 import "syscall"
@@ -16,6 +19,7 @@ func (sd *sdll) mustFindProc(s string) *sproc {
 	return (*sproc)((*syscall.DLL)(sd).MustFindProc(s))
 }
 
+//TODO(t): add error handling
 func (sd *sdll) release() {
 	(*syscall.DLL)(sd).Release()
 }
