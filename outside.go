@@ -6,7 +6,6 @@ package outside
 
 import (
 	. "github.com/tHinqa/outside/types"
-	"math"
 	"os"
 	r "reflect"
 	"runtime"
@@ -447,7 +446,6 @@ func AddDllApis(d string, unicode bool, am Apis) {
 
 func AddApis(am Apis) {
 	for _, a := range am {
-		p, unicode := apiAddr(a.Ep)
 		f := r.ValueOf(a.Fnc)
 		if f.Kind() != r.Ptr {
 			panic(r.TypeOf(a.Fnc).String() + " supplied : Pointer to function expected")
@@ -455,7 +453,6 @@ func AddApis(am Apis) {
 		fn := f.Elem()
 		fnt := fn.Type()
 		var apiCall func(i []r.Value) []r.Value
-		fai, sli, fao, slo := funcAnalysis(fnt)
 		//Allow 2 returns and put err in 2nd if supplied
 		var ot, et r.Type
 		nOut := fnt.NumOut()
@@ -466,27 +463,13 @@ func AddApis(am Apis) {
 			et = fnt.Out(1)
 		}
 		if ot != nil && fnt.Out(0).Kind() == r.Float64 {
-			if proxies == nil {
+			if runtime.GOOS == "windows" && proxies == nil {
 				panic("outsideCall.dll is not in path and is needed for a float64 return")
-			} else {
-				apiCall = func(i []r.Value) []r.Value {
-					TOT++
-					var rr r.Value
-					inStructs(unicode, i, fai, sli)
-					ina := inArgs(unicode, i)
-					proxy := proxies[len(ina)]
-					ina2 := append([]uintptr{p.addr()}, ina...)
-					r1, r2, err := proxy.call(ina2...)
-					outStructs(unicode, i, fao, slo)
-					rr = r.ValueOf(math.Float64frombits((uint64(r2) << 32) | uint64(r1)))
-					if et == nil {
-						return []r.Value{rr}
-					} else {
-						return []r.Value{rr, convert(r.ValueOf(err), et, unicode, rsaNo)}
-					}
-				}
 			}
+			apiCall = buildCall(a.Ep, fnt, et)
 		} else {
+			fai, sli, fao, slo := funcAnalysis(fnt)
+			p, unicode := apiAddr(a.Ep)
 			// name := a.Ep
 			retSizeArg := -1
 			if nOut >= 1 && ot.Kind() == r.Slice {

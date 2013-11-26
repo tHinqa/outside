@@ -5,11 +5,13 @@ package outside
 
 import (
 	"errors"
+	r "reflect"
 	"unsafe"
 )
 
 // #include "outside_linux.h"
 // #include <stdlib.h>
+// #include <math.h>
 // #include <dlfcn.h>
 // #cgo LDFLAGS: -ldl
 import "C"
@@ -86,10 +88,96 @@ func (sp *sproc) call(a ...uintptr) (r1, r2 uintptr, lastErr error) {
 		r1 = uintptr(C.call3(C.long(sp.addr()), C.long(a[0]), C.long(a[1]), C.long(a[2])))
 	case 4:
 		r1 = uintptr(C.call4(C.long(sp.addr()), C.long(a[0]), C.long(a[1]), C.long(a[2]), C.long(a[3])))
+	case 5:
+		r1 = uintptr(C.call5(C.long(sp.addr()), C.long(a[0]), C.long(a[1]), C.long(a[2]), C.long(a[3]), C.long(a[4])))
+	case 6:
+		r1 = uintptr(C.call6(C.long(sp.addr()), C.long(a[0]), C.long(a[1]), C.long(a[2]), C.long(a[3]), C.long(a[4]), C.long(a[5])))
+	case 7:
+		r1 = uintptr(C.call7(C.long(sp.addr()), C.long(a[0]), C.long(a[1]), C.long(a[2]), C.long(a[3]), C.long(a[4]), C.long(a[5]), C.long(a[6])))
+	case 8:
+		r1 = uintptr(C.call8(C.long(sp.addr()), C.long(a[0]), C.long(a[1]), C.long(a[2]), C.long(a[3]), C.long(a[4]), C.long(a[5]), C.long(a[6]), C.long(a[7])))
+	case 9:
+		r1 = uintptr(C.call9(C.long(sp.addr()), C.long(a[0]), C.long(a[1]), C.long(a[2]), C.long(a[3]), C.long(a[4]), C.long(a[5]), C.long(a[6]), C.long(a[7]), C.long(a[8])))
+	case 10:
+		r1 = uintptr(C.call10(C.long(sp.addr()), C.long(a[0]), C.long(a[1]), C.long(a[2]), C.long(a[3]), C.long(a[4]), C.long(a[5]), C.long(a[6]), C.long(a[7]), C.long(a[8]), C.long(a[9])))
+	case 11:
+		r1 = uintptr(C.call11(C.long(sp.addr()), C.long(a[0]), C.long(a[1]), C.long(a[2]), C.long(a[3]), C.long(a[4]), C.long(a[5]), C.long(a[6]), C.long(a[7]), C.long(a[8]), C.long(a[9]), C.long(a[10])))
+	case 12:
+		r1 = uintptr(C.call12(C.long(sp.addr()), C.long(a[0]), C.long(a[1]), C.long(a[2]), C.long(a[3]), C.long(a[4]), C.long(a[5]), C.long(a[6]), C.long(a[7]), C.long(a[8]), C.long(a[9]), C.long(a[10]), C.long(a[11])))
+	case 13:
+		r1 = uintptr(C.call13(C.long(sp.addr()), C.long(a[0]), C.long(a[1]), C.long(a[2]), C.long(a[3]), C.long(a[4]), C.long(a[5]), C.long(a[6]), C.long(a[7]), C.long(a[8]), C.long(a[9]), C.long(a[10]), C.long(a[11]), C.long(a[12])))
+	case 14:
+		r1 = uintptr(C.call14(C.long(sp.addr()), C.long(a[0]), C.long(a[1]), C.long(a[2]), C.long(a[3]), C.long(a[4]), C.long(a[5]), C.long(a[6]), C.long(a[7]), C.long(a[8]), C.long(a[9]), C.long(a[10]), C.long(a[11]), C.long(a[12]), C.long(a[13])))
+	case 15:
+		r1 = uintptr(C.call15(C.long(sp.addr()), C.long(a[0]), C.long(a[1]), C.long(a[2]), C.long(a[3]), C.long(a[4]), C.long(a[5]), C.long(a[6]), C.long(a[7]), C.long(a[8]), C.long(a[9]), C.long(a[10]), C.long(a[11]), C.long(a[12]), C.long(a[13]), C.long(a[14])))
 	}
 	return
 }
 
+func buildCall(Ep EP, fnt, et r.Type) func(i []r.Value) []r.Value {
+	fai, sli, fao, slo := funcAnalysis(fnt)
+	p, unicode := apiAddr(Ep)
+	return func(i []r.Value) []r.Value {
+		TOT++
+		var rr r.Value
+		inStructs(unicode, i, fai, sli)
+		a := inArgs(unicode, i)
+		var r1 float64
+		switch len(a) {
+		case 0:
+			r1 = float64(C.doubleCall0(C.long(p.addr())))
+		case 1:
+			r1 = float64(C.doubleCall1(C.long(p.addr()), C.long(a[0])))
+		case 2:
+			r1 = float64(C.doubleCall2(C.long(p.addr()), C.long(a[0]), C.long(a[1])))
+		case 3:
+			r1 = float64(C.doubleCall3(C.long(p.addr()), C.long(a[0]), C.long(a[1]), C.long(a[2])))
+		case 4:
+			r1 = float64(C.doubleCall4(C.long(p.addr()), C.long(a[0]), C.long(a[1]), C.long(a[2]), C.long(a[3])))
+		case 5:
+			r1 = float64(C.doubleCall5(C.long(p.addr()), C.long(a[0]), C.long(a[1]), C.long(a[2]), C.long(a[3]), C.long(a[4])))
+		case 6:
+			r1 = float64(C.doubleCall6(C.long(p.addr()), C.long(a[0]), C.long(a[1]), C.long(a[2]), C.long(a[3]), C.long(a[4]), C.long(a[5])))
+		case 7:
+			r1 = float64(C.doubleCall7(C.long(p.addr()), C.long(a[0]), C.long(a[1]), C.long(a[2]), C.long(a[3]), C.long(a[4]), C.long(a[5]), C.long(a[6])))
+		case 8:
+			r1 = float64(C.doubleCall8(C.long(p.addr()), C.long(a[0]), C.long(a[1]), C.long(a[2]), C.long(a[3]), C.long(a[4]), C.long(a[5]), C.long(a[6]), C.long(a[7])))
+		case 9:
+			r1 = float64(C.doubleCall9(C.long(p.addr()), C.long(a[0]), C.long(a[1]), C.long(a[2]), C.long(a[3]), C.long(a[4]), C.long(a[5]), C.long(a[6]), C.long(a[7]), C.long(a[8])))
+		case 10:
+			r1 = float64(C.doubleCall10(C.long(p.addr()), C.long(a[0]), C.long(a[1]), C.long(a[2]), C.long(a[3]), C.long(a[4]), C.long(a[5]), C.long(a[6]), C.long(a[7]), C.long(a[8]), C.long(a[9])))
+		case 11:
+			r1 = float64(C.doubleCall11(C.long(p.addr()), C.long(a[0]), C.long(a[1]), C.long(a[2]), C.long(a[3]), C.long(a[4]), C.long(a[5]), C.long(a[6]), C.long(a[7]), C.long(a[8]), C.long(a[9]), C.long(a[10])))
+		case 12:
+			r1 = float64(C.doubleCall12(C.long(p.addr()), C.long(a[0]), C.long(a[1]), C.long(a[2]), C.long(a[3]), C.long(a[4]), C.long(a[5]), C.long(a[6]), C.long(a[7]), C.long(a[8]), C.long(a[9]), C.long(a[10]), C.long(a[11])))
+		case 13:
+			r1 = float64(C.doubleCall13(C.long(p.addr()), C.long(a[0]), C.long(a[1]), C.long(a[2]), C.long(a[3]), C.long(a[4]), C.long(a[5]), C.long(a[6]), C.long(a[7]), C.long(a[8]), C.long(a[9]), C.long(a[10]), C.long(a[11]), C.long(a[12])))
+		case 14:
+			r1 = float64(C.doubleCall14(C.long(p.addr()), C.long(a[0]), C.long(a[1]), C.long(a[2]), C.long(a[3]), C.long(a[4]), C.long(a[5]), C.long(a[6]), C.long(a[7]), C.long(a[8]), C.long(a[9]), C.long(a[10]), C.long(a[11]), C.long(a[12]), C.long(a[13])))
+		case 15:
+			r1 = float64(C.doubleCall15(C.long(p.addr()), C.long(a[0]), C.long(a[1]), C.long(a[2]), C.long(a[3]), C.long(a[4]), C.long(a[5]), C.long(a[6]), C.long(a[7]), C.long(a[8]), C.long(a[9]), C.long(a[10]), C.long(a[11]), C.long(a[12]), C.long(a[13]), C.long(a[14])))
+		}
+		outStructs(unicode, i, fao, slo)
+		rr = r.ValueOf(r1)
+		if et == nil {
+			return []r.Value{rr}
+		} else {
+			return []r.Value{rr, convert(r.ValueOf(error(nil)), et, unicode, rsaNo)}
+		}
+	}
+}
+
 func direct() {
 	C.random()
+}
+
+func directFloor(d float64) {
+	C.floor(C.double(d))
+}
+
+var afloor uintptr
+
+func nonreflectFloor(d float64) {
+	i := (*[2]uint32)(unsafe.Pointer(&d))
+	C.doubleCall2(C.long(afloor), C.long(i[0]), C.long(i[1]))
 }

@@ -3,7 +3,11 @@
 
 package outside
 
-import "syscall"
+import (
+	"math"
+	r "reflect"
+	"syscall"
+)
 
 type sproc syscall.Proc
 
@@ -38,4 +42,25 @@ func (sp *sproc) addr() uintptr { return (*syscall.Proc)(sp).Addr() }
 
 func (sp *sproc) call(a ...uintptr) (r1, r2 uintptr, lastErr error) {
 	return (*syscall.Proc)(sp).Call(a...)
+}
+
+func buildCall(Ep EP, fnt, et r.Type) func(i []r.Value) []r.Value {
+	fai, sli, fao, slo := funcAnalysis(fnt)
+	p, unicode := apiAddr(Ep)
+	return func(i []r.Value) []r.Value {
+		TOT++
+		var rr r.Value
+		inStructs(unicode, i, fai, sli)
+		ina := inArgs(unicode, i)
+		ina2 := append([]uintptr{p.addr()}, ina...)
+		proxy := proxies[len(ina)]
+		r1, r2, err := proxy.call(ina2...)
+		outStructs(unicode, i, fao, slo)
+		rr = r.ValueOf(math.Float64frombits((uint64(r2) << 32) | uint64(r1)))
+		if et == nil {
+			return []r.Value{rr}
+		} else {
+			return []r.Value{rr, convert(r.ValueOf(err), et, unicode, rsaNo)}
+		}
+	}
 }

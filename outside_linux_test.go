@@ -32,6 +32,11 @@ func init() {
 		{"random", &random},
 		{"puts", &puts},
 	})
+	AddDllApis("libm.so.6", false, Apis{
+		{"floor", &floor},
+	})
+	a, _ := apiAddr("floor")
+	afloor = a.addr()
 }
 
 var srandom func(uint)
@@ -59,6 +64,14 @@ func TestOutside(t *testing.T) {
 	}
 }
 
+var floor func(float64) float64
+
+func aTestDoubleReturn(t *testing.T) {
+	if floor(123.456) != 123 {
+		t.Error("float64 return failed")
+	}
+}
+
 func Benchmark1(b *testing.B) {
 	for i := 0; i < b.N; i++ {
 		direct()
@@ -68,5 +81,23 @@ func Benchmark1(b *testing.B) {
 func Benchmark2(b *testing.B) {
 	for i := 0; i < b.N; i++ {
 		random()
+	}
+}
+
+func Benchmark3(b *testing.B) {
+	for i := 0; i < b.N; i++ {
+		directFloor(123.456)
+	}
+}
+
+func Benchmark4(b *testing.B) {
+	for i := 0; i < b.N; i++ {
+		nonreflectFloor(123.456)
+	}
+}
+
+func Benchmark5(b *testing.B) {
+	for i := 0; i < b.N; i++ {
+		floor(123.456)
 	}
 }
