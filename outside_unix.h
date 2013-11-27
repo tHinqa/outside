@@ -1,3 +1,6 @@
+// Copyright (c) 2013 Tony Wilson. All rights reserved.
+// See LICENCE file for permissions and restrictions.
+
 long call0( long);
 long call1( long,long);
 long call2( long,long,long);

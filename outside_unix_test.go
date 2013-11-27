@@ -1,9 +1,9 @@
 // Copyright (c) 2013 Tony Wilson. All rights reserved.
 // See LICENCE file for permissions and restrictions.
 
-package outside
+// +build linux
 
-// #include "outside_linux.h"
+package outside
 
 import "testing"
 

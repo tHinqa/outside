@@ -1,3 +1,8 @@
+// Copyright (c) 2013 Tony Wilson. All rights reserved.
+// See LICENCE file for permissions and restrictions.
+
+// +build linux
+
 typedef long (*f0)();
 typedef long (*f1)( long);
 typedef long (*f2)( long, long);

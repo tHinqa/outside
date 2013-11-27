@@ -1,6 +1,8 @@
 // Copyright (c) 2013 Tony Wilson. All rights reserved.
 // See LICENCE file for permissions and restrictions.
 
+// +build linux
+
 package outside
 
 import (
@@ -9,7 +11,7 @@ import (
 	"unsafe"
 )
 
-// #include "outside_linux.h"
+// #include "outside_unix.h"
 // #include <stdlib.h>
 // #include <math.h>
 // #include <dlfcn.h>
@@ -29,7 +31,7 @@ type sdll struct {
 
 type sproc struct {
 	dll     *sdll
-	name    string
+	Name    string
 	address uintptr
 }
 

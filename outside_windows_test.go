@@ -144,3 +144,12 @@ func TestErrRet(t *testing.T) {
 		t.Fatal("did not return error")
 	}
 }
+
+var xxx func()
+
+func TestNoEP(t *testing.T) {
+	AddDllApis("kernel32.dll", false, Apis{
+		{"xxx", &xxx},
+	})
+	xxx()
+}

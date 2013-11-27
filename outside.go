@@ -468,42 +468,48 @@ func AddApis(am Apis) {
 			}
 			apiCall = buildCall(a.Ep, fnt, et)
 		} else {
-			fai, sli, fao, slo := funcAnalysis(fnt)
 			p, unicode := apiAddr(a.Ep)
-			// name := a.Ep
-			retSizeArg := -1
-			if nOut >= 1 && ot.Kind() == r.Slice {
-				if sa, ok := ot.MethodByName("SizeArg"); ok {
-					retSizeArg = int(sa.Func.Call([]r.Value{r.Indirect(r.New(ot))})[0].Int() - 1)
+			if p != nil {
+				fai, sli, fao, slo := funcAnalysis(fnt)
+				// name := a.Ep
+				retSizeArg := -1
+				if nOut >= 1 && ot.Kind() == r.Slice {
+					if sa, ok := ot.MethodByName("SizeArg"); ok {
+						retSizeArg = int(sa.Func.Call([]r.Value{r.Indirect(r.New(ot))})[0].Int() - 1)
+					}
 				}
-			}
-			apiCall = func(i []r.Value) []r.Value {
-				TOT++
-				var rr r.Value
-				inStructs(unicode, i, fai, sli)
-				ina := inArgs(unicode, i)
-				r1, r2, err := p.call(ina...)
-				// Printf("%s %v %v %b %x %b %x\n", name, i, ot, fai, sli, fao, slo)
-				outStructs(unicode, i, fao, slo)
-				if ot != nil {
-					if ot.Size() == 4 {
-						rr = r.ValueOf(r1)
+				apiCall = func(i []r.Value) []r.Value {
+					TOT++
+					var rr r.Value
+					inStructs(unicode, i, fai, sli)
+					ina := inArgs(unicode, i)
+					r1, r2, err := p.call(ina...)
+					// Printf("%s %v %v %b %x %b %x\n", name, i, ot, fai, sli, fao, slo)
+					outStructs(unicode, i, fao, slo)
+					if ot != nil {
+						if ot.Size() == 4 {
+							rr = r.ValueOf(r1)
+						} else {
+							rr = r.ValueOf((uint64(r2) << 32) | uint64(r1))
+							//BUG: Go1.1.2 reflect sets incorrect 64bit value
+						}
+						vrsa := rsaNo
+						if retSizeArg != -1 {
+							vrsa = i[retSizeArg]
+						}
+						v1 := convert(rr, ot, unicode, vrsa)
+						if et == nil {
+							return []r.Value{v1}
+						} else {
+							return []r.Value{v1, convert(r.ValueOf(err), et, unicode, rsaNo)}
+						}
 					} else {
-						rr = r.ValueOf((uint64(r2) << 32) | uint64(r1))
-						//BUG: Go1.1.2 reflect sets incorrect 64bit value
+						return nil
 					}
-					vrsa := rsaNo
-					if retSizeArg != -1 {
-						vrsa = i[retSizeArg]
-					}
-					v1 := convert(rr, ot, unicode, vrsa)
-					if et == nil {
-						return []r.Value{v1}
-					} else {
-						return []r.Value{v1, convert(r.ValueOf(err), et, unicode, rsaNo)}
-					}
-				} else {
-					return nil
+				}
+			} else {
+				apiCall = func(i []r.Value) []r.Value {
+					panic("Call of non-existent procedure \"" + string(a.Ep) + "\"")
 				}
 			}
 		}
@@ -643,12 +649,12 @@ func apiAddr(e EP) (p *sproc, u bool) {
 				//TODO(t): Race
 				epMap[e] = ps
 			} else {
-				panic(err)
+				println(err.Error())
 			}
 		}
 		return ps.proc, ps.unicode
 	} else {
-		err := `"` + e + `" is not a known DLL entrypoint`
+		err := `"` + e + `" is not a known procedure`
 		println(err)
 		os.Exit(0)
 		return
