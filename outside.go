@@ -6,7 +6,6 @@ package outside
 
 import (
 	. "github.com/tHinqa/outside/types"
-	"os"
 	r "reflect"
 	"runtime"
 	"unsafe"
@@ -114,7 +113,7 @@ func GetDLL(d string) *sdll {
 			dllMap[d] = epa
 			return epa
 		} else {
-			panic(err)
+			panic("outside: " + err.Error())
 		}
 	}
 	return ep
@@ -403,8 +402,7 @@ func inArgs(unicode bool, a []r.Value) []uintptr {
 							ret[i] = (uintptr)(unsafe.Pointer(&s[0]))
 						}
 					default:
-						println(r.TypeOf(vi).Kind())
-						panic("Invalid type")
+						panic("outside: invalid type in interface: " + r.TypeOf(vi).Kind().String())
 					}
 					i++
 				}
@@ -429,8 +427,7 @@ func inArgs(unicode bool, a []r.Value) []uintptr {
 				}
 			}
 		default:
-			err := v.String() + ": type not handled"
-			panic(err)
+			panic("outside: " + v.String() + ": type not handled")
 		}
 		i++
 	}
@@ -448,7 +445,7 @@ func AddApis(am Apis) {
 	for _, a := range am {
 		f := r.ValueOf(a.Fnc)
 		if f.Kind() != r.Ptr {
-			panic(r.TypeOf(a.Fnc).String() + " supplied : Pointer to function expected")
+			panic("outside: " + r.TypeOf(a.Fnc).String() + " supplied : Pointer to function expected")
 		}
 		fn := f.Elem()
 		fnt := fn.Type()
@@ -464,7 +461,7 @@ func AddApis(am Apis) {
 		}
 		if ot != nil && fnt.Out(0).Kind() == r.Float64 {
 			if runtime.GOOS == "windows" && proxies == nil {
-				panic("outsideCall.dll is not in path and is needed for a float64 return")
+				panic("outside: outsideCall.dll is not in path and is needed for a float64 return")
 			}
 			apiCall = buildCall(a.Ep, fnt, et)
 		} else {
@@ -509,7 +506,7 @@ func AddApis(am Apis) {
 				}
 			} else {
 				apiCall = func(i []r.Value) []r.Value {
-					panic("Call of non-existent procedure \"" + string(a.Ep) + "\"")
+					panic(`outside: call of non-existent procedure "` + string(a.Ep) + `"`)
 				}
 			}
 		}
@@ -595,7 +592,7 @@ func convert(v r.Value, t r.Type, u bool, sl r.Value) r.Value {
 			}
 			v = r.ValueOf(s).Convert(t)
 		default:
-			panic("only string slice return type valid")
+			panic("outside: only string slice return type valid")
 		}
 	default:
 		v = v.Convert(t)
@@ -649,16 +646,12 @@ func apiAddr(e EP) (p *sproc, u bool) {
 				//TODO(t): Race
 				epMap[e] = ps
 			} else {
-				println(err.Error())
+				println("outside: " + err.Error())
 			}
 		}
 		return ps.proc, ps.unicode
 	} else {
-		err := `"` + e + `" is not a known procedure`
-		println(err)
-		os.Exit(0)
-		return
-		//panic(err)
+		panic(`outside: "` + e + `" is not a known procedure`)
 	}
 }
 
@@ -771,7 +764,7 @@ func AddDllData(d string, unicode bool, am Data) {
 		case r.Ptr:
 			dataMap[a.Name] = t.Elem()
 		default:
-			panic("\"" + k.String() + "\" supplied; *T expected")
+			panic(`outside: "` + k.String() + `" supplied; *T expected`)
 		}
 	}
 }

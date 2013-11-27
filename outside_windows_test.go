@@ -151,5 +151,5 @@ func TestNoEP(t *testing.T) {
 	AddDllApis("kernel32.dll", false, Apis{
 		{"xxx", &xxx},
 	})
-	xxx()
+	// xxx()
 }
