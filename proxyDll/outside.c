@@ -1,3 +1,6 @@
+// Copyright (c) 2013 Tony Wilson. All rights reserved.
+// See LICENCE file for permissions and restrictions.
+
 #include <stdio.h>
 
 typedef double (*f0)();

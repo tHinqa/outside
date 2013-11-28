@@ -461,7 +461,7 @@ func AddApis(am Apis) {
 		}
 		if ot != nil && fnt.Out(0).Kind() == r.Float64 {
 			if runtime.GOOS == "windows" && proxies == nil {
-				panic("outside: outsideCall.dll is not in path and is needed for a float64 return")
+				panic("outside: outside.dll is not in path and is needed for a float64 return")
 			}
 			apiCall = buildCall(a.Ep, fnt, et)
 		} else {
