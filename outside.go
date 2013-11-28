@@ -475,6 +475,7 @@ func AddApis(am Apis) {
 						retSizeArg = int(sa.Func.Call([]r.Value{r.Indirect(r.New(ot))})[0].Int() - 1)
 					}
 				}
+				ea, hasErrorMethod := ot.MethodByName("Error")
 				apiCall = func(i []r.Value) []r.Value {
 					TOT++
 					var rr r.Value
@@ -495,6 +496,13 @@ func AddApis(am Apis) {
 							vrsa = i[retSizeArg]
 						}
 						v1 := convert(rr, ot, unicode, vrsa)
+						if hasErrorMethod {
+							ret := ea.Func.Call([]r.Value{v1, r.ValueOf(err)})
+							v1 = ret[0]
+							if e := ret[1].Interface(); e != nil {
+								err = e.(error)
+							}
+						}
 						if et == nil {
 							return []r.Value{v1}
 						} else {
@@ -571,8 +579,6 @@ func convert(v r.Value, t r.Type, u bool, sl r.Value) r.Value {
 					}
 				}
 				dispose(tu, t)
-				// } else {
-				// 	v = r.Zero(t)
 			}
 			v = r.ValueOf(s).Convert(t)
 		case r.Ptr:

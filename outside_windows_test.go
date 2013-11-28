@@ -5,6 +5,7 @@ package outside
 
 import (
 	// . "fmt"
+	"errors"
 	. "github.com/tHinqa/outside/types"
 	"math"
 	"syscall"
@@ -36,6 +37,7 @@ func initAdds() {
 			{"FreeLibrary", &freeLibrary},
 			{"LoadLibraryA", &loadLibrary},
 			{"LoadLibraryA", &anotherLoadLibrary},
+			{"LoadLibraryA", &lastLoadLibrary},
 			{"GetModuleHandleA", &getModuleHandle},
 			{"GetProcAddress", &getProcAddress},
 		})
@@ -127,7 +129,7 @@ var x func(int, int) float64
 
 func TestProxy(t *testing.T) {
 	if proxies != nil {
-		AddDllApis("outsideCall.dll", false, Apis{{"x", &x}})
+		AddDllApis("outside.dll", false, Apis{{"x", &x}})
 		if math.Abs(math.Pi-x(355, 113)) > 3e-7 {
 			t.Fatal("double/float64 return not working")
 		}
@@ -152,4 +154,27 @@ func TestNoEP(t *testing.T) {
 		{"xxx", &xxx},
 	})
 	// xxx()
+}
+
+func (a hModule2) Error(i error) (hModule2, error) {
+	if a == 0 {
+		return 123, errors.New("123")
+	}
+	return a, nil
+}
+
+type hModule2 uintptr
+
+var lastLoadLibrary func(a string) (hModule2, error)
+
+func TestErrMethod(t *testing.T) {
+	a, e := lastLoadLibrary("missing")
+	if a != 123 || e.Error() != "123" {
+		t.Fatal("did not return error", a, e)
+	}
+	//TODO(t): Reflection doesn't allow return of nil error (
+	// a, e = lastLoadLibrary("kernel32.dll")
+	// if a != hModule2(h2) || e != nil {
+	// 	t.Fatal("returned error on success", a, e)
+	// }
 }
