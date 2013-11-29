@@ -126,15 +126,47 @@ func TestStdCall(t *testing.T) {
 }
 
 var x func(int, int) float64
+var x2 func(int, int) uint64
+
+var o *syscall.DLL
+var ox *syscall.Proc
+
+func init() {
+	if proxies != nil {
+		AddDllApis("outside.dll", false, Apis{{"x", &x}, {"x", &x2}})
+		o, ok := syscall.LoadDLL("outside.dll")
+		if ok == nil {
+			ox = o.MustFindProc("x")
+		}
+		println("Done\n\n")
+	}
+}
 
 func TestProxy(t *testing.T) {
-	if proxies != nil {
-		AddDllApis("outside.dll", false, Apis{{"x", &x}})
+	if o != nil {
 		if math.Abs(math.Pi-x(355, 113)) > 3e-7 {
 			t.Fatal("double/float64 return not working")
 		}
 	} else {
-		t.Log("double/float64 return disabled; outsideCall.dll not in path")
+		t.Log("double/float64 return disabled; outside.dll not in path")
+	}
+}
+
+func BenchmarkBaseX(b *testing.B) {
+	for i := 0; i < b.N; i++ {
+		ox.Call(355, 113)
+	}
+}
+
+func BenchmarkX(b *testing.B) {
+	for i := 0; i < b.N; i++ {
+		x(355, 113)
+	}
+}
+
+func BenchmarkX1(b *testing.B) {
+	for i := 0; i < b.N; i++ {
+		x2(355, 113)
 	}
 }
 

@@ -475,7 +475,11 @@ func AddApis(am Apis) {
 						retSizeArg = int(sa.Func.Call([]r.Value{r.Indirect(r.New(ot))})[0].Int() - 1)
 					}
 				}
-				ea, hasErrorMethod := ot.MethodByName("Error")
+				var hasErrorMethod bool
+				var ea r.Method
+				if ot != nil {
+					ea, hasErrorMethod = ot.MethodByName("Error")
+				}
 				apiCall = func(i []r.Value) []r.Value {
 					TOT++
 					var rr r.Value
@@ -652,7 +656,7 @@ func apiAddr(e EP) (p *sproc, u bool) {
 				//TODO(t): Race
 				epMap[e] = ps
 			} else {
-				println("outside: " + err.Error())
+				println("outside: " + err.Error() + "\n")
 			}
 		}
 		return ps.proc, ps.unicode
