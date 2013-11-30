@@ -23,6 +23,7 @@ type boolean uintptr
 type hModule uintptr
 
 var getProcAddress func(h hModule, a string) uintptr
+var getProcAddress0 func(h hModule, a string)
 var loadLibrary func(a string) hModule
 var getModuleHandle func(a string) hModule
 var freeLibrary func(hModule) boolean
@@ -36,13 +37,14 @@ func initAdds() {
 		AddDllApis("kernel32.dll", false, Apis{
 			{"FreeLibrary", &freeLibrary},
 			{"LoadLibraryA", &loadLibrary},
-			{"LoadLibraryA", &anotherLoadLibrary},
-			{"LoadLibraryA", &lastLoadLibrary},
 			{"GetModuleHandleA", &getModuleHandle},
 			{"GetProcAddress", &getProcAddress},
 		})
 		AddApis(Apis{
 			{"GetProcAddress", &getProcAddressV},
+			{"GetProcAddress", &getProcAddress0},
+			{"LoadLibraryA", &anotherLoadLibrary},
+			{"LoadLibraryA", &lastLoadLibrary},
 		})
 		h2 = loadLibrary("kernel32.dll")
 		a2 = getProcAddress(h2, "GetProcAddress")
@@ -71,6 +73,15 @@ func TestReflect(t *testing.T) {
 	if hl == 0 || al == 0 {
 		t.Fail()
 	}
+}
+
+func TestNoResult(t *testing.T) {
+	initAdds()
+	hl := loadLibrary("kernel32.dll")
+	if hl == 0 {
+		t.Fail()
+	}
+	getProcAddress0(hl, "GetProcAddress")
 }
 
 func BenchmarkReflect(b *testing.B) {
@@ -138,7 +149,6 @@ func init() {
 		if ok == nil {
 			ox = o.MustFindProc("x")
 		}
-		println("Done\n\n")
 	}
 }
 

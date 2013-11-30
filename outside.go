@@ -192,11 +192,11 @@ func inStructs(unicode bool, a []r.Value, st uint32, sl []uint64) {
 												tp := args[n].Pointer()
 												//TODO(t): Do INTRESOURCEs occur in callbacks?
 												if tp > 0xFFFF {
-													var p string
+													var p VString
 													if unicode {
-														p = UniStrToString(tp)
+														p = VString(UniStrToString(tp))
 													} else {
-														p = CStrToString(tp)
+														p = VString(CStrToString(tp))
 													}
 													args[n] = r.ValueOf(&p)
 												}
@@ -243,23 +243,22 @@ func outStructs(unicode bool, a []r.Value, st uint32, sl []uint64) {
 					case ovs: // Get rid of reconversions?
 						// Println("out", s.Type().Field(j).Name, ft, s.Type().Name(), s.UnsafeAddr())
 						if f.Pointer() > 0xFFFF {
-							var p string
+							var p OVString
 							if unicode {
-								p = UniStrToString(f.Pointer())
+								p = OVString(UniStrToString(f.Pointer()))
 							} else {
-								p = CStrToString(f.Pointer())
+								p = OVString(CStrToString(f.Pointer()))
 							}
-							var p2 = OVString(p)
-							f.Set(r.ValueOf(&p2))
+							f.Set(r.ValueOf(&p))
 						}
 					case vs: // Get rid of reconversions?
 						// Println("out", s.Type().Field(j).Name, ft, s.Type().Name(), s.UnsafeAddr())
 						if f.Pointer() > 0xFFFF {
-							var p string
+							var p VString
 							if unicode {
-								p = UniStrToString(f.Pointer())
+								p = VString(UniStrToString(f.Pointer()))
 							} else {
-								p = CStrToString(f.Pointer())
+								p = VString(CStrToString(f.Pointer()))
 							}
 							f.Set(r.ValueOf(&p))
 						}
@@ -308,13 +307,14 @@ func inArgs(unicode bool, a []r.Value) []uintptr {
 								tp := args[n].Pointer()
 								//TODO(t): Do INTRESOURCEs occur in callbacks?
 								if tp > 0xFFFF {
-									var p string
+									var p VString
 									if unicode {
-										p = UniStrToString(tp)
+										p = VString(UniStrToString(tp))
 									} else {
-										p = CStrToString(tp)
+										p = VString(CStrToString(tp))
 									}
 									args[n] = r.ValueOf(&p)
+
 								}
 							}
 						}
