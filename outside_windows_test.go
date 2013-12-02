@@ -4,7 +4,6 @@
 package outside
 
 import (
-	// . "fmt"
 	"errors"
 	. "github.com/tHinqa/outside/types"
 	"math"
@@ -145,7 +144,8 @@ var ox *syscall.Proc
 func init() {
 	if proxies != nil {
 		AddDllApis("outside.dll", false, Apis{{"x", &x}, {"x", &x2}})
-		o, ok := syscall.LoadDLL("outside.dll")
+		var ok error
+		o, ok = syscall.LoadDLL("outside.dll")
 		if ok == nil {
 			ox = o.MustFindProc("x")
 		}
@@ -158,7 +158,7 @@ func TestProxy(t *testing.T) {
 			t.Fatal("double/float64 return not working")
 		}
 	} else {
-		t.Log("double/float64 return disabled; outside.dll not in path")
+		t.Log("double/float64 return disabled; outside.dll not in path", o)
 	}
 }
 
@@ -214,7 +214,7 @@ func TestErrMethod(t *testing.T) {
 	if a != 123 || e.Error() != "123" {
 		t.Fatal("did not return error", a, e)
 	}
-	//TODO(t): Reflection doesn't allow return of nil error (
+	// TODO(t): Reflection doesn't allow return of nil error (
 	// a, e = lastLoadLibrary("kernel32.dll")
 	// if a != hModule2(h2) || e != nil {
 	// 	t.Fatal("returned error on success", a, e)

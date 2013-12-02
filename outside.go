@@ -57,7 +57,7 @@ func init() {
 	ovs = r.TypeOf(o)
 	vs = r.TypeOf(v)
 	if runtime.GOOS == "windows" {
-		dll, err := load("outsideCall.dll")
+		dll, err := load("outside.dll")
 		if err == nil {
 			proxies = make([]*sproc, 15)
 			one := ""
@@ -493,7 +493,6 @@ func AddApis(am Apis) {
 							rr = r.ValueOf(r1)
 						} else {
 							rr = r.ValueOf((uint64(r2) << 32) | uint64(r1))
-							//BUG: Go1.1.2 reflect sets incorrect 64bit value
 						}
 						vrsa := rsaNo
 						if retSizeArg != -1 {
@@ -505,6 +504,8 @@ func AddApis(am Apis) {
 							v1 = ret[0]
 							if e := ret[1].Interface(); e != nil {
 								err = e.(error)
+							} else {
+								err = nil
 							}
 						}
 						if et == nil {
@@ -578,7 +579,7 @@ func convert(v r.Value, t r.Type, u bool, sl r.Value) r.Value {
 					// v = r.MakeSlice(t, 0, i)
 					for j := 0; j < i; j++ {
 						s[j] = CStrToString(a[j])
-						// NOTE(t): Now way to index a slice as above?
+						// NOTE(t): New way to index a slice as above?
 						// v = r.Append(v, r.ValueOf(CStrToString(a[j])).Convert(t.Elem()))
 					}
 				}
