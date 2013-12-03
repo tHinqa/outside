@@ -605,6 +605,11 @@ func convert(v r.Value, t r.Type, u bool, sl r.Value) r.Value {
 		default:
 			panic("outside: only string slice return type valid")
 		}
+	case r.Interface:
+		if v == r.ValueOf(error(nil)) { // issue 6871
+			return r.Zero(r.TypeOf(make([]error, 1)).Elem())
+		}
+		fallthrough
 	default:
 		v = v.Convert(t)
 	}

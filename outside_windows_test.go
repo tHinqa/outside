@@ -214,9 +214,8 @@ func TestErrMethod(t *testing.T) {
 	if a != 123 || e.Error() != "123" {
 		t.Fatal("did not return error", a, e)
 	}
-	// TODO(t): Reflection doesn't allow return of nil error (
-	// a, e = lastLoadLibrary("kernel32.dll")
-	// if a != hModule2(h2) || e != nil {
-	// 	t.Fatal("returned error on success", a, e)
-	// }
+	a, e = lastLoadLibrary("kernel32.dll")
+	if a != hModule2(h2) || e != nil {
+		t.Fatal("returned error on success", a, e)
+	}
 }
