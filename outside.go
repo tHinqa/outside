@@ -138,7 +138,7 @@ type Apis []struct {
 	Fnc interface{}
 }
 
-//TODO(t):handle recursive structs
+//TODO(t):handle recursive structs?
 //TODO(t):check for unexported fields
 
 func inStructs(unicode bool, a []r.Value, st uint32, sl []uint64) {
@@ -536,12 +536,12 @@ func convert(v r.Value, t r.Type, u bool, sl r.Value) r.Value {
 		} else {
 			v = r.ValueOf(true)
 		}
-		v = v.Convert(t)
+		return v.Convert(t)
 	case r.Ptr:
-		v = r.NewAt(t.Elem(), unsafe.Pointer(uintptr(v.Uint())))
-		v = v.Convert(t) // in case something like SPtr (=*S)
+		//NOTE(t): Convert in case something like SPtr (=*S)
+		return r.NewAt(t.Elem(), unsafe.Pointer(uintptr(v.Uint()))).Convert(t)
 	case r.UnsafePointer:
-		v = r.ValueOf(unsafe.Pointer(uintptr(v.Uint())))
+		return r.ValueOf(unsafe.Pointer(uintptr(v.Uint())))
 	case r.String:
 		var s string
 		if tv := uintptr(v.Uint()); tv != 0 {
@@ -552,7 +552,7 @@ func convert(v r.Value, t r.Type, u bool, sl r.Value) r.Value {
 			}
 			dispose(tv, t)
 		}
-		v = r.ValueOf(s).Convert(t)
+		return r.ValueOf(s).Convert(t)
 	case r.Slice:
 		switch t.Elem().Kind() {
 		case r.String:
@@ -563,6 +563,7 @@ func convert(v r.Value, t r.Type, u bool, sl r.Value) r.Value {
 				i := 0
 			again:
 				switch sl.Kind() {
+				//TODO(t): limit to or must be? **
 				case r.Ptr:
 					sl = sl.Elem()
 					goto again
@@ -585,7 +586,7 @@ func convert(v r.Value, t r.Type, u bool, sl r.Value) r.Value {
 				}
 				dispose(tu, t)
 			}
-			v = r.ValueOf(s).Convert(t)
+			return r.ValueOf(s).Convert(t)
 		case r.Ptr:
 			var s []*uintptr
 			if tu := uintptr(v.Uint()); tu != 0 {
@@ -601,19 +602,18 @@ func convert(v r.Value, t r.Type, u bool, sl r.Value) r.Value {
 				}
 				dispose(tu, t)
 			}
-			v = r.ValueOf(s).Convert(t)
+			return r.ValueOf(s).Convert(t)
 		default:
 			panic("outside: only string slice return type valid")
 		}
 	case r.Interface:
-		if v == r.ValueOf(error(nil)) { // issue 6871
-			return r.Zero(r.TypeOf(make([]error, 1)).Elem())
+		if v == r.ValueOf(interface{}(nil)) { // issue 6871
+			return r.Zero(t)
 		}
-		fallthrough
+		return v.Convert(t)
 	default:
-		v = v.Convert(t)
+		return v.Convert(t)
 	}
-	return v
 }
 
 func dispose(v uintptr, t r.Type) {
