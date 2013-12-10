@@ -193,7 +193,7 @@ var xxx func()
 
 func TestNoEP(t *testing.T) {
 	AddDllApis("kernel32.dll", false, Apis{
-		{"xxx", &xxx},
+		{"NonExistent", &xxx},
 	})
 	// xxx()
 }
