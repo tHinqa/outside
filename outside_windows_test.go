@@ -142,13 +142,11 @@ var o *syscall.DLL
 var ox *syscall.Proc
 
 func init() {
-	if proxies != nil {
-		AddDllApis("outside.dll", false, Apis{{"x", &x}, {"x", &x2}})
-		var ok error
-		o, ok = syscall.LoadDLL("outside.dll")
-		if ok == nil {
-			ox = o.MustFindProc("x")
-		}
+	AddDllApis("outside.dll", false, Apis{{"x", &x}, {"x", &x2}})
+	var ok error
+	o, ok = syscall.LoadDLL("outside.dll")
+	if ok == nil {
+		ox = o.MustFindProc("x")
 	}
 }
 
@@ -158,7 +156,7 @@ func TestProxy(t *testing.T) {
 			t.Fatal("double/float64 return not working")
 		}
 	} else {
-		t.Log("double/float64 return disabled; outside.dll not in path", o)
+		t.Log("double/float64 return disabled; outside.dll not in path")
 	}
 }
 

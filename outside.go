@@ -48,11 +48,26 @@ var (
 	rsaNo   = r.ValueOf(false)
 )
 
+var proxies []*sproc
+
 func init() {
 	var o *OVString
 	var v *VString
 	ovs = r.TypeOf(o)
 	vs = r.TypeOf(v)
+	if runtime.GOOS == "windows" {
+		dll, err := load("outside.dll")
+		if err == nil {
+			proxies = make([]*sproc, 15)
+			one := ""
+			for i := 0; i < 15; i++ {
+				if i == 10 {
+					one = "1"
+				}
+				proxies[i] = dll.mustFindProc("doubleProxy" + one + string(48+i%10))
+			}
+		}
+	}
 }
 
 var (

@@ -12,22 +12,6 @@ import (
 // #include "outside_windows.h"
 import "C"
 
-var proxies []*sproc
-
-func init() {
-	dll, err := load("outside.dll")
-	if err == nil {
-		proxies = make([]*sproc, 15)
-		one := ""
-		for i := 0; i < 15; i++ {
-			if i == 10 {
-				one = "1"
-			}
-			proxies[i] = dll.mustFindProc("doubleProxy" + one + string(48+i%10))
-		}
-	}
-}
-
 type sproc syscall.Proc
 
 func load(n string) (sd *sdll, e error) {
