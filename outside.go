@@ -5,6 +5,7 @@
 package outside
 
 import (
+	"errors"
 	. "github.com/tHinqa/outside/types"
 	r "reflect"
 	"runtime"
@@ -49,12 +50,14 @@ var (
 )
 
 var proxies []*sproc
+var unknownError error
 
 func init() {
 	var o *OVString
 	var v *VString
 	ovs = r.TypeOf(o)
 	vs = r.TypeOf(v)
+	unknownError = errors.New("Unknown Error")
 	if runtime.GOOS == "windows" {
 		dll, err := load("outside.dll")
 		if err == nil {
@@ -499,6 +502,10 @@ func AddApis(am Apis) {
 						}
 						v1 := convert(rr, ot, unicode, vrsa)
 						if hasErrorMethod {
+							// TODO(t): for linux - error strategy
+							if err == nil {
+								err = unknownError
+							}
 							ret := ea.Func.Call([]r.Value{v1, r.ValueOf(err)})
 							v1 = ret[0]
 							if e := ret[1].Interface(); e != nil {
