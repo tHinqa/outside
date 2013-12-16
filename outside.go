@@ -503,10 +503,12 @@ func AddApis(am Apis) {
 						v1 := convert(rr, ot, unicode, vrsa)
 						if hasErrorMethod {
 							// TODO(t): for linux - error strategy
+							var ret []r.Value
 							if err == nil {
-								err = unknownError
+								ret = ea.Func.Call([]r.Value{v1, r.Zero(r.TypeOf(new(error)).Elem())}) // issue 6871
+							} else {
+								ret = ea.Func.Call([]r.Value{v1, r.ValueOf(err)})
 							}
-							ret := ea.Func.Call([]r.Value{v1, r.ValueOf(err)})
 							v1 = ret[0]
 							if e := ret[1].Interface(); e != nil {
 								err = e.(error)
