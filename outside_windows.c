@@ -1,11 +1,28 @@
 // Copyright (c) 2013 Tony Wilson. All rights reserved.
 // See LICENCE file for permissions and restrictions.
 
-typedef unsigned long uint;
+#include "runtime.h"
+#include "cgocall.h"
 
-typedef void __stdcall (*i18)(uint, uint, uint, uint, uint, uint, 	uint, uint, uint, uint, uint, uint, 	uint, uint, uint, uint, uint, uint);
+void runtime·asmstdcall(void *c);
 
-void f18(i18 f,uint a1,uint a2,uint a3,uint a4,uint a5,uint a6,uint a7,uint a8,uint a9,uint a10,uint a11,uint a12,uint a13,uint a14,uint a15,uint a16,uint a17,uint a18) {
-	f(a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,a11,a12,a13,a14,a15,a16,a17,a18);
-	return;
+// Based on syscall.Syscall (src/pkg/runtime/syscall_windows.goc):
+// Copyright 2009 The Go Authors. All rights reserved.
+// Use of this source code is governed by a BSD-style
+// license that can be found in the LICENSE file.
+// (in the Go directory)
+void ·callN(uintptr fn, uintptr nargs, uintptr *args,
+	uintptr r1, uintptr r2, uintptr err) {
+	WinCall c;
+
+	c.fn = (void*)fn;
+	c.n = nargs;
+	c.args = (void*)args;
+	runtime·cgocall(runtime·asmstdcall, &c);
+	err = c.err;
+	r1 = c.r1;
+	r2 = c.r2;
+	FLUSH(&r1);
+	FLUSH(&r2);
+	FLUSH(&err);
 }

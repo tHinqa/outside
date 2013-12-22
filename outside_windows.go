@@ -9,9 +9,6 @@ import (
 	"syscall"
 )
 
-// #include "outside_windows.h"
-import "C"
-
 type sproc syscall.Proc
 
 func load(n string) (sd *sdll, e error) {
@@ -43,15 +40,14 @@ func newCallback(cb interface{}) uintptr {
 
 func (sp *sproc) addr() uintptr { return (*syscall.Proc)(sp).Addr() }
 
+func callN(trap, nargs uintptr, a1 *uintptr) (r1, r2 uintptr, err syscall.Errno)
+
 func (sp *sproc) call(a ...uintptr) (r1, r2 uintptr, lastErr error) {
-	if len(a) <= 15 {
-		return (*syscall.Proc)(sp).Call(a...)
+	var aptr *uintptr
+	if len(a) > 0 {
+		aptr = &a[0]
 	}
-	if len(a) == 18 {
-		C.f18(C.uint(sp.addr()), C.uint(a[0]), C.uint(a[1]), C.uint(a[2]), C.uint(a[3]), C.uint(a[4]), C.uint(a[5]), C.uint(a[6]), C.uint(a[7]), C.uint(a[8]), C.uint(a[9]), C.uint(a[10]), C.uint(a[11]), C.uint(a[12]), C.uint(a[13]), C.uint(a[14]), C.uint(a[15]), C.uint(a[16]), C.uint(a[17]))
-		return
-	}
-	panic("argument count out of range 0..15,18")
+	return callN(sp.addr(), uintptr(len(a)), aptr)
 }
 
 func buildCall(Ep EP, fnt, et r.Type) func(i []r.Value) []r.Value {

@@ -7,6 +7,7 @@ package outside
 import (
 	"errors"
 	. "github.com/tHinqa/outside/types"
+	"math"
 	r "reflect"
 	"runtime"
 	"unsafe"
@@ -330,10 +331,14 @@ func inArgs(unicode bool, a []r.Value) []uintptr {
 		case r.Int8, r.Int16, r.Int32, r.Int:
 			ret[i] = uintptr(v.Int())
 		case r.Int64:
-			ret[i] = uintptr(v.Int())
-			i++
-			ret[i] = uintptr((v.Int() >> 32))
-			ret = append(ret, 0)
+			if runtime.GOARCH == "amd64" {
+				ret[i] = uintptr(v.Int())
+			} else {
+				ret[i] = uintptr(v.Int())
+				i++
+				ret[i] = uintptr((v.Int() >> 32))
+				ret = append(ret, 0)
+			}
 		case r.Uint8, r.Uint16, r.Uint32, r.Uint, r.Uintptr:
 			ret[i] = uintptr(v.Uint())
 		case r.Float32:
@@ -341,17 +346,25 @@ func inArgs(unicode bool, a []r.Value) []uintptr {
 			fv := *(*uint32)(unsafe.Pointer(&f))
 			ret[i] = uintptr(fv)
 		case r.Float64:
-			f := v.Float()
-			fv := *(*[2]uint32)(unsafe.Pointer(&f))
-			ret[i] = uintptr(fv[0])
-			i++
-			ret[i] = uintptr(fv[1])
-			ret = append(ret, 0)
+			if runtime.GOARCH == "amd64" {
+				ret[i] = uintptr(math.Float64bits(v.Float()))
+			} else {
+				f := math.Float64bits(v.Float())
+				//TODO(t): big-endian architecures/os?
+				ret[i] = uintptr(f & 0xFFFFFFFF)
+				i++
+				ret[i] = uintptr(f >> 32)
+				ret = append(ret, 0)
+			}
 		case r.Uint64:
-			ret[i] = uintptr(v.Uint())
-			i++
-			ret[i] = uintptr((v.Uint() >> 32))
-			ret = append(ret, 0)
+			if runtime.GOARCH == "amd64" {
+				ret[i] = uintptr(v.Uint())
+			} else {
+				ret[i] = uintptr(v.Uint())
+				i++
+				ret[i] = uintptr((v.Uint() >> 32))
+				ret = append(ret, 0)
+			}
 		case r.Ptr:
 			ret[i] = v.Pointer()
 		case r.Slice:
@@ -390,9 +403,11 @@ func inArgs(unicode bool, a []r.Value) []uintptr {
 						}
 					case r.Uintptr, r.Uint,
 						r.Uint8, r.Uint32, r.Uint16, r.Uint64:
+						// TODO(t): Add 64 -> 32x2 split for 32-bit
 						ret[i] = uintptr(r.ValueOf(vi).Uint())
 					case r.Int,
 						r.Int8, r.Int32, r.Int16, r.Int64:
+						// TODO(t): Add 64 -> 32x2 split for 32-bit
 						ret[i] = uintptr(r.ValueOf(vi).Int())
 					case r.Slice:
 						switch v.Type().Elem().Kind() {
@@ -491,7 +506,7 @@ func AddApis(am Apis) {
 					// Printf("%s %v %v %b %x %b %x\n", name, i, ot, fai, sli, fao, slo)
 					outStructs(unicode, i, fao, slo)
 					if ot != nil {
-						if ot.Size() == 4 {
+						if runtime.GOARCH == "amd64" || ot.Size() == 4 {
 							rr = r.ValueOf(r1)
 						} else {
 							rr = r.ValueOf((uint64(r2) << 32) | uint64(r1))
@@ -576,8 +591,10 @@ func convert(v r.Value, t r.Type, u bool, sl r.Value) r.Value {
 					sl = sl.Elem()
 					goto again
 				case r.Uint64, r.Uint32, r.Uint16, r.Uint8, r.Uint:
+					//TODO(t): make 64 work on 386/arm
 					i = int(sl.Uint())
 				case r.Int64, r.Int32, r.Int16, r.Int8, r.Int:
+					//TODO(t): make 64 work on 386/arm
 					i = int(sl.Int())
 				case r.Bool:
 					for ; a[i] != 0; i++ {

@@ -38,6 +38,7 @@ func initAdds() {
 			{"LoadLibraryA", &loadLibrary},
 			{"GetModuleHandleA", &getModuleHandle},
 			{"GetProcAddress", &getProcAddress},
+			{"AreFileApisANSI", &areFileApisANSI},
 		})
 		AddApis(Apis{
 			{"GetProcAddress", &getProcAddressV},
@@ -216,4 +217,10 @@ func TestErrMethod(t *testing.T) {
 	if a != hModule2(h2) || e != nil {
 		t.Fatal("returned error on success", a, e)
 	}
+}
+
+var areFileApisANSI func() bool
+
+func TestNoArgs(t *testing.T) {
+	t.Log("AreFileApisANSI:",areFileApisANSI())
 }
