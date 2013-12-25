@@ -50,7 +50,6 @@ var (
 	rsaNo   = r.ValueOf(false)
 )
 
-var proxies []*sproc
 var unknownError error
 
 func init() {
@@ -59,19 +58,6 @@ func init() {
 	ovs = r.TypeOf(o)
 	vs = r.TypeOf(v)
 	unknownError = errors.New("Unknown Error")
-	if runtime.GOOS == "windows" {
-		dll, err := load("outside.dll")
-		if err == nil {
-			proxies = make([]*sproc, 15)
-			one := ""
-			for i := 0; i < 15; i++ {
-				if i == 10 {
-					one = "1"
-				}
-				proxies[i] = dll.mustFindProc("doubleProxy" + one + string(48+i%10))
-			}
-		}
-	}
 }
 
 var (
@@ -476,10 +462,7 @@ func AddApis(am Apis) {
 		if nOut == 2 {
 			et = fnt.Out(1)
 		}
-		if ot != nil && fnt.Out(0).Kind() == r.Float64 {
-			if runtime.GOOS == "windows" && proxies == nil {
-				panic("outside: outside.dll is not in path and is needed for a float64 return")
-			}
+		if runtime.GOOS == "linux" && ot != nil && fnt.Out(0).Kind() == r.Float64 {
 			apiCall = buildCall(a.Ep, fnt, et)
 		} else {
 			p, unicode := apiAddr(a.Ep)
@@ -502,12 +485,14 @@ func AddApis(am Apis) {
 					var rr r.Value
 					inStructs(unicode, i, fai, sli)
 					ina := inArgs(unicode, i)
-					r1, r2, err := p.call(ina...)
+					r1, r2, f, err := p.call(ina...)
 					// Printf("%s %v %v %b %x %b %x\n", name, i, ot, fai, sli, fao, slo)
 					outStructs(unicode, i, fao, slo)
 					if ot != nil {
 						if runtime.GOARCH == "amd64" || ot.Size() == 4 {
 							rr = r.ValueOf(r1)
+						} else if fnt.Out(0).Kind() == r.Float64 || fnt.Out(0).Kind() == r.Float32 {
+							rr = r.ValueOf(f)
 						} else {
 							rr = r.ValueOf((uint64(r2) << 32) | uint64(r1))
 						}

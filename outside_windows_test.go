@@ -6,7 +6,6 @@ package outside
 import (
 	"errors"
 	. "github.com/tHinqa/outside/types"
-	"math"
 	"syscall"
 	"testing"
 	"unsafe"
@@ -136,49 +135,6 @@ func TestStdCall(t *testing.T) {
 	}
 }
 
-var x func(int, int) float64
-var x2 func(int, int) uint64
-
-var o *syscall.DLL
-var ox *syscall.Proc
-
-func init() {
-	AddDllApis("outside.dll", false, Apis{{"x", &x}, {"x", &x2}})
-	var ok error
-	o, ok = syscall.LoadDLL("outside.dll")
-	if ok == nil {
-		ox = o.MustFindProc("x")
-	}
-}
-
-func TestProxy(t *testing.T) {
-	if o != nil {
-		if math.Abs(math.Pi-x(355, 113)) > 3e-7 {
-			t.Fatal("double/float64 return not working")
-		}
-	} else {
-		t.Log("double/float64 return disabled; outside.dll not in path")
-	}
-}
-
-func BenchmarkBaseX(b *testing.B) {
-	for i := 0; i < b.N; i++ {
-		ox.Call(355, 113)
-	}
-}
-
-func BenchmarkX(b *testing.B) {
-	for i := 0; i < b.N; i++ {
-		x(355, 113)
-	}
-}
-
-func BenchmarkX1(b *testing.B) {
-	for i := 0; i < b.N; i++ {
-		x2(355, 113)
-	}
-}
-
 var anotherLoadLibrary func(a string) (hModule, error)
 
 func TestErrRet(t *testing.T) {
@@ -222,5 +178,5 @@ func TestErrMethod(t *testing.T) {
 var areFileApisANSI func() bool
 
 func TestNoArgs(t *testing.T) {
-	t.Log("AreFileApisANSI:",areFileApisANSI())
+	t.Log("AreFileApisANSI:", areFileApisANSI())
 }
