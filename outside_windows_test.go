@@ -6,6 +6,7 @@ package outside
 import (
 	"errors"
 	. "github.com/tHinqa/outside/types"
+	"runtime"
 	"syscall"
 	"testing"
 	"unsafe"
@@ -108,8 +109,16 @@ func BenchmarkReflectVariadic(b *testing.B) {
 	for i := 0; i < b.N; i++ {
 		r = getProcAddressV(h2, "LoadLibraryA")
 	}
-	if uintptr(r.(uint64)) != control {
-		b.Fail()
+	//TODO(t): find out these are inconsistent
+	if runtime.GOARCH == "amd64" {
+		if r != control {
+			b.Fail()
+		}
+	}
+	if runtime.GOARCH == "386" {
+		if uintptr(r.(uint64)) != control {
+			b.Fail()
+		}
 	}
 }
 
