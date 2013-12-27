@@ -61,13 +61,13 @@ void ·ccall(void *call) {
 	 * M to run goroutines while we are in the
 	 * foreign code.
 	 *
-	 * The call to asmcgocall is guaranteed not to
+	 * The call to asmcall is guaranteed not to
 	 * split the stack and does not allocate memory,
 	 * so it is safe to call while "in a system call", outside
 	 * the $GOMAXPROCS accounting.
 	 */
 	runtime·entersyscall();
-	runtime·asmcgocall(·asmcall,call);
+	runtime·asmcgocall(·asmcall,call); //TODO(t): combine asmcall and asmcgocall
 	runtime·exitsyscall();
 
 	if(g->defer != &d || d.fn != &endcgoV)
@@ -81,11 +81,11 @@ void ·ccall(void *call) {
 void ·callN(uintptr fn, uintptr nargs, uintptr *args,
 	uintptr r1, uintptr r2, float64 f, uintptr err) {
 
-	struct {
+	struct { // NOTE(t): based on WinCall
 		void	(*fn)(void*);
-		uintptr	n;	// number of parameters
+		uintptr	n;		// number of parameters
 		void*	args;	// parameters
-		uintptr	r1;	// return values
+		uintptr	r1;		// return values
 		uintptr	r2;
 		uintptr	err;	// error number
 		float64 f;

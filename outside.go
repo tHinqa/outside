@@ -10,6 +10,7 @@ import (
 	"math"
 	r "reflect"
 	"runtime"
+	"syscall"
 	"unsafe"
 )
 
@@ -462,73 +463,69 @@ func AddApis(am Apis) {
 		if nOut == 2 {
 			et = fnt.Out(1)
 		}
-		if runtime.GOOS == "linux" && ot != nil && fnt.Out(0).Kind() == r.Float64 {
-			apiCall = buildCall(a.Ep, fnt, et)
-		} else {
-			p, unicode := apiAddr(a.Ep)
-			if p != nil {
-				fai, sli, fao, slo := funcAnalysis(fnt)
-				// name := a.Ep
-				retSizeArg := -1
-				if nOut >= 1 && ot.Kind() == r.Slice {
-					if sa, ok := ot.MethodByName("SizeArg"); ok {
-						retSizeArg = int(sa.Func.Call([]r.Value{r.Indirect(r.New(ot))})[0].Int() - 1)
-					}
+		p, unicode := apiAddr(a.Ep)
+		if p != nil {
+			fai, sli, fao, slo := funcAnalysis(fnt)
+			// name := a.Ep
+			retSizeArg := -1
+			if nOut >= 1 && ot.Kind() == r.Slice {
+				if sa, ok := ot.MethodByName("SizeArg"); ok {
+					retSizeArg = int(sa.Func.Call([]r.Value{r.Indirect(r.New(ot))})[0].Int() - 1)
 				}
-				var hasErrorMethod bool
-				var ea r.Method
+			}
+			var hasErrorMethod bool
+			var ea r.Method
+			if ot != nil {
+				ea, hasErrorMethod = ot.MethodByName("Error")
+			}
+			apiCall = func(i []r.Value) []r.Value {
+				TOT++
+				var rr r.Value
+				inStructs(unicode, i, fai, sli)
+				ina := inArgs(unicode, i)
+				r1, r2, f, err := p.call(ina...)
+				// Printf("%s %v %v %b %x %b %x\n", name, i, ot, fai, sli, fao, slo)
+				outStructs(unicode, i, fao, slo)
 				if ot != nil {
-					ea, hasErrorMethod = ot.MethodByName("Error")
-				}
-				apiCall = func(i []r.Value) []r.Value {
-					TOT++
-					var rr r.Value
-					inStructs(unicode, i, fai, sli)
-					ina := inArgs(unicode, i)
-					r1, r2, f, err := p.call(ina...)
-					// Printf("%s %v %v %b %x %b %x\n", name, i, ot, fai, sli, fao, slo)
-					outStructs(unicode, i, fao, slo)
-					if ot != nil {
-						if runtime.GOARCH == "amd64" || ot.Size() == 4 {
-							rr = r.ValueOf(r1)
-						} else if fnt.Out(0).Kind() == r.Float64 || fnt.Out(0).Kind() == r.Float32 {
-							rr = r.ValueOf(f)
-						} else {
-							rr = r.ValueOf((uint64(r2) << 32) | uint64(r1))
-						}
-						vrsa := rsaNo
-						if retSizeArg != -1 {
-							vrsa = i[retSizeArg]
-						}
-						v1 := convert(rr, ot, unicode, vrsa)
-						if hasErrorMethod {
-							// TODO(t): for linux - error strategy
-							var ret []r.Value
-							if err == nil {
-								ret = ea.Func.Call([]r.Value{v1, r.Zero(r.TypeOf(new(error)).Elem())}) // issue 6871
-							} else {
-								ret = ea.Func.Call([]r.Value{v1, r.ValueOf(err)})
-							}
-							v1 = ret[0]
-							if e := ret[1].Interface(); e != nil {
-								err = e.(error)
-							} else {
-								err = nil
-							}
-						}
-						if et == nil {
-							return []r.Value{v1}
-						} else {
-							return []r.Value{v1, convert(r.ValueOf(err), et, unicode, rsaNo)}
-						}
+					if runtime.GOARCH == "amd64" || ot.Size() == 4 {
+						rr = r.ValueOf(r1)
+					} else if fnt.Out(0).Kind() == r.Float64 || fnt.Out(0).Kind() == r.Float32 {
+						rr = r.ValueOf(f)
 					} else {
-						return nil
+						rr = r.ValueOf((uint64(r2) << 32) | uint64(r1))
 					}
+					vrsa := rsaNo
+					if retSizeArg != -1 {
+						vrsa = i[retSizeArg]
+					}
+					v1 := convert(rr, ot, unicode, vrsa)
+					if hasErrorMethod {
+						// TODO(t): for linux - error strategy
+						var ret []r.Value
+						if err == nil {
+							ret = ea.Func.Call([]r.Value{v1, r.Zero(r.TypeOf(new(error)).Elem())}) // issue 6871
+						} else {
+							ret = ea.Func.Call([]r.Value{v1, r.ValueOf(err)})
+						}
+						v1 = ret[0]
+						if e := ret[1].Interface(); e != nil {
+							err = e.(error)
+						} else {
+							err = nil
+						}
+					}
+					if et == nil {
+						return []r.Value{v1}
+					} else {
+						return []r.Value{v1, convert(r.ValueOf(err), et, unicode, rsaNo)}
+					}
+				} else {
+					return nil
 				}
-			} else {
-				apiCall = func(i []r.Value) []r.Value {
-					panic(`outside: call of non-existent procedure "` + string(a.Ep) + `"`)
-				}
+			}
+		} else {
+			apiCall = func(i []r.Value) []r.Value {
+				panic(`outside: call of non-existent procedure "` + string(a.Ep) + `"`)
 			}
 		}
 		v := r.MakeFunc(fn.Type(), apiCall)
@@ -799,4 +796,14 @@ func GetData(e EP) interface{} {
 	p, _ := apiAddr(e)
 	t, _ := dataMap[e]
 	return r.NewAt(t, unsafe.Pointer(p.addr())).Interface()
+}
+
+func callN(trap, nargs uintptr, a1 *uintptr) (r1, r2 uintptr, f float64, err syscall.Errno)
+
+func (sp *sproc) call(a ...uintptr) (r1, r2 uintptr, f float64, lastErr error) {
+	var aptr *uintptr
+	if len(a) > 0 {
+		aptr = &a[0]
+	}
+	return callN(sp.addr(), uintptr(len(a)), aptr)
 }

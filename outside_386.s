@@ -19,10 +19,10 @@
 // void ·asmcall(void *c);
 TEXT ·asmcall(SB),NOSPLIT,$0
 	MOVL	c+0(FP), BX
-
+#ifdef GOOS_windows
 	// SetLastError(0).
 	MOVL	$0, 0x34(FS)
-
+#endif
 	// Copy args to the stack.
 	MOVL	SP, BP
 	MOVL	call_n(BX), CX	// words
@@ -45,8 +45,12 @@ TEXT ·asmcall(SB),NOSPLIT,$0
 	MOVL	DX, call_r2(BX)
 	FMOVDP	F0, call_f(BX)
 
+#ifdef GOOS_windows
 	// GetLastError().
 	MOVL	0x34(FS), AX
 	MOVL	AX, call_err(BX)
+#else
+	MOVL	$0, call_err(BX)
+#endif
 
 	RET

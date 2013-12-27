@@ -4,7 +4,6 @@
 package outside
 
 import (
-	r "reflect"
 	"syscall"
 )
 
@@ -38,17 +37,3 @@ func newCallback(cb interface{}) uintptr {
 }
 
 func (sp *sproc) addr() uintptr { return (*syscall.Proc)(sp).Addr() }
-
-func callN(trap, nargs uintptr, a1 *uintptr) (r1, r2 uintptr, f float64, err syscall.Errno)
-
-func (sp *sproc) call(a ...uintptr) (r1, r2 uintptr, f float64, lastErr error) {
-	var aptr *uintptr
-	if len(a) > 0 {
-		aptr = &a[0]
-	}
-	return callN(sp.addr(), uintptr(len(a)), aptr)
-}
-
-func buildCall(Ep EP, fnt, et r.Type) func(i []r.Value) []r.Value {
-	panic("should not occur")
-}
